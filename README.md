@@ -35,18 +35,20 @@ Soon I hope to add the following features
 ## Running with Docker
 
 ```
-read -p "Enter your LAN ip address: " external_address
+# Note that the hard coded WIREGUARD_PRIVATE_KEY is clearly
+# not secure, please don't accidently copy-paste it to a real
+# system.
+# You can generate a wireguard private key using:
+#    umask 077; wg genkey > privatekey
 docker run \
   -it \
   --rm \
   --name wg \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
+  --network host \
   -v wgdata:/data \
-  -p 8000:8000/tcp \
-  -p 51820:51820/udp \
   -e WIREGUARD_PRIVATE_KEY="kH4F1lldSzgEMB7wfQ1ccujAhZCCCCEeh2Kvhxf+XFw=" \
-  -e WEB_EXTERNAL_ADDRESS="$external_address" \
   place1/wireguard-access-server:0.0.1
 ```
 
