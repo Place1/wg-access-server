@@ -1,4 +1,4 @@
-package wg
+package services
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
-type Server struct {
+type WireGuard struct {
 	client       *wgctrl.Client
 	iface        string
 	externalName string
@@ -21,7 +21,7 @@ type Server struct {
 	lock         sync.Mutex
 }
 
-func New(iface string, privateKey string, port int, externalName string) (*Server, error) {
+func NewWireGuard(iface string, privateKey string, port int, externalName string) (*WireGuard, error) {
 	// wgctrl.New() will search for a kernel implementation
 	// of wireguard, then user implementations
 	// user implementations are found in /var/run/wireguard/<iface>.sock
@@ -34,7 +34,7 @@ func New(iface string, privateKey string, port int, externalName string) (*Serve
 	if err != nil {
 		return nil, errors.Wrap(err, "bad private key format")
 	}
-	server := &Server{
+	server := &WireGuard{
 		client:       client,
 		iface:        iface,
 		port:         port,
@@ -52,7 +52,7 @@ func New(iface string, privateKey string, port int, externalName string) (*Serve
 	return server, nil
 }
 
-func (s *Server) AddPeer(publicKey string, addressCIDR string) error {
+func (s *WireGuard) AddPeer(publicKey string, addressCIDR string) error {
 	logrus.
 		WithField("publicKey", publicKey).
 		WithField("address", addressCIDR).
@@ -80,7 +80,7 @@ func (s *Server) AddPeer(publicKey string, addressCIDR string) error {
 	})
 }
 
-func (s *Server) ListPeers() ([]wgtypes.Peer, error) {
+func (s *WireGuard) ListPeers() ([]wgtypes.Peer, error) {
 	d, err := s.Device()
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (s *Server) ListPeers() ([]wgtypes.Peer, error) {
 	return d.Peers, nil
 }
 
-func (s *Server) Peer(publicKey string) (*wgtypes.Peer, error) {
+func (s *WireGuard) Peer(publicKey string) (*wgtypes.Peer, error) {
 	peers, err := s.ListPeers()
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func (s *Server) Peer(publicKey string) (*wgtypes.Peer, error) {
 	return nil, fmt.Errorf("peer with public key '%s' not found", publicKey)
 }
 
-func (s *Server) HasPeer(publicKey string) bool {
+func (s *WireGuard) HasPeer(publicKey string) bool {
 	peers, err := s.ListPeers()
 	if err != nil {
 		logrus.Error(errors.Wrap(err, "failed to list peers"))
@@ -115,7 +115,7 @@ func (s *Server) HasPeer(publicKey string) bool {
 	return false
 }
 
-func (s *Server) RemovePeer(publicKey string) error {
+func (s *WireGuard) RemovePeer(publicKey string) error {
 	logrus.WithField("publicKey", publicKey).Debug("removing peer")
 	key, err := wgtypes.ParseKey(publicKey)
 	if err != nil {
@@ -133,27 +133,27 @@ func (s *Server) RemovePeer(publicKey string) error {
 	})
 }
 
-func (s *Server) PublicKey() string {
+func (s *WireGuard) PublicKey() string {
 	return s.publicKey.String()
 }
 
-func (s *Server) Endpoint() string {
+func (s *WireGuard) Endpoint() string {
 	return fmt.Sprintf("%s:%d", s.externalName, s.port)
 }
 
-func (s *Server) DNS() string {
+func (s *WireGuard) DNS() string {
 	return "1.1.1.1, 8.8.8.8" // TODO: dns stuff
 }
 
-func (s *Server) Device() (*wgtypes.Device, error) {
+func (s *WireGuard) Device() (*wgtypes.Device, error) {
 	return s.client.Device(s.iface)
 }
 
-func (s *Server) Close() error {
+func (s *WireGuard) Close() error {
 	return s.client.Close()
 }
 
-func (s *Server) configure(cb func(*wgtypes.Config) error) error {
+func (s *WireGuard) configure(cb func(*wgtypes.Config) error) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	next := wgtypes.Config{}

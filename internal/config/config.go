@@ -16,7 +16,8 @@ import (
 )
 
 type AppConfig struct {
-	Web struct {
+	Mode string
+	Web  struct {
 		// ExternalAddress is the address that
 		// clients should use to connect to this
 		// server. It will be used in generated

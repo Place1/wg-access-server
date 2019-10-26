@@ -8,7 +8,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/place1/wireguard-access-server/internal/storage"
-	"github.com/place1/wireguard-access-server/internal/wg"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,11 +24,11 @@ func nextPeerID() int {
 }
 
 type DeviceManager struct {
-	wgserver *wg.Server
+	wgserver *WireGuard
 	storage  storage.Storage
 }
 
-func NewDeviceManager(w *wg.Server, s storage.Storage) *DeviceManager {
+func NewDeviceManager(w *WireGuard, s storage.Storage) *DeviceManager {
 	return &DeviceManager{w, s}
 }
 
