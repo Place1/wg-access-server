@@ -33,7 +33,7 @@ docker run \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
   -v wgdata:/data \
-  -v "$(pwd)"/../config-demo.yaml:/config-demo.yaml \
+  -v "$(pwd)"/config-demo.yaml:/config-demo.yaml \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
   demo /server --config /config-demo.yaml

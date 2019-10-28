@@ -49,8 +49,7 @@ func NewDexServer(session *scs.SessionManager, externalAddr string, port int, co
 		}
 	}
 
-	s := storage.WithStaticConnectors(memory.New(logrus.New()), connectors)
-	s = storage.WithStaticClients(s, []storage.Client{
+	s := storage.WithStaticClients(memory.New(logrus.New()), []storage.Client{
 		storage.Client{
 			ID:           "internal",
 			Name:         "internal",
@@ -58,7 +57,12 @@ func NewDexServer(session *scs.SessionManager, externalAddr string, port int, co
 			Secret:       "dummy-secret",
 		},
 	})
-	s = storage.WithStaticPasswords(s, []storage.Password{}, logrus.New())
+	if len(connectors) > 0 {
+		s = storage.WithStaticConnectors(s, connectors)
+	}
+	if len(users) > 0 {
+		s = storage.WithStaticPasswords(s, users, logrus.New())
+	}
 
 	serv, err := server.NewServer(context.TODO(), server.Config{
 		Logger:             logrus.New(),

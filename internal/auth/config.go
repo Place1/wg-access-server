@@ -12,8 +12,8 @@ type Config struct {
 }
 
 type StaticUser struct {
-	Email    string
-	Password string
+	Email    string `yaml:"email"`
+	Password string `yaml:"password"`
 }
 
 type AuthConnector interface {
