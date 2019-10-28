@@ -167,6 +167,10 @@ func Read() *AppConfig {
 	return &config
 }
 
+func IsAuthEnabled(config *AppConfig) bool {
+	return config.Auth.OIDC != nil || config.Auth.Gitlab != nil || config.Auth.StaticUser != nil
+}
+
 func defaultInterface() (string, error) {
 	links, err := netlink.LinkList()
 	if err != nil {

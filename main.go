@@ -19,14 +19,14 @@ import (
 )
 
 func main() {
-	config := config.Read()
+	conf := config.Read()
 
 	// Userspace wireguard command
-	if config.WireGuard.UserspaceImplementation != "" {
+	if conf.WireGuard.UserspaceImplementation != "" {
 		go func() {
 			// execute the userspace wireguard implementation
 			// if it exists/crashes for some reason then we'll also crash
-			if err := services.ExecUserWireGuard(config.WireGuard.UserspaceImplementation, config.WireGuard.InterfaceName); err != nil {
+			if err := services.ExecUserWireGuard(conf.WireGuard.UserspaceImplementation, conf.WireGuard.InterfaceName); err != nil {
 				logrus.Fatal(err)
 			}
 		}()
@@ -39,10 +39,10 @@ func main() {
 
 	// WireGuard
 	wgserver, err := services.NewWireGuard(
-		config.WireGuard.InterfaceName,
-		config.WireGuard.PrivateKey,
-		config.WireGuard.Port,
-		config.WireGuard.ExternalAddress,
+		conf.WireGuard.InterfaceName,
+		conf.WireGuard.PrivateKey,
+		conf.WireGuard.Port,
+		conf.WireGuard.ExternalAddress,
 	)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to create wgserver"))
@@ -52,12 +52,12 @@ func main() {
 	logrus.Infof("wireguard endpoint is %s", wgserver.Endpoint())
 
 	// Networking configuration
-	if err := services.ConfigureRouting(config.WireGuard.InterfaceName, config.VPN.CIDR); err != nil {
+	if err := services.ConfigureRouting(conf.WireGuard.InterfaceName, conf.VPN.CIDR); err != nil {
 		logrus.Fatal(err)
 	}
-	if config.VPN.GatewayInterface != "" {
-		logrus.Infof("vpn gateway interface is %s", config.VPN.GatewayInterface)
-		if err := services.ConfigureForwarding(config.WireGuard.InterfaceName, config.VPN.GatewayInterface, config.VPN.CIDR); err != nil {
+	if conf.VPN.GatewayInterface != "" {
+		logrus.Infof("vpn gateway interface is %s", conf.VPN.GatewayInterface)
+		if err := services.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR); err != nil {
 			logrus.Fatal(err)
 		}
 	} else {
@@ -66,14 +66,14 @@ func main() {
 
 	// Storage
 	var storageDriver storage.Storage
-	if config.Storage.Directory != "" {
-		storageDriver = storage.NewDiskStorage(config.Storage.Directory)
+	if conf.Storage.Directory != "" {
+		storageDriver = storage.NewDiskStorage(conf.Storage.Directory)
 	} else {
 		storageDriver = storage.NewMemoryStorage()
 	}
 
 	// Services
-	deviceManager := services.NewDeviceManager(wgserver, storageDriver, config.VPN.CIDR)
+	deviceManager := services.NewDeviceManager(wgserver, storageDriver, conf.VPN.CIDR)
 	if err := deviceManager.Sync(); err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}
@@ -84,13 +84,13 @@ func main() {
 
 	// Router
 	router := mux.NewRouter()
-	if dex := dexIntegration(config, session); dex != nil {
+	if dex := dexIntegration(conf, session); dex != nil {
 		router.PathPrefix("/auth").Handler(dex)
 	}
 	secureRouter := router.PathPrefix("/").Subrouter()
 	secureRouter.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if session.GetString(r.Context(), "auth/subject") == "" {
+			if config.IsAuthEnabled(conf) && session.GetString(r.Context(), "auth/subject") == "" {
 				http.Redirect(w, r, "/auth/login", http.StatusTemporaryRedirect)
 			} else {
 				next.ServeHTTP(w, r)
@@ -103,8 +103,8 @@ func main() {
 	secureRouter.PathPrefix("/").Handler(http.FileServer(http.Dir("website/build")))
 
 	// Listen
-	address := fmt.Sprintf("0.0.0.0:%d", config.Web.Port)
-	logrus.Infof("website external address is %s", config.Web.ExternalAddress)
+	address := fmt.Sprintf("0.0.0.0:%d", conf.Web.Port)
+	logrus.Infof("website external address is %s", conf.Web.ExternalAddress)
 	logrus.Infof("website listening on %s", address)
 	if err := http.ListenAndServe(address, session.LoadAndSave(router)); err != nil {
 		logrus.Fatal(errors.Wrap(err, "server exited"))
