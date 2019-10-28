@@ -125,10 +125,7 @@ func dexIntegration(config *config.AppConfig, session *scs.SessionManager) *mux.
 	if len(authBackends) > 0 {
 		c.Connectors = authBackends
 	}
-	if config.Auth.StaticUser != nil {
-		c.StaticUsers = []auth.StaticUser{*config.Auth.StaticUser}
-	}
-	if c.Connectors != nil || c.StaticUsers != nil {
+	if c.Connectors != nil {
 		dex, err := auth.NewDexServer(session, config.Web.ExternalAddress, config.Web.Port, c)
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err, "failed to initialize auth system"))

@@ -76,9 +76,8 @@ type AppConfig struct {
 		GatewayInterface string `yaml:"gatewayInterface`
 	}
 	Auth struct {
-		OIDC       *auth.OIDCConfig   `yaml:"oidc"`
-		Gitlab     *auth.GitlabConfig `yaml:"gitlab"`
-		StaticUser *auth.StaticUser   `yaml:"staticUser"`
+		OIDC   *auth.OIDCConfig   `yaml:"oidc"`
+		Gitlab *auth.GitlabConfig `yaml:"gitlab"`
 	} `yaml:"auth"`
 }
 
@@ -168,7 +167,7 @@ func Read() *AppConfig {
 }
 
 func IsAuthEnabled(config *AppConfig) bool {
-	return config.Auth.OIDC != nil || config.Auth.Gitlab != nil || config.Auth.StaticUser != nil
+	return config.Auth.OIDC != nil || config.Auth.Gitlab != nil
 }
 
 func defaultInterface() (string, error) {

@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/pkg/errors"
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/alexedwards/scs/v2"
 	"github.com/coreos/go-oidc"
 	"github.com/dexidp/dex/storage"
@@ -27,21 +24,6 @@ type DexIntegration struct {
 }
 
 func NewDexServer(session *scs.SessionManager, externalAddr string, port int, config Config) (*DexIntegration, error) {
-
-	users := []storage.Password{}
-	if config.StaticUsers != nil {
-		for _, u := range config.StaticUsers {
-			h, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to hash password for static user")
-			}
-			users = append(users, storage.Password{
-				Email: u.Email,
-				Hash:  h,
-			})
-		}
-	}
-
 	connectors := []storage.Connector{}
 	if config.Connectors != nil {
 		for _, c := range config.Connectors {
@@ -59,9 +41,6 @@ func NewDexServer(session *scs.SessionManager, externalAddr string, port int, co
 	})
 	if len(connectors) > 0 {
 		s = storage.WithStaticConnectors(s, connectors)
-	}
-	if len(users) > 0 {
-		s = storage.WithStaticPasswords(s, users, logrus.New())
 	}
 
 	serv, err := server.NewServer(context.TODO(), server.Config{

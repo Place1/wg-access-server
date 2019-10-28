@@ -7,13 +7,7 @@ import (
 )
 
 type Config struct {
-	StaticUsers []StaticUser
-	Connectors  []AuthConnector
-}
-
-type StaticUser struct {
-	Email    string `yaml:"email"`
-	Password string `yaml:"password"`
+	Connectors []AuthConnector
 }
 
 type AuthConnector interface {
