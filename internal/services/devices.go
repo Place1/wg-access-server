@@ -11,25 +11,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var vpnip, vpnsubnet = MustParseCIDR("10.0.0.1/24")
-
-var peerid = 1
-
-// we need to give each device (i.e. wg peer)
-// an ip within the VPN's subnet
-// idk how i'm going to maintain this infomation just yet
-func nextPeerID() int {
-	peerid = peerid + 1
-	return peerid
-}
-
 type DeviceManager struct {
 	wgserver *WireGuard
 	storage  storage.Storage
+	cidr     string
 }
 
-func NewDeviceManager(w *WireGuard, s storage.Storage) *DeviceManager {
-	return &DeviceManager{w, s}
+func NewDeviceManager(w *WireGuard, s storage.Storage, cidr string) *DeviceManager {
+	return &DeviceManager{w, s, cidr}
 }
 
 func (d *DeviceManager) Sync() error {
@@ -109,20 +98,22 @@ func (d *DeviceManager) nextClientAddress() (string, error) {
 		return "", errors.Wrap(err, "failed to list devices")
 	}
 
+	vpnip, vpnsubnet := MustParseCIDR(d.cidr)
+	ip := vpnip.Mask(vpnsubnet.Mask)
+
 	// TODO: read up on better ways to allocate client's IP
 	// addresses from a configurable CIDR
 	usedIPs := []net.IP{
-		MustParseIP("10.0.0.0"),
-		MustParseIP("10.0.0.1"),
-		MustParseIP("10.0.0.255"),
+		ip,         // x.x.x.0
+		nextIP(ip), // x.x.x.1
 	}
 	for _, device := range devices {
 		ip, _ := MustParseCIDR(device.Address)
 		usedIPs = append(usedIPs, ip)
 	}
 
-	ip := vpnip
-	for ip := ip.Mask(vpnsubnet.Mask); vpnsubnet.Contains(ip); ip = nextIP(ip) {
+	for ip := ip; vpnsubnet.Contains(ip); ip = nextIP(ip) {
+		fmt.Println(ip)
 		if !contains(usedIPs, ip) {
 			return fmt.Sprintf("%s/32", ip.String()), nil
 		}

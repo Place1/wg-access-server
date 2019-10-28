@@ -57,7 +57,7 @@ class AddDevice extends React.Component {
 
       [Peer]
       PublicKey = ${device.serverPublicKey}
-      AllowedIPs = 0.0.0.0/1, 128.0.0.0/1
+      AllowedIPs = 0.0.0.0/1, 128.0.0.0/1, ::/0
       Endpoint = ${device.endpoint}
     `;
 

@@ -2,10 +2,10 @@ package storage
 
 import "errors"
 
+var memory = map[string]*Device{}
+
 // implements Storage interface
 type InMemoryStorage struct{}
-
-var memory = map[string]*Device{}
 
 func NewMemoryStorage() *InMemoryStorage {
 	return &InMemoryStorage{}

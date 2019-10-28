@@ -32,7 +32,8 @@ RUN apk add iptables
 RUN apk add wireguard-tools
 ENV WIREGUARD_USERSPACE_IMPLEMENTATION=boringtun
 ENV STORAGE_DIRECTORY="/data"
+COPY ./dex-web /dex-web
 COPY --from=boringtun /bin/boringtun /usr/local/bin/boringtun
-COPY --from=server /code/server ./server
-COPY --from=website /code/build ./website/build
-CMD ./server
+COPY --from=server /code/server /server
+COPY --from=website /code/build /website/build
+CMD /server

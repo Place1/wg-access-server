@@ -5,9 +5,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alexedwards/scs/v2"
+	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/gorilla/mux"
 
 	"github.com/pkg/errors"
+	"github.com/place1/wireguard-access-server/internal/auth"
 	"github.com/place1/wireguard-access-server/internal/config"
 	"github.com/place1/wireguard-access-server/internal/services"
 	"github.com/place1/wireguard-access-server/internal/storage"
@@ -39,7 +42,7 @@ func main() {
 		config.WireGuard.InterfaceName,
 		config.WireGuard.PrivateKey,
 		config.WireGuard.Port,
-		config.Web.ExternalAddress,
+		config.WireGuard.ExternalAddress,
 	)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to create wgserver"))
@@ -49,13 +52,16 @@ func main() {
 	logrus.Infof("wireguard endpoint is %s", wgserver.Endpoint())
 
 	// Networking configuration
-	if err := services.ConfigureRouting(config.WireGuard.InterfaceName); err != nil {
+	if err := services.ConfigureRouting(config.WireGuard.InterfaceName, config.VPN.CIDR); err != nil {
 		logrus.Fatal(err)
 	}
-	if config.VPN.GatewayInterface != nil {
-		if err := services.ConfigureForwarding(config.WireGuard.InterfaceName, config.VPN.GatewayInterface.Attrs().Name); err != nil {
+	if config.VPN.GatewayInterface != "" {
+		logrus.Infof("vpn gateway interface is %s", config.VPN.GatewayInterface)
+		if err := services.ConfigureForwarding(config.WireGuard.InterfaceName, config.VPN.GatewayInterface, config.VPN.CIDR); err != nil {
 			logrus.Fatal(err)
 		}
+	} else {
+		logrus.Warn("VPN.GatewayInterface is not configured - vpn clients will not have access to the internet")
 	}
 
 	// Storage
@@ -67,22 +73,67 @@ func main() {
 	}
 
 	// Services
-	deviceManager := services.NewDeviceManager(wgserver, storageDriver)
+	deviceManager := services.NewDeviceManager(wgserver, storageDriver, config.VPN.CIDR)
 	if err := deviceManager.Sync(); err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}
 
+	// Http sessions
+	session := scs.New()
+	session.Store = memstore.New()
+
 	// Router
 	router := mux.NewRouter()
-	router.HandleFunc("/api/devices", web.AddDevice(deviceManager)).Methods("POST")
-	router.HandleFunc("/api/devices", web.ListDevices(deviceManager)).Methods("GET")
-	router.HandleFunc("/api/devices/{name}", web.DeleteDevice(deviceManager)).Methods("DELETE")
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("website/build")))
+	if dex := dexIntegration(config, session); dex != nil {
+		router.PathPrefix("/auth").Handler(dex)
+	}
+	secureRouter := router.PathPrefix("/").Subrouter()
+	secureRouter.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if session.GetString(r.Context(), "auth/subject") == "" {
+				http.Redirect(w, r, "/auth/login", http.StatusTemporaryRedirect)
+			} else {
+				next.ServeHTTP(w, r)
+			}
+		})
+	})
+	secureRouter.HandleFunc("/api/devices", web.AddDevice(deviceManager)).Methods("POST")
+	secureRouter.HandleFunc("/api/devices", web.ListDevices(deviceManager)).Methods("GET")
+	secureRouter.HandleFunc("/api/devices/{name}", web.DeleteDevice(deviceManager)).Methods("DELETE")
+	secureRouter.PathPrefix("/").Handler(http.FileServer(http.Dir("website/build")))
 
 	// Listen
 	address := fmt.Sprintf("0.0.0.0:%d", config.Web.Port)
+	logrus.Infof("website external address is %s", config.Web.ExternalAddress)
 	logrus.Infof("website listening on %s", address)
-	if err := http.ListenAndServe(address, router); err != nil {
+	if err := http.ListenAndServe(address, session.LoadAndSave(router)); err != nil {
 		logrus.Fatal(errors.Wrap(err, "server exited"))
 	}
+}
+
+func dexIntegration(config *config.AppConfig, session *scs.SessionManager) *mux.Router {
+	authBackends := []auth.AuthConnector{}
+	if config.Auth.OIDC != nil {
+		logrus.Infof("adding oidc auth backend %s", config.Auth.OIDC.Name)
+		authBackends = append(authBackends, config.Auth.OIDC)
+	}
+	if config.Auth.Gitlab != nil {
+		logrus.Infof("adding gitlab auth backend %s", config.Auth.Gitlab.Name)
+		authBackends = append(authBackends, config.Auth.Gitlab)
+	}
+	c := auth.Config{}
+	if len(authBackends) > 0 {
+		c.Connectors = authBackends
+	}
+	if config.Auth.StaticUser != nil {
+		c.StaticUsers = []auth.StaticUser{*config.Auth.StaticUser}
+	}
+	if c.Connectors != nil || c.StaticUsers != nil {
+		dex, err := auth.NewDexServer(session, config.Web.ExternalAddress, config.Web.Port, c)
+		if err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to initialize auth system"))
+		}
+		return dex.Router()
+	}
+	return nil
 }

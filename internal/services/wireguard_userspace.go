@@ -20,6 +20,7 @@ func ExecUserWireGuard(wgcommand string, ifaceName string) error {
 			ifaceName,
 			"--disable-drop-privileges=root",
 			"--foreground",
+			"--verbosity=debug",
 		)
 	} else {
 		cmd = exec.Command(

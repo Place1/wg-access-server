@@ -13,15 +13,15 @@ import (
 )
 
 type WireGuard struct {
-	client       *wgctrl.Client
-	iface        string
-	externalName string
-	port         int
-	publicKey    wgtypes.Key
-	lock         sync.Mutex
+	client          *wgctrl.Client
+	iface           string
+	externalAddress string
+	port            int
+	publicKey       wgtypes.Key
+	lock            sync.Mutex
 }
 
-func NewWireGuard(iface string, privateKey string, port int, externalName string) (*WireGuard, error) {
+func NewWireGuard(iface string, privateKey string, port int, externalAddress string) (*WireGuard, error) {
 	// wgctrl.New() will search for a kernel implementation
 	// of wireguard, then user implementations
 	// user implementations are found in /var/run/wireguard/<iface>.sock
@@ -35,11 +35,11 @@ func NewWireGuard(iface string, privateKey string, port int, externalName string
 		return nil, errors.Wrap(err, "bad private key format")
 	}
 	server := &WireGuard{
-		client:       client,
-		iface:        iface,
-		port:         port,
-		externalName: externalName,
-		publicKey:    key.PublicKey(),
+		client:          client,
+		iface:           iface,
+		port:            port,
+		externalAddress: externalAddress,
+		publicKey:       key.PublicKey(),
 	}
 	err = server.configure(func(config *wgtypes.Config) error {
 		config.PrivateKey = &key
@@ -138,7 +138,7 @@ func (s *WireGuard) PublicKey() string {
 }
 
 func (s *WireGuard) Endpoint() string {
-	return fmt.Sprintf("%s:%d", s.externalName, s.port)
+	return s.externalAddress
 }
 
 func (s *WireGuard) DNS() string {

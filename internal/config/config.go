@@ -3,10 +3,14 @@ package config
 import (
 	"fmt"
 	"net"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
+	"github.com/place1/wireguard-access-server/internal/auth"
+	"github.com/spf13/viper"
 	"github.com/vishvananda/netlink"
 
 	"github.com/pkg/errors"
@@ -16,35 +20,34 @@ import (
 )
 
 type AppConfig struct {
-	Mode string
-	Web  struct {
-		// ExternalAddress is the address that
-		// clients should use to connect to this
-		// server. It will be used in generated
-		// VPN client connection configuration
-		// ExternalAddress should not include any
-		// port infomation.
-		// The WireGuard port will be appended.
-		ExternalAddress string
+	LogLevel string `yaml:"loglevel"`
+	Web      struct {
+		// ExternalAddress is that users access the web ui
+		// using. This value is required for using auth backends
+		// This value should include the scheme.
+		// The port should be included if non-standard.
+		// e.g. http://192.168.0.2:8000
+		// or https://myvpn.example.com
+		ExternalAddress string `yaml:"externalAddress"`
 		// Port that the web server should listen on
-		Port int
-	}
+		Port int `yaml:"port"`
+	} `yaml:"web"`
 	Storage struct {
 		// Directory that VPN devices (WireGuard peers)
 		// should be saved under.
 		// If this value is empty then an InMemory storage
 		// backend will be used (not recommended).
-		Directory string
-	}
+		Directory string `yaml:"directory"`
+	} `yaml:"storage"`
 	WireGuard struct {
 		// UserspaceImplementation is a command (program on $PATH)
 		// that implements the WireGuard protocol in userspace.
 		// In our Docker image we make use of `boringtun` so that
 		// users aren't required to setup kernel modules
-		UserspaceImplementation string
+		UserspaceImplementation string `yaml:"userspaceImplementation"`
 		// The network interface name of the WireGuard
 		// network device
-		InterfaceName string
+		InterfaceName string `yaml:"interfaceName"`
 		// The WireGuard PrivateKey
 		// If this value is lost then any existing
 		// clients (WireGuard peers) will no longer
@@ -52,61 +55,69 @@ type AppConfig struct {
 		// Clients will either have to manually update
 		// their connection configuration or setup
 		// their VPN again using the web ui (easier for most people)
-		PrivateKey string
+		PrivateKey string `yaml:"privateKey"`
+		// ExternalAddress is the address that users
+		// use to connect to the wireguard interface
+		// By default, this will use the Web.ExternalAddress
+		// domain with the WireGuard.Port
+		ExternalAddress string `yaml:"externalAddress`
 		// The WireGuard ListenPort
-		Port int
-	}
+		Port int `yaml:"port"`
+	} `yaml:"wireguard"`
 	VPN struct {
-		// SubnetCIDR configures a network address space
+		// CIDR configures a network address space
 		// that client (WireGuard peers) will be allocated
 		// an IP address from
-		SubnetCIDR string
+		CIDR string `yaml:"cidr"`
 		// GatewayInterface will be used in iptable forwarding
 		// rules that send VPN traffic from clients to this interface
 		// Most use-cases will want this interface to have access
 		// to the outside internet
-		GatewayInterface netlink.Link
+		GatewayInterface string `yaml:"gatewayInterface`
 	}
+	Auth struct {
+		OIDC       *auth.OIDCConfig   `yaml:"oidc"`
+		Gitlab     *auth.GitlabConfig `yaml:"gitlab"`
+		StaticUser *auth.StaticUser   `yaml:"staticUser"`
+	} `yaml:"auth"`
 }
 
 var (
-	app                              = kingpin.New("TODO: name-this-program", "An all-in-one WireGuard VPN solution")
-	logLevel                         = app.Flag("loglevel", "Enable debug mode").Default("info").OverrideDefaultFromEnvar("LOG_LEVEL").String()
-	webPort                          = app.Flag("web-port", "The web server port").Default("8000").OverrideDefaultFromEnvar("WEB_PORT").Int()
-	webExternalAddress               = app.Flag("web-external-address", "The external address that the service is accessible from excluding any scheme or port (e.g. vpn.example.com). Defaults to the IP address of your default interface").OverrideDefaultFromEnvar("WEB_EXTERNAL_ADDRESS").String()
-	storageDirectory                 = app.Flag("storage-directory", "The directory where vpn devices (i.e. peers) will be stored").OverrideDefaultFromEnvar("STORAGE_DIRECTORY").String()
-	wireGuardUserspaceImplementation = app.Flag("wireguard-userspace-implementation", "The a userspace implementation of wireguard e.g. wireguard-go or boringtun").OverrideDefaultFromEnvar("WIREGUARD_USERSPACE_IMPLEMENTATION").String()
-	wireGuardInterfaceName           = app.Flag("wireguard-interface-name", "The name of the WireGuard interface").Default("wg0").OverrideDefaultFromEnvar("WIREGUARD_INTERFACE_NAME").String()
-	wireguardPort                    = app.Flag("wireguard-port", "The WireGuard ListenPort").Default("51820").OverrideDefaultFromEnvar("WIREGUARD_PORT").Int()
-	wireguardPrivateKey              = app.Flag("wireguard-private-key", "The WireGuard private key").OverrideDefaultFromEnvar("WIREGUARD_PRIVATE_KEY").String()
-	vpnGatewayInterfaceName          = app.Flag("vpn-gateway-interface-name", "The name of the network interface you want VPN client traffic to foward to").OverrideDefaultFromEnvar("VPN_GATEWAY_INTERFACE_NAME").String()
-	vpnSubnetCIDR                    = app.Flag("vpn-subnet-cidr", "The subnet CIDR that clients should be networked within").Default("10.44.0.1/24").OverrideDefaultFromEnvar("VPN_SUBNET_CIDR").String()
+	app        = kingpin.New("was", "An all-in-one WireGuard Access Server & VPN solution")
+	configPath = app.Flag("config", "Path to a config file").Default(".").OverrideDefaultFromEnvar("CONFIG").String()
 )
 
 func Read() *AppConfig {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
-	config := AppConfig{}
 
-	config.Web.Port = *webPort
-	config.Web.ExternalAddress = *webExternalAddress
-	config.Storage.Directory = *storageDirectory
-	config.WireGuard.UserspaceImplementation = *wireGuardUserspaceImplementation
-	config.WireGuard.InterfaceName = *wireGuardInterfaceName
-	config.WireGuard.Port = *wireguardPort
-	config.WireGuard.PrivateKey = *wireguardPrivateKey
-	config.VPN.SubnetCIDR = *vpnSubnetCIDR
-	config.VPN.GatewayInterface = findGatewayLink(*vpnGatewayInterfaceName)
-	if config.Web.ExternalAddress == "" && config.VPN.GatewayInterface != nil {
-		if ip, err := linkIPAddr(config.VPN.GatewayInterface); err == nil {
-			config.Web.ExternalAddress = ip.String()
-			logrus.Infof("no external address was configured - using %s from the gateway interface", config.Web.ExternalAddress)
-		}
+	v := viper.New()
+	v.SetConfigFile(*configPath)
+	v.SetConfigType("yaml")
+	v.SetEnvPrefix("WAS")
+	v.AutomaticEnv()
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	v.SetDefault("LogLevel", "info")
+	v.SetDefault("Web.Port", 8000)
+	v.SetDefault("WireGuard.InterfaceName", "wg0")
+	v.SetDefault("WireGuard.Port", 51820)
+	v.SetDefault("VPN.CIDR", "10.44.0.0/24")
+
+	if err := v.ReadInConfig(); err != nil {
+		logrus.Fatal(errors.Wrap(err, "failed to read the configuration file"))
 	}
 
-	level, err := logrus.ParseLevel(*logLevel)
+	config := AppConfig{}
+	err := v.Unmarshal(&config)
+	if err != nil {
+		logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
+	}
+
+	level, err := logrus.ParseLevel(config.LogLevel)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "invalid log level - should be one of fatal, error, warn, info, debug, trace"))
 	}
+
 	logrus.SetLevel(level)
 	logrus.SetReportCaller(true)
 	logrus.SetFormatter(&logrus.TextFormatter{
@@ -114,6 +125,31 @@ func Read() *AppConfig {
 			return "", fmt.Sprintf("%s:%d", filepath.Base(f.File), f.Line)
 		},
 	})
+
+	if config.VPN.GatewayInterface == "" {
+		iface, err := defaultInterface()
+		if err != nil {
+			logrus.Warn(errors.Wrap(err, "failed to set default value for VPN.GatewayInterface"))
+		} else {
+			config.VPN.GatewayInterface = iface
+		}
+	}
+
+	if config.Web.ExternalAddress == "" && config.VPN.GatewayInterface != "" {
+		if ip, err := linkIPAddr(config.VPN.GatewayInterface); err == nil {
+			config.Web.ExternalAddress = fmt.Sprintf("http://%s:%d", ip.String(), config.Web.Port)
+			logrus.Warnf("no external address was configured - using %s from the gateway interface", config.Web.ExternalAddress)
+		}
+	}
+
+	if config.WireGuard.ExternalAddress == "" {
+		u, err := url.Parse(config.Web.ExternalAddress)
+		if err != nil {
+			logrus.Warn(errors.Wrap(err, "no WireGuard.External was configured and Web.ExternalAddress could not be parsed"))
+		} else {
+			config.WireGuard.ExternalAddress = fmt.Sprintf("%s:%d", u.Hostname(), config.WireGuard.Port)
+		}
+	}
 
 	if config.WireGuard.PrivateKey == "" {
 		logrus.Warn("no private key has been configured! using an in-memory private key that will be lost when the process exits!")
@@ -131,47 +167,49 @@ func Read() *AppConfig {
 	return &config
 }
 
-func defaultInterface() string {
+func defaultInterface() (string, error) {
 	links, err := netlink.LinkList()
 	if err != nil {
-		logrus.Warn(errors.Wrap(err, "failed to list network interfaces"))
-		return ""
+		return "", errors.Wrap(err, "failed to list network interfaces")
 	}
 	for _, link := range links {
 		routes, err := netlink.RouteList(link, 4)
 		if err != nil {
-			logrus.Warn(errors.Wrapf(err, "failed to list routes for interface %s", link.Attrs().Name))
-			return ""
+			return "", errors.Wrapf(err, "failed to list routes for interface %s", link.Attrs().Name)
 		}
 		for _, route := range routes {
 			if route.Dst == nil {
-				return link.Attrs().Name
+				return link.Attrs().Name, nil
 			}
 		}
 	}
-	return ""
+	return "", errors.New("could not determine the default network interface name")
 }
 
-func findGatewayLink(name string) netlink.Link {
-	if name == "" {
-		if name = defaultInterface(); name == "" {
-			logrus.Warn("a gateway interface name was not configured - vpn forwarding rules will not be applied!")
-			return nil
-		} else {
-			logrus.Infof("no gateway interface name was configured - using the system's default route's interface %s", name)
-		}
-	}
-	if name == "" {
-	}
+// func findGatewayLink(name string) netlink.Link {
+// 	if name == "" {
+// 		if name = defaultInterface(); name == "" {
+// 			logrus.Warn("a gateway interface name was not configured - vpn forwarding rules will not be applied!")
+// 			return nil
+// 		} else {
+// 			logrus.Infof("no gateway interface name was configured - using the system's default route's interface %s", name)
+// 		}
+// 	}
+// 	if name == "" {
+// 	}
+// 	link, err := netlink.LinkByName(name)
+// 	if err != nil {
+// 		logrus.Warn(errors.Wrapf(err, "the gateway interface '%s' could not be found - vpn forwarding rules will not be applied!", name))
+// 		return nil
+// 	}
+// 	return link
+// }
+
+func linkIPAddr(name string) (net.IP, error) {
 	link, err := netlink.LinkByName(name)
 	if err != nil {
-		logrus.Warn(errors.Wrapf(err, "the gateway interface '%s' could not be found - vpn forwarding rules will not be applied!", name))
-		return nil
+		return nil, errors.Wrapf(err, "failed to find network interface %s", name)
 	}
-	return link
-}
-
-func linkIPAddr(link netlink.Link) (net.IP, error) {
 	routes, err := netlink.RouteList(link, 4)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to list routes for interface %s", link.Attrs().Name)
