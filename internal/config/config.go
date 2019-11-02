@@ -115,7 +115,11 @@ func Read() *AppConfig {
 	}
 
 	if v, ok := os.LookupEnv("WIREGUARD_PRIVATE_KEY"); ok {
-		config.LogLevel = v
+		config.WireGuard.PrivateKey = v
+	}
+
+	if v, ok := os.LookupEnv("WIREGUARD_USERSPACE_IMPLEMENTATION"); ok {
+		config.WireGuard.UserspaceImplementation = v
 	}
 
 	level, err := logrus.ParseLevel(config.LogLevel)
