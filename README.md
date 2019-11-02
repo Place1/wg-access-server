@@ -56,7 +56,7 @@ docker run \
 
 ![IOS Connection Dialog](./screenshots/get-connected-ios.png)
 
-![Windows Connection Dialog](./screenshots/get-connected.png)
+![Windows Connection Dialog](./screenshots/get-connected-windows.png)
 
 ## Development
 
