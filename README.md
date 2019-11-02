@@ -1,4 +1,4 @@
-# WireGuard Access Server
+# WG Access Server
 
 _i'm still thinking of a name..._
 
@@ -36,9 +36,9 @@ Soon I hope to add the following features
 - [x] singleuser mode
   * this is how the project currently works but I'll expand it to support authentication
 - [x] multiuser mode
-  * support pluggable authentication backends including OAuth, OpenID Connect, LDAP, etc.
-  * allow different users to manage thier own devices without seeing others
-  * allow network isolation to be turned on or off allowing users to communicate or be isolated
+  - [x] support pluggable authentication backends including OAuth, OpenID Connect, LDAP, etc.
+  - [x] allow different users to manage thier own devices without seeing others
+  - [ ] allow network isolation to be turned on or off allowing users to communicate or be isolated
 
 ## Running with Docker
 
@@ -51,7 +51,7 @@ docker run \
   --device /dev/net/tun:/dev/net/tun \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
-  place1/wireguard-access-server
+  place1/wg-access-server
 ```
 
 ## Configuration

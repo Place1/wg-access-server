@@ -82,7 +82,7 @@ type AppConfig struct {
 }
 
 var (
-	app        = kingpin.New("was", "An all-in-one WireGuard Access Server & VPN solution")
+	app        = kingpin.New("wg-access-server", "An all-in-one WireGuard Access Server & VPN solution")
 	configPath = app.Flag("config", "Path to a config file").OverrideDefaultFromEnvar("CONFIG").String()
 )
 
