@@ -1,7 +1,0 @@
-loglevel: debug
-web:
-wireguard:
-  privateKey: kH4F1lldSzgEMB7wfQ1ccujAhZCCCCEeh2Kvhxf+XFw=
-  userspaceImplementation: boringtun
-storage:
-  directory: /data

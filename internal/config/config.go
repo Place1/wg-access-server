@@ -2,15 +2,15 @@ package config
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net"
-	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
+
+	"gopkg.in/yaml.v2"
 
 	"github.com/place1/wireguard-access-server/internal/auth"
-	"github.com/spf13/viper"
 	"github.com/vishvananda/netlink"
 
 	"github.com/pkg/errors"
@@ -83,33 +83,39 @@ type AppConfig struct {
 
 var (
 	app        = kingpin.New("was", "An all-in-one WireGuard Access Server & VPN solution")
-	configPath = app.Flag("config", "Path to a config file").Default(".").OverrideDefaultFromEnvar("CONFIG").String()
+	configPath = app.Flag("config", "Path to a config file").OverrideDefaultFromEnvar("CONFIG").String()
 )
 
 func Read() *AppConfig {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	v := viper.New()
-	v.SetConfigFile(*configPath)
-	v.SetConfigType("yaml")
-	v.SetEnvPrefix("WAS")
-	v.AutomaticEnv()
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	config := AppConfig{}
+	config.LogLevel = "info"
+	config.Web.Port = 8000
+	config.WireGuard.InterfaceName = "wg0"
+	config.WireGuard.Port = 51820
+	config.VPN.CIDR = "10.44.0.0/24"
 
-	v.SetDefault("LogLevel", "info")
-	v.SetDefault("Web.Port", 8000)
-	v.SetDefault("WireGuard.InterfaceName", "wg0")
-	v.SetDefault("WireGuard.Port", 51820)
-	v.SetDefault("VPN.CIDR", "10.44.0.0/24")
-
-	if err := v.ReadInConfig(); err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to read the configuration file"))
+	if *configPath != "" {
+		b, err := ioutil.ReadFile(*configPath)
+		if err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to read the configuration file"))
+		}
+		if err := yaml.Unmarshal(b, &config); err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
+		}
 	}
 
-	config := AppConfig{}
-	err := v.Unmarshal(&config)
-	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
+	if v, ok := os.LookupEnv("LOG_LEVEL"); ok {
+		config.LogLevel = v
+	}
+
+	if v, ok := os.LookupEnv("STORAGE_DIRECTORY"); ok {
+		config.Storage.Directory = v
+	}
+
+	if v, ok := os.LookupEnv("WIREGUARD_PRIVATE_KEY"); ok {
+		config.LogLevel = v
 	}
 
 	level, err := logrus.ParseLevel(config.LogLevel)
@@ -134,21 +140,21 @@ func Read() *AppConfig {
 		}
 	}
 
-	if config.Web.ExternalAddress == "" && config.VPN.GatewayInterface != "" {
-		if ip, err := linkIPAddr(config.VPN.GatewayInterface); err == nil {
-			config.Web.ExternalAddress = fmt.Sprintf("http://%s:%d", ip.String(), config.Web.Port)
-			logrus.Warnf("no external address was configured - using %s from the gateway interface", config.Web.ExternalAddress)
-		}
-	}
+	// if config.Web.ExternalAddress == "" && config.VPN.GatewayInterface != "" {
+	// 	if ip, err := linkIPAddr(config.VPN.GatewayInterface); err == nil {
+	// 		config.Web.ExternalAddress = fmt.Sprintf("http://%s:%d", ip.String(), config.Web.Port)
+	// 		logrus.Warnf("no external address was configured - using %s from the gateway interface", config.Web.ExternalAddress)
+	// 	}
+	// }
 
-	if config.WireGuard.ExternalAddress == "" {
-		u, err := url.Parse(config.Web.ExternalAddress)
-		if err != nil {
-			logrus.Warn(errors.Wrap(err, "no WireGuard.External was configured and Web.ExternalAddress could not be parsed"))
-		} else {
-			config.WireGuard.ExternalAddress = fmt.Sprintf("%s:%d", u.Hostname(), config.WireGuard.Port)
-		}
-	}
+	// if config.WireGuard.ExternalAddress == "" {
+	// 	u, err := url.Parse(config.Web.ExternalAddress)
+	// 	if err != nil {
+	// 		logrus.Warn(errors.Wrap(err, "no WireGuard.External was configured and Web.ExternalAddress could not be parsed"))
+	// 	} else {
+	// 		config.WireGuard.ExternalAddress = fmt.Sprintf("%s:%d", u.Hostname(), config.WireGuard.Port)
+	// 	}
+	// }
 
 	if config.WireGuard.PrivateKey == "" {
 		logrus.Warn("no private key has been configured! using an in-memory private key that will be lost when the process exits!")
@@ -188,25 +194,6 @@ func defaultInterface() (string, error) {
 	}
 	return "", errors.New("could not determine the default network interface name")
 }
-
-// func findGatewayLink(name string) netlink.Link {
-// 	if name == "" {
-// 		if name = defaultInterface(); name == "" {
-// 			logrus.Warn("a gateway interface name was not configured - vpn forwarding rules will not be applied!")
-// 			return nil
-// 		} else {
-// 			logrus.Infof("no gateway interface name was configured - using the system's default route's interface %s", name)
-// 		}
-// 	}
-// 	if name == "" {
-// 	}
-// 	link, err := netlink.LinkByName(name)
-// 	if err != nil {
-// 		logrus.Warn(errors.Wrapf(err, "the gateway interface '%s' could not be found - vpn forwarding rules will not be applied!", name))
-// 		return nil
-// 	}
-// 	return link
-// }
 
 func linkIPAddr(name string) (net.IP, error) {
 	link, err := netlink.LinkByName(name)

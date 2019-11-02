@@ -22,7 +22,7 @@ func NewDeviceManager(w *WireGuard, s storage.Storage, cidr string) *DeviceManag
 }
 
 func (d *DeviceManager) Sync() error {
-	devices, err := d.ListDevices()
+	devices, err := d.ListDevices("")
 	if err != nil {
 		return errors.Wrap(err, "failed to list devices")
 	}
@@ -34,8 +34,7 @@ func (d *DeviceManager) Sync() error {
 	return nil
 }
 
-func (d *DeviceManager) AddDevice(name string, publicKey string) (*storage.Device, error) {
-
+func (d *DeviceManager) AddDevice(user string, name string, publicKey string) (*storage.Device, error) {
 	if name == "" {
 		return nil, errors.New("device name must not be empty")
 	}
@@ -46,6 +45,7 @@ func (d *DeviceManager) AddDevice(name string, publicKey string) (*storage.Devic
 	}
 
 	device := &storage.Device{
+		Owner:           user,
 		Name:            name,
 		PublicKey:       publicKey,
 		Endpoint:        d.wgserver.Endpoint(),
@@ -55,10 +55,7 @@ func (d *DeviceManager) AddDevice(name string, publicKey string) (*storage.Devic
 		ServerPublicKey: d.wgserver.PublicKey(),
 	}
 
-	if err := d.storage.Save(device); err != nil {
-		// TODO: might need to clean up the wg config?
-		// might need to save before adding to wg?
-		// idk lol
+	if err := d.storage.Save(key(user, device.Name), device); err != nil {
 		return nil, errors.Wrap(err, "failed to save the new device")
 	}
 
@@ -69,16 +66,16 @@ func (d *DeviceManager) AddDevice(name string, publicKey string) (*storage.Devic
 	return device, nil
 }
 
-func (d *DeviceManager) ListDevices() ([]*storage.Device, error) {
-	return d.storage.List()
+func (d *DeviceManager) ListDevices(user string) ([]*storage.Device, error) {
+	return d.storage.List(user + "/")
 }
 
-func (d *DeviceManager) DeleteDevice(name string) error {
-	device, err := d.storage.Get(name)
+func (d *DeviceManager) DeleteDevice(user string, name string) error {
+	device, err := d.storage.Get(key(user, name))
 	if err != nil {
 		return errors.Wrap(err, "failed to retrieve device")
 	}
-	if err := d.storage.Delete(device); err != nil {
+	if err := d.storage.Delete(key(user, name)); err != nil {
 		return err
 	}
 	if err := d.wgserver.RemovePeer(device.PublicKey); err != nil {
@@ -87,13 +84,17 @@ func (d *DeviceManager) DeleteDevice(name string) error {
 	return nil
 }
 
+func key(user string, device string) string {
+	return fmt.Sprintf("%s/%s", user, device)
+}
+
 var nextIPLock = sync.Mutex{}
 
 func (d *DeviceManager) nextClientAddress() (string, error) {
 	nextIPLock.Lock()
 	defer nextIPLock.Unlock()
 
-	devices, err := d.ListDevices()
+	devices, err := d.ListDevices("")
 	if err != nil {
 		return "", errors.Wrap(err, "failed to list devices")
 	}
@@ -113,7 +114,6 @@ func (d *DeviceManager) nextClientAddress() (string, error) {
 	}
 
 	for ip := ip; vpnsubnet.Contains(ip); ip = nextIP(ip) {
-		fmt.Println(ip)
 		if !contains(usedIPs, ip) {
 			return fmt.Sprintf("%s/32", ip.String()), nil
 		}

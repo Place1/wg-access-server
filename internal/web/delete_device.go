@@ -3,6 +3,7 @@ package web
 import (
 	"net/http"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/gorilla/mux"
 
 	"github.com/place1/wireguard-access-server/internal/services"
@@ -11,7 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func DeleteDevice(devices *services.DeviceManager) http.HandlerFunc {
+func DeleteDevice(session *scs.SessionManager, devices *services.DeviceManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		name, ok := vars["name"]
@@ -20,7 +21,9 @@ func DeleteDevice(devices *services.DeviceManager) http.HandlerFunc {
 			return
 		}
 
-		if err := devices.DeleteDevice(name); err != nil {
+		user := session.GetString(r.Context(), "auth/subject")
+
+		if err := devices.DeleteDevice(user, name); err != nil {
 			logrus.Error(errors.Wrap(err, "failed to remove device"))
 			http.Error(w, "failed to remove device", http.StatusInternalServerError)
 			return

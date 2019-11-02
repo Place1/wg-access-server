@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/place1/wireguard-access-server/internal/services"
 	"github.com/place1/wireguard-access-server/internal/storage"
 
@@ -20,7 +21,7 @@ type AddDeviceResponse struct {
 	Device *storage.Device `json:"device"`
 }
 
-func AddDevice(devices *services.DeviceManager) http.HandlerFunc {
+func AddDevice(session *scs.SessionManager, devices *services.DeviceManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 		req := AddDeviceRequest{}
@@ -30,7 +31,9 @@ func AddDevice(devices *services.DeviceManager) http.HandlerFunc {
 			return
 		}
 
-		device, err := devices.AddDevice(req.Name, req.PublicKey)
+		user := session.GetString(r.Context(), "auth/subject")
+
+		device, err := devices.AddDevice(user, req.Name, req.PublicKey)
 		if err != nil {
 			logrus.Error(errors.Wrap(err, "unable to add device"))
 			http.Error(w, "failed to add the new device", http.StatusInternalServerError)

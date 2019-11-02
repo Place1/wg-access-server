@@ -97,15 +97,15 @@ func main() {
 			}
 		})
 	})
-	secureRouter.HandleFunc("/api/devices", web.AddDevice(deviceManager)).Methods("POST")
-	secureRouter.HandleFunc("/api/devices", web.ListDevices(deviceManager)).Methods("GET")
-	secureRouter.HandleFunc("/api/devices/{name}", web.DeleteDevice(deviceManager)).Methods("DELETE")
+	secureRouter.HandleFunc("/api/devices", web.AddDevice(session, deviceManager)).Methods("POST")
+	secureRouter.HandleFunc("/api/devices", web.ListDevices(session, deviceManager)).Methods("GET")
+	secureRouter.HandleFunc("/api/devices/{name}", web.DeleteDevice(session, deviceManager)).Methods("DELETE")
 	secureRouter.PathPrefix("/").Handler(http.FileServer(http.Dir("website/build")))
 
 	// Listen
 	address := fmt.Sprintf("0.0.0.0:%d", conf.Web.Port)
-	logrus.Infof("website external address is %s", conf.Web.ExternalAddress)
-	logrus.Infof("website listening on %s", address)
+	logrus.Infof("website external address is '%s'", conf.Web.ExternalAddress)
+	logrus.Infof("website listening on '%s'", address)
 	if err := http.ListenAndServe(address, session.LoadAndSave(router)); err != nil {
 		logrus.Fatal(errors.Wrap(err, "server exited"))
 	}
@@ -114,7 +114,7 @@ func main() {
 func dexIntegration(config *config.AppConfig, session *scs.SessionManager) *mux.Router {
 	authBackends := []auth.AuthConnector{}
 	if config.Auth.OIDC != nil {
-		logrus.Infof("adding oidc auth backend %s", config.Auth.OIDC.Name)
+		logrus.Infof("adding oidc auth backend '%s'", config.Auth.OIDC.Name)
 		authBackends = append(authBackends, config.Auth.OIDC)
 	}
 	if config.Auth.Gitlab != nil {

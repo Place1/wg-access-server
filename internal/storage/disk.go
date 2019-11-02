@@ -26,8 +26,8 @@ func NewDiskStorage(directory string) *DiskStorage {
 	return &DiskStorage{directory}
 }
 
-func (s *DiskStorage) Save(device *Device) error {
-	path := s.deviceFilePath(device.Name)
+func (s *DiskStorage) Save(key string, device *Device) error {
+	path := s.deviceFilePath(key)
 	logrus.Infof("saving new device %s", path)
 	bytes, err := json.Marshal(device)
 	if err != nil {
@@ -39,14 +39,34 @@ func (s *DiskStorage) Save(device *Device) error {
 	return nil
 }
 
-func (s *DiskStorage) List() ([]*Device, error) {
-	devices := []*Device{}
-	files, err := ioutil.ReadDir(s.directory)
+func (s *DiskStorage) List(prefix string) ([]*Device, error) {
+	files := []string{}
+	err := filepath.Walk(s.directory, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		p := strings.TrimPrefix(path, s.directory)
+		if strings.HasPrefix(p, prefix) {
+			files = append(files, path)
+		}
+		return nil
+	})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list storage directory")
 	}
+	devices := []*Device{}
 	for _, file := range files {
-		device, err := s.Get(filepath.Base(strings.TrimSuffix(file.Name(), filepath.Ext(file.Name()))))
+		bytes, err := ioutil.ReadFile(file)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to read device file %s", file)
+		}
+		device := &Device{}
+		if err := json.Unmarshal(bytes, device); err != nil {
+			return nil, errors.Wrapf(err, "failed to unmarshal device file %s", file)
+		}
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to read device file")
 		}
@@ -55,8 +75,8 @@ func (s *DiskStorage) List() ([]*Device, error) {
 	return devices, nil
 }
 
-func (s *DiskStorage) Get(name string) (*Device, error) {
-	path := s.deviceFilePath(name)
+func (s *DiskStorage) Get(key string) (*Device, error) {
+	path := s.deviceFilePath(key)
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to read device file %s", path)
@@ -68,15 +88,15 @@ func (s *DiskStorage) Get(name string) (*Device, error) {
 	return device, nil
 }
 
-func (s *DiskStorage) Delete(device *Device) error {
-	if err := os.Remove(s.deviceFilePath(device.Name)); err != nil {
+func (s *DiskStorage) Delete(key string) error {
+	if err := os.Remove(s.deviceFilePath(key)); err != nil {
 		return errors.Wrap(err, "failed to delete device file")
 	}
 	return nil
 }
 
-func (s *DiskStorage) deviceFilePath(name string) string {
+func (s *DiskStorage) deviceFilePath(key string) string {
 	// TODO: protect against path traversal
 	// and make sure names are reasonably sane
-	return filepath.Join(s.directory, fmt.Sprintf("%s.json", name))
+	return filepath.Join(s.directory, fmt.Sprintf("%s.json", key))
 }

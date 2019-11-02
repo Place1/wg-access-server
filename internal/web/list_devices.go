@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/alexedwards/scs/v2"
+
 	"github.com/pkg/errors"
 	"github.com/place1/wireguard-access-server/internal/services"
 	"github.com/place1/wireguard-access-server/internal/storage"
@@ -16,9 +18,11 @@ type ListDeviceResponse struct {
 	Items []*storage.Device `json:"items"`
 }
 
-func ListDevices(devices *services.DeviceManager) http.HandlerFunc {
+func ListDevices(session *scs.SessionManager, devices *services.DeviceManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		devices, err := devices.ListDevices()
+		user := session.GetString(r.Context(), "auth/subject")
+
+		devices, err := devices.ListDevices(user)
 		if err != nil {
 			logrus.Error(errors.Wrap(err, "failed to list devices"))
 			http.Error(w, "failed to list devices", http.StatusInternalServerError)
