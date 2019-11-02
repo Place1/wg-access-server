@@ -33,6 +33,7 @@ func (s *DiskStorage) Save(key string, device *Device) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal device")
 	}
+	os.MkdirAll(filepath.Dir(path), 0600)
 	if err := ioutil.WriteFile(path, bytes, 0600); err != nil {
 		return errors.Wrapf(err, "failed to write device to file %s", path)
 	}

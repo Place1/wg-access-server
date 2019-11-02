@@ -58,6 +58,10 @@ docker run \
 
 You can configure the server using a config file.
 
+```bash
+sudo go run ./main.go --config ./config.yaml
+```
+
 Here's an example showing the default values:
 
 ```yaml
