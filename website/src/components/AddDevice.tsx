@@ -81,7 +81,7 @@ class AddDevice extends React.Component {
               error={this.state.error !== ''}
               value={this.state.name}
               onChange={(event) => this.setState({ name: event.currentTarget.value })}
-              style={{ marginTop: -20, marginBottom: 8 }}
+              style={{ marginTop: -30, marginBottom: 8 }}
               fullWidth
             />
             {this.state.error !== '' && <FormHelperText>{this.state.error}</FormHelperText>}
