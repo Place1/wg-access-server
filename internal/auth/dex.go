@@ -100,7 +100,7 @@ func (d *DexIntegration) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 func (d *DexIntegration) handleCallback(session *scs.SessionManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		logrus.Info("handling callback")
+		logrus.Info("handling callback for url: %s", r.URL)
 		state := r.URL.Query().Get("state")
 
 		// Verify state.
