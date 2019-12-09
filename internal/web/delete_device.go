@@ -21,7 +21,7 @@ func DeleteDevice(session *scs.SessionManager, devices *services.DeviceManager) 
 			return
 		}
 
-		user := session.GetString(r.Context(), "auth/subject")
+		user := session.GetString(r.Context(), "auth/email")
 
 		if err := devices.DeleteDevice(user, name); err != nil {
 			logrus.Error(errors.Wrap(err, "failed to remove device"))

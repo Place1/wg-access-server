@@ -31,7 +31,7 @@ func AddDevice(session *scs.SessionManager, devices *services.DeviceManager) htt
 			return
 		}
 
-		user := session.GetString(r.Context(), "auth/subject")
+		user := session.GetString(r.Context(), "auth/email")
 
 		device, err := devices.AddDevice(user, req.Name, req.PublicKey)
 		if err != nil {

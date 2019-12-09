@@ -20,7 +20,7 @@ type ListDeviceResponse struct {
 
 func ListDevices(session *scs.SessionManager, devices *services.DeviceManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := session.GetString(r.Context(), "auth/subject")
+		user := session.GetString(r.Context(), "auth/email")
 
 		devices, err := devices.ListDevices(user)
 		if err != nil {

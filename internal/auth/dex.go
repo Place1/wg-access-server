@@ -127,7 +127,16 @@ func (d *DexIntegration) handleCallback(session *scs.SessionManager) http.Handle
 			panic(err)
 		}
 
-		session.Put(r.Context(), "auth/subject", idToken.Subject)
+		// Extract custom claims
+		var claims struct {
+			Email    string `json:"email"`
+		}
+		if err := idToken.Claims(&claims); err != nil {
+			panic(err)
+		}
+
+		logrus.Infof("Authenticated as %s", claims.Email)
+		session.Put(r.Context(), "auth/email", claims.Email)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }

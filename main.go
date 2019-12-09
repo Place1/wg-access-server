@@ -90,7 +90,7 @@ func main() {
 	secureRouter := router.PathPrefix("/").Subrouter()
 	secureRouter.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if config.IsAuthEnabled(conf) && session.GetString(r.Context(), "auth/subject") == "" {
+			if config.IsAuthEnabled(conf) && session.GetString(r.Context(), "auth/email") == "" {
 				http.Redirect(w, r, "/auth/login", http.StatusTemporaryRedirect)
 			} else {
 				next.ServeHTTP(w, r)
