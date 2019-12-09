@@ -1,0 +1,21 @@
+loglevel: debug
+web:
+  externalAddress: "http://10.0.0.200:8000"
+  port: 8000
+storage:
+  directory: "D:\\data\\"
+wireguard:
+  userspaceImplementation: ""
+  interfaceName: wg0
+  privateKey: "yPAs0Pd1O14W/bAg0b2UwdXXRi9NIzCfprQywJTfQlQ="
+  externalAddress: "vpn.elzengaarde.nl:51820"
+  port: 51820
+vpn:
+  cidr: "10.44.0.0/24"
+  gatewayInterface: ""
+auth:
+  oidc:
+    name: "Elzengaarde"
+    issuer: "https://login.elzengaarde.nl/auth/realms/master"
+    clientID: "testvpn"
+    clientSecret: "69825c3b-da12-4587-a9e2-7ff85dbd53cb"
