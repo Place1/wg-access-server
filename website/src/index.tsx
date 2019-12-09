@@ -1,12 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Box from '@material-ui/core/Box';
 import Devices from './components/Devices';
 import { view } from 'react-easy-state';
 import 'typeface-roboto';
-import './index.css';
 
 const App = view(() => {
-  return <Devices />;
+  return (
+    <React.Fragment>
+      <CssBaseline />
+      <Box component="div" m={3}>
+        <Devices />
+      </Box>
+    </React.Fragment>
+  );
 });
 
 ReactDOM.render(<App />, document.getElementById('root'));
