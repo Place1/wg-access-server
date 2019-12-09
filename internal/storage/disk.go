@@ -50,6 +50,7 @@ func (s *DiskStorage) List(prefix string) ([]*Device, error) {
 			return nil
 		}
 		p := strings.TrimPrefix(path, s.directory)
+		p = strings.TrimPrefix(p, string(os.PathSeparator))
 		if strings.HasPrefix(p, prefix) {
 			files = append(files, path)
 		}
