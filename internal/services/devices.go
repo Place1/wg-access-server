@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"os"
 	"net"
 	"sync"
 	"time"
@@ -67,7 +68,11 @@ func (d *DeviceManager) AddDevice(user string, name string, publicKey string) (*
 }
 
 func (d *DeviceManager) ListDevices(user string) ([]*storage.Device, error) {
-	return d.storage.List(user + "/")
+	prefix := ""
+	if (user != "") {
+		prefix = user + string(os.PathSeparator)
+	}
+	return d.storage.List(prefix)
 }
 
 func (d *DeviceManager) DeleteDevice(user string, name string) error {
