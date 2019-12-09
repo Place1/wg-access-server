@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Box from '@material-ui/core/Box';
+import AddDevice from './components/AddDevice';
 import Devices from './components/Devices';
 import Navigation from './components/Navigation';
 import { view } from 'react-easy-state';
@@ -14,6 +15,7 @@ const App = view(() => {
       <Navigation />
       <Box component="div" m={3}>
         <Devices />
+        <AddDevice />
       </Box>
     </React.Fragment>
   );
