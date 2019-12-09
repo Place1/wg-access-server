@@ -54,6 +54,14 @@ docker run \
   place1/wg-access-server
 ```
 
+To use a custom [configuration](#configuration) file, please add a `CONFIG` environment variable and make sure the configuration file is mounted:
+```
+  ...
+  -e CONFIG=/config/config.yaml
+  -v ./config.yaml:/config/config.yaml
+  ...
+```
+
 ## Configuration
 
 You can configure the server using a config file.
