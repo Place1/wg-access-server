@@ -19,10 +19,9 @@ interface Props {
 }
 
 export class GetConnected extends React.Component<Props> {
-
   state = {
     platform: getPlatform(),
-  }
+  };
 
   render() {
     return (
@@ -152,7 +151,8 @@ export class GetConnected extends React.Component<Props> {
           <Typography style={{ fontStyle: 'italic', maxWidth: 600 }}>
             The VPN configuration file or QR code will not be available again.
             <br />
-            If you lose your connection settings or reset your device, you can remove and re-add it to generate a new connection file or QR code.
+            If you lose your connection settings or reset your device, you can remove and re-add it to generate a new
+            connection file or QR code.
             <br />
             They contain your WireGuard Private Key and should never be shared.
           </Typography>

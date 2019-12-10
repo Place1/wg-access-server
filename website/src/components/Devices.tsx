@@ -6,7 +6,6 @@ import Device from './Device';
 import AddDevice from './AddDevice';
 
 class Devices extends React.Component {
-
   componentDidMount() {
     this.load();
   }
@@ -26,11 +25,11 @@ class Devices extends React.Component {
         <Grid item xs={12} sm={6}>
           <AddDevice />
         </Grid>
-        {AppState.devices.map((device, i) =>
+        {AppState.devices.map((device, i) => (
           <Grid key={i} item xs={12} sm={6}>
             <Device device={device} />
           </Grid>
-        )}
+        ))}
       </Grid>
     );
   }

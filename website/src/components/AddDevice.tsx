@@ -19,7 +19,6 @@ import { GetConnected } from './GetConnected';
 import { IDevice, AppState } from '../Store';
 
 class AddDevice extends React.Component {
-
   state = {
     name: '',
     open: false,
@@ -31,8 +30,8 @@ class AddDevice extends React.Component {
   onAdd = async (event: React.FormEvent) => {
     event.preventDefault();
     const keypair = box_keyPair();
-    const b64PublicKey = window.btoa(String.fromCharCode(...new Uint8Array(keypair.publicKey) as any));
-    const b64PrivateKey = window.btoa(String.fromCharCode(...new Uint8Array(keypair.secretKey) as any));
+    const b64PublicKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
+    const b64PrivateKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.secretKey) as any)));
 
     const res = await fetch('/api/devices', {
       method: 'POST',
@@ -45,7 +44,7 @@ class AddDevice extends React.Component {
       this.setState({ error: await res.text() });
       return;
     }
-    const { device } = await res.json() as { device: IDevice };
+    const { device } = (await res.json()) as { device: IDevice };
 
     AppState.devices.push(device);
 
@@ -66,47 +65,32 @@ class AddDevice extends React.Component {
       qrCodeUri: await qrcode.toDataURL(configFile),
       configFileUri: URL.createObjectURL(new Blob([configFile])),
     });
-  }
+  };
 
   render() {
     return (
       <form onSubmit={this.onAdd}>
         <Card>
-          <CardHeader
-            title="Add a device"
-          />
+          <CardHeader title="Add a device" />
           <CardContent>
             <TextField
               label="Device Name"
               error={this.state.error !== ''}
               value={this.state.name}
-              onChange={(event) => this.setState({ name: event.currentTarget.value })}
+              onChange={event => this.setState({ name: event.currentTarget.value })}
               style={{ marginTop: -20, marginBottom: 8 }}
               fullWidth
             />
             {this.state.error !== '' && <FormHelperText>{this.state.error}</FormHelperText>}
           </CardContent>
           <CardActions>
-            <Button
-              color="primary"
-              variant="contained"
-              endIcon={<AddIcon />}
-              type="submit"
-            >
+            <Button color="primary" variant="contained" endIcon={<AddIcon />} type="submit">
               Add
             </Button>
-            <Dialog
-              disableBackdropClick
-              disableEscapeKeyDown
-              maxWidth="xl"
-              open={this.state.open}
-            >
+            <Dialog disableBackdropClick disableEscapeKeyDown maxWidth="xl" open={this.state.open}>
               <DialogTitle>Get Connected</DialogTitle>
               <DialogContent>
-                <GetConnected
-                  qrCodeUri={this.state.qrCodeUri}
-                  configFileUri={this.state.configFileUri}
-                />
+                <GetConnected qrCodeUri={this.state.qrCodeUri} configFileUri={this.state.configFileUri} />
               </DialogContent>
               <DialogActions>
                 <Button color="secondary" variant="outlined" onClick={() => this.setState({ open: false })}>

@@ -8,15 +8,14 @@ interface Props {
 }
 
 export class PopoverDisplay extends React.Component<Props> {
-
   state = {
     anchorEl: undefined as any,
-  }
+  };
 
   render() {
     return (
       <React.Fragment>
-        <Button variant="text" color="secondary" onClick={(event) => this.setState({ anchorEl: event.currentTarget })}>
+        <Button variant="text" color="secondary" onClick={event => this.setState({ anchorEl: event.currentTarget })}>
           {this.props.label}
         </Button>
         <Popover
@@ -26,11 +25,9 @@ export class PopoverDisplay extends React.Component<Props> {
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           transformOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-          <div style={{ padding: '2rem' }}>
-            {this.props.children}
-          </div>
+          <div style={{ padding: '2rem' }}>{this.props.children}</div>
         </Popover>
       </React.Fragment>
-    )
+    );
   }
 }

@@ -7,7 +7,6 @@ interface Props {
 }
 
 export class DownloadConfig extends React.Component<Props> {
-
   downloadConfig = () => {
     console.log('downloading config file', this.props.configFileUri);
     const anchor = document.createElement('a');
@@ -17,7 +16,7 @@ export class DownloadConfig extends React.Component<Props> {
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);
-  }
+  };
 
   render() {
     return (
