@@ -50,6 +50,7 @@ func (s *DiskStorage) List(prefix string) ([]*Device, error) {
 			return nil
 		}
 		p := strings.TrimPrefix(path, s.directory)
+		p = strings.TrimPrefix(p, string(os.PathSeparator))
 		if strings.HasPrefix(p, prefix) {
 			files = append(files, path)
 		}
@@ -58,6 +59,8 @@ func (s *DiskStorage) List(prefix string) ([]*Device, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list storage directory")
 	}
+	logrus.Debugf("Found files: %+v", files)
+
 	devices := []*Device{}
 	for _, file := range files {
 		bytes, err := ioutil.ReadFile(file)
@@ -73,6 +76,7 @@ func (s *DiskStorage) List(prefix string) ([]*Device, error) {
 		}
 		devices = append(devices, device)
 	}
+	logrus.Debugf("Found devices: %+v", devices)
 	return devices, nil
 }
 
