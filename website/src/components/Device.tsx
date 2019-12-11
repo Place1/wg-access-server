@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import DonutSmallIcon from '@material-ui/icons/DonutSmall';
 import MenuItem from '@material-ui/core/MenuItem';
-import formatDistanceToNow from 'date-fns/formatDistanceToNow'
+import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import { view } from 'react-easy-state';
 import { IDevice, AppState } from '../Store';
 import { IconMenu } from './IconMenu';
@@ -17,7 +17,6 @@ interface Props {
 }
 
 class Device extends React.Component<Props> {
-
   dateString(date: Date) {
     if (date.getUTCMilliseconds() === 0) {
       return 'never';
@@ -34,7 +33,7 @@ class Device extends React.Component<Props> {
     } else {
       window.alert(await res.text());
     }
-  }
+  };
 
   render() {
     const device = this.props.device;
@@ -42,10 +41,16 @@ class Device extends React.Component<Props> {
       <Card>
         <CardHeader
           title={device.name}
-          avatar={<Avatar><DonutSmallIcon /></Avatar>}
+          avatar={
+            <Avatar>
+              <DonutSmallIcon />
+            </Avatar>
+          }
           action={
             <IconMenu>
-              <MenuItem style={{ color: 'red' }} onClick={this.removeDevice}>Delete</MenuItem>
+              <MenuItem style={{ color: 'red' }} onClick={this.removeDevice}>
+                Delete
+              </MenuItem>
             </IconMenu>
           }
         />
@@ -53,9 +58,7 @@ class Device extends React.Component<Props> {
           <Typography component="p">
             Public Key: <PopoverDisplay label="show">{device.publicKey}</PopoverDisplay>
           </Typography>
-          <Typography component="p">
-            Endpoint: {device.endpoint}
-          </Typography>
+          <Typography component="p">Endpoint: {device.endpoint}</Typography>
         </CardContent>
       </Card>
     );

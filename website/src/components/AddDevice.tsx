@@ -24,7 +24,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { GetConnected } from './GetConnected';
 import { IDevice, AppState } from '../Store';
 
-
 const useStyles = makeStyles(theme => ({
   hidden: {
     display: 'none',
@@ -61,8 +60,8 @@ export default function AddDevice() {
     event.preventDefault();
 
     const keypair = box_keyPair();
-    const b64PublicKey = window.btoa(String.fromCharCode(...new Uint8Array(keypair.publicKey) as any));
-    const b64PrivateKey = window.btoa(String.fromCharCode(...new Uint8Array(keypair.secretKey) as any));
+    const b64PublicKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
+    const b64PrivateKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.secretKey) as any)));
 
     const res = await fetch('/api/devices', {
       method: 'POST',
@@ -75,7 +74,7 @@ export default function AddDevice() {
       setError(await res.text());
       return;
     }
-    const { device } = await res.json() as { device: IDevice };
+    const { device } = (await res.json()) as { device: IDevice };
 
     AppState.devices.push(device);
 
