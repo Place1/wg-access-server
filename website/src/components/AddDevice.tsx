@@ -1,34 +1,64 @@
 import React from 'react';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import CardContent from '@material-ui/core/CardContent';
+
 import AddIcon from '@material-ui/icons/Add';
-import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import Container from '@material-ui/core/Container';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
+import Fab from '@material-ui/core/Fab';
+import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import Grid from '@material-ui/core/Grid';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+
 import qrcode from 'qrcode';
-import { view } from 'react-easy-state';
 import { box_keyPair } from 'tweetnacl-ts';
 import { codeBlock } from 'common-tags';
-import { FormHelperText } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+
 import { GetConnected } from './GetConnected';
 import { IDevice, AppState } from '../Store';
 
-class AddDevice extends React.Component {
-  state = {
-    name: '',
-    open: false,
-    qrCodeUri: '',
-    configFileUri: '',
-    error: '',
+const useStyles = makeStyles(theme => ({
+  hidden: {
+    display: 'none',
+  },
+  button: {
+    margin: theme.spacing(1),
+  },
+  fabButton: {
+    position: 'absolute',
+    margin: '0 auto',
+    left: 0,
+    right: 0,
+  },
+  paper: {
+    padding: theme.spacing(2),
+  },
+}));
+
+export default function AddDevice() {
+  const classes = useStyles();
+  const [formOpen, setFormOpen] = React.useState(false);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const [name, setName] = React.useState('');
+  const [qrCodeUri, setQrCodeUri] = React.useState('');
+  const [configFileUri, setConfigFileUri] = React.useState('');
+  
+  var closeForm = () => {
+    setFormOpen(false);
+    setName('');
   };
 
-  onAdd = async (event: React.FormEvent) => {
+  var addDevice = async (event: React.FormEvent) => {
     event.preventDefault();
+
     const keypair = box_keyPair();
     const b64PublicKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
     const b64PrivateKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.secretKey) as any)));
@@ -36,12 +66,12 @@ class AddDevice extends React.Component {
     const res = await fetch('/api/devices', {
       method: 'POST',
       body: JSON.stringify({
-        name: this.state.name,
+        name: name,
         publicKey: b64PublicKey,
       }),
     });
     if (res.status >= 400) {
-      this.setState({ error: await res.text() });
+      setError(await res.text());
       return;
     }
     const { device } = (await res.json()) as { device: IDevice };
@@ -60,49 +90,78 @@ class AddDevice extends React.Component {
       Endpoint = ${device.endpoint || `${window.location.hostname}:51820`}
     `;
 
-    this.setState({
-      open: true,
-      qrCodeUri: await qrcode.toDataURL(configFile),
-      configFileUri: URL.createObjectURL(new Blob([configFile])),
-    });
+    setQrCodeUri(await qrcode.toDataURL(configFile));
+    setConfigFileUri(URL.createObjectURL(new Blob([configFile])));
+
+    closeForm();
+    setDialogOpen(true);
   };
 
-  render() {
-    return (
-      <form onSubmit={this.onAdd}>
-        <Card>
-          <CardHeader title="Add a device" />
-          <CardContent>
-            <TextField
-              label="Device Name"
-              error={this.state.error !== ''}
-              value={this.state.name}
-              onChange={event => this.setState({ name: event.currentTarget.value })}
-              style={{ marginTop: -20, marginBottom: 8 }}
-              fullWidth
-            />
-            {this.state.error !== '' && <FormHelperText>{this.state.error}</FormHelperText>}
-          </CardContent>
-          <CardActions>
-            <Button color="primary" variant="contained" endIcon={<AddIcon />} type="submit">
-              Add
-            </Button>
-            <Dialog disableBackdropClick disableEscapeKeyDown maxWidth="xl" open={this.state.open}>
-              <DialogTitle>Get Connected</DialogTitle>
-              <DialogContent>
-                <GetConnected qrCodeUri={this.state.qrCodeUri} configFileUri={this.state.configFileUri} />
-              </DialogContent>
-              <DialogActions>
-                <Button color="secondary" variant="outlined" onClick={() => this.setState({ open: false })}>
-                  Done
-                </Button>
-              </DialogActions>
-            </Dialog>
-          </CardActions>
-        </Card>
-      </form>
-    );
-  }
+  return (
+    <React.Fragment>
+      <Grid container spacing={3}>
+        <Grid item xs></Grid>
+        <Grid item xs={12} md={4} lg={6}>
+          <Container hidden={formOpen}>
+            <Fab color="secondary" aria-label="add" className={classes.fabButton} onClick={() => setFormOpen(true)}>
+              <AddIcon />
+            </Fab>
+          </Container>
+          <Paper hidden={!formOpen} className={classes.paper}>
+              <form onSubmit={addDevice}>
+                <FormControl error={error != ''} fullWidth>
+                  <InputLabel htmlFor="device-name">Device Name</InputLabel>
+                  <Input
+                    id="device-name"
+                    value={name}
+                    onChange={(event) => setName(event.currentTarget.value)}
+                    aria-describedby="device-name-text"
+                  />
+                  <FormHelperText id="device-name-text">{error}</FormHelperText>
+                </FormControl>
+                <Typography component="div" align="right">
+                  <Button
+                      color="secondary"
+                      type="button"
+                      onClick={closeForm}
+                      className={classes.button}
+                      >
+                      Cancel
+                  </Button>
+                  <Button
+                      color="primary"
+                      variant="contained"
+                      endIcon={<AddIcon />}
+                      type="submit"
+                      className={classes.button}
+                      >
+                      Next
+                  </Button>
+                </Typography>
+              </form>
+          </Paper>
+        </Grid>
+        <Grid item xs></Grid>
+      </Grid>
+      <Dialog
+          disableBackdropClick
+          disableEscapeKeyDown
+          maxWidth="xl"
+          open={dialogOpen}
+      >
+        <DialogTitle>Get Connected</DialogTitle>
+        <DialogContent>
+        <GetConnected
+            qrCodeUri={qrCodeUri}
+            configFileUri={configFileUri}
+        />
+        </DialogContent>
+        <DialogActions>
+        <Button color="secondary" variant="outlined" onClick={() => setDialogOpen(false)}>
+            Done
+        </Button>
+        </DialogActions>
+      </Dialog>
+    </React.Fragment>
+  );
 }
-
-export default view(AddDevice);

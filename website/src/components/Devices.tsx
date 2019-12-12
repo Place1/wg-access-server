@@ -18,15 +18,9 @@ class Devices extends React.Component {
 
   render() {
     return (
-      <Grid container spacing={3} style={{ padding: '1rem' }}>
-        <Grid item xs={12} sm={6}>
-          <h1>Your Devices</h1>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <AddDevice />
-        </Grid>
+      <Grid container spacing={3}>
         {AppState.devices.map((device, i) => (
-          <Grid key={i} item xs={12} sm={6}>
+          <Grid key={i} item xs={12} sm={6} md={4} lg={3}>
             <Device device={device} />
           </Grid>
         ))}
