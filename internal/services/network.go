@@ -1,11 +1,19 @@
 package services
 
 import (
+	"net"
+
 	"github.com/coreos/go-iptables/iptables"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/vishvananda/netlink"
 )
+
+func ServerVPNIP(cidr string) *net.IPNet {
+	vpnip, vpnsubnet := MustParseCIDR(cidr)
+	vpnsubnet.IP = nextIP(vpnip.Mask(vpnsubnet.Mask))
+	return vpnsubnet
+}
 
 func ConfigureRouting(wgIface string, cidr string) error {
 	// Networking configuration (ip links and route tables)
@@ -15,11 +23,9 @@ func ConfigureRouting(wgIface string, cidr string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to find wireguard interface")
 	}
-	vpnip, vpnsubnet := MustParseCIDR(cidr)
-	vpnsubnet.IP = nextIP(vpnip.Mask(vpnsubnet.Mask))
-	serverIP := vpnsubnet.String()
-	logrus.Infof("server VPN subnet IP is %s", serverIP)
-	addr, err := netlink.ParseAddr(serverIP)
+	vpnip := ServerVPNIP(cidr)
+	logrus.Infof("server VPN subnet IP is %s", vpnip.String())
+	addr, err := netlink.ParseAddr(vpnip.String())
 	if err != nil {
 		return errors.Wrap(err, "failed to parse subnet address")
 	}
