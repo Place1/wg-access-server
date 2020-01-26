@@ -43,6 +43,7 @@ func main() {
 		conf.WireGuard.PrivateKey,
 		conf.WireGuard.Port,
 		conf.WireGuard.ExternalAddress,
+		conf.WireGuard.DNS,
 	)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to create wgserver"))

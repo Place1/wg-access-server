@@ -17,11 +17,12 @@ type WireGuard struct {
 	iface           string
 	externalAddress string
 	port            int
+	dns             []string
 	publicKey       wgtypes.Key
 	lock            sync.Mutex
 }
 
-func NewWireGuard(iface string, privateKey string, port int, externalAddress string) (*WireGuard, error) {
+func NewWireGuard(iface string, privateKey string, port int, externalAddress string, dns []string) (*WireGuard, error) {
 	// wgctrl.New() will search for a kernel implementation
 	// of wireguard, then user implementations
 	// user implementations are found in /var/run/wireguard/<iface>.sock
@@ -142,7 +143,7 @@ func (s *WireGuard) Endpoint() string {
 }
 
 func (s *WireGuard) DNS() string {
-	return "1.1.1.1, 8.8.8.8" // TODO: dns stuff
+	return strings.Join(s.dns, ", ")
 }
 
 func (s *WireGuard) Device() (*wgtypes.Device, error) {

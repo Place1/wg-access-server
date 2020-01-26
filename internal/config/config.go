@@ -63,6 +63,9 @@ type AppConfig struct {
 		ExternalAddress string `yaml:"externalAddress`
 		// The WireGuard ListenPort
 		Port int `yaml:"port"`
+		// The DNS servers that VPN clients will be directed
+		// to use.
+		DNS []string `yaml:"dns"`
 	} `yaml:"wireguard"`
 	VPN struct {
 		// CIDR configures a network address space
