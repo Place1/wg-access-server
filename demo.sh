@@ -26,4 +26,4 @@ docker run \
   -v "$CONFIG_FILE:/config.yaml" \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
-  place1/wireguard-access-server --config /config.yaml
+  place1/wireguard-access-server /server --config /config.yaml
