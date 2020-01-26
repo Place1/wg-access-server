@@ -63,8 +63,7 @@ type AppConfig struct {
 		ExternalAddress string `yaml:"externalAddress`
 		// The WireGuard ListenPort
 		Port int `yaml:"port"`
-		// The DNS servers that VPN clients will be directed
-		// to use.
+		// The DNS servers that VPN clients will be directed to use
 		DNS []string `yaml:"dns"`
 	} `yaml:"wireguard"`
 	VPN struct {
@@ -174,6 +173,10 @@ func Read() *AppConfig {
 
 	if config.Storage.Directory == "" {
 		logrus.Warn("storage directory not configured - using in-memory storage backend! wireguard devices will be lost when the process exits!")
+	}
+
+	if len(config.WireGuard.DNS) == 0 {
+		config.WireGuard.DNS = []string{"1.1.1.1", "8.8.8.8"}
 	}
 
 	return &config

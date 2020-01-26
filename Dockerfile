@@ -36,4 +36,4 @@ COPY ./dex-web /dex-web
 COPY --from=boringtun /bin/boringtun /usr/local/bin/boringtun
 COPY --from=server /code/server /server
 COPY --from=website /code/build /website/build
-CMD /server
+ENTRYPOINT ["/server"]

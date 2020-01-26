@@ -40,6 +40,7 @@ func NewWireGuard(iface string, privateKey string, port int, externalAddress str
 		iface:           iface,
 		port:            port,
 		externalAddress: externalAddress,
+		dns:             dns,
 		publicKey:       key.PublicKey(),
 	}
 	err = server.configure(func(config *wgtypes.Config) error {

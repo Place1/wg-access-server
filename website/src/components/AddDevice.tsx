@@ -1,12 +1,10 @@
 import React from 'react';
-
-import AddIcon from '@material-ui/icons/Add';
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import Fab from '@material-ui/core/Fab';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
@@ -14,15 +12,15 @@ import Grid from '@material-ui/core/Grid';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import Paper from '@material-ui/core/Paper';
+import AddIcon from '@material-ui/icons/Add';
 import Typography from '@material-ui/core/Typography';
-
 import qrcode from 'qrcode';
-import { box_keyPair } from 'tweetnacl-ts';
-import { codeBlock } from 'common-tags';
 import { makeStyles } from '@material-ui/core/styles';
-
+import { codeBlock } from 'common-tags';
+import { box_keyPair } from 'tweetnacl-ts';
+import { AppState, IDevice } from '../Store';
 import { GetConnected } from './GetConnected';
-import { IDevice, AppState } from '../Store';
+
 
 const useStyles = makeStyles(theme => ({
   hidden: {
@@ -50,13 +48,13 @@ export default function AddDevice() {
   const [name, setName] = React.useState('');
   const [qrCodeUri, setQrCodeUri] = React.useState('');
   const [configFileUri, setConfigFileUri] = React.useState('');
-  
-  var closeForm = () => {
+
+  const closeForm = () => {
     setFormOpen(false);
     setName('');
   };
 
-  var addDevice = async (event: React.FormEvent) => {
+  const addDevice = async (event: React.FormEvent) => {
     event.preventDefault();
 
     const keypair = box_keyPair();
@@ -82,7 +80,7 @@ export default function AddDevice() {
       [Interface]
       PrivateKey = ${b64PrivateKey}
       Address = ${device.address}
-      DNS = ${'1.1.1.1, 8.8.8.8'}
+      DNS = ${device.dns}
 
       [Peer]
       PublicKey = ${device.serverPublicKey}
@@ -108,58 +106,58 @@ export default function AddDevice() {
             </Fab>
           </Container>
           <Paper hidden={!formOpen} className={classes.paper}>
-              <form onSubmit={addDevice}>
-                <FormControl error={error != ''} fullWidth>
-                  <InputLabel htmlFor="device-name">Device Name</InputLabel>
-                  <Input
-                    id="device-name"
-                    value={name}
-                    onChange={(event) => setName(event.currentTarget.value)}
-                    aria-describedby="device-name-text"
-                  />
-                  <FormHelperText id="device-name-text">{error}</FormHelperText>
-                </FormControl>
-                <Typography component="div" align="right">
-                  <Button
-                      color="secondary"
-                      type="button"
-                      onClick={closeForm}
-                      className={classes.button}
-                      >
-                      Cancel
-                  </Button>
-                  <Button
-                      color="primary"
-                      variant="contained"
-                      endIcon={<AddIcon />}
-                      type="submit"
-                      className={classes.button}
-                      >
-                      Next
-                  </Button>
-                </Typography>
-              </form>
+            <form onSubmit={addDevice}>
+              <FormControl error={error !== ''} fullWidth>
+                <InputLabel htmlFor="device-name">Device Name</InputLabel>
+                <Input
+                  id="device-name"
+                  value={name}
+                  onChange={(event) => setName(event.currentTarget.value)}
+                  aria-describedby="device-name-text"
+                />
+                <FormHelperText id="device-name-text">{error}</FormHelperText>
+              </FormControl>
+              <Typography component="div" align="right">
+                <Button
+                  color="secondary"
+                  type="button"
+                  onClick={closeForm}
+                  className={classes.button}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  color="primary"
+                  variant="contained"
+                  endIcon={<AddIcon />}
+                  type="submit"
+                  className={classes.button}
+                >
+                  Next
+                </Button>
+              </Typography>
+            </form>
           </Paper>
         </Grid>
         <Grid item xs></Grid>
       </Grid>
       <Dialog
-          disableBackdropClick
-          disableEscapeKeyDown
-          maxWidth="xl"
-          open={dialogOpen}
+        disableBackdropClick
+        disableEscapeKeyDown
+        maxWidth="xl"
+        open={dialogOpen}
       >
         <DialogTitle>Get Connected</DialogTitle>
         <DialogContent>
-        <GetConnected
+          <GetConnected
             qrCodeUri={qrCodeUri}
             configFileUri={configFileUri}
-        />
+          />
         </DialogContent>
         <DialogActions>
-        <Button color="secondary" variant="outlined" onClick={() => setDialogOpen(false)}>
+          <Button color="secondary" variant="outlined" onClick={() => setDialogOpen(false)}>
             Done
-        </Button>
+          </Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>

@@ -6,7 +6,14 @@
 # note that "WIREGUARD_PRIVATE_KEY" used in
 # this configuration is for the demo and clearly
 # not secure, please don't copy-paste it
-set -eou pipefail
+set -eo pipefail
+
+if [[ -z $1 ]]; then
+  echo "USAGE: $0 <path-to-config-file>"
+  exit 1
+fi
+
+CONFIG_FILE="$1"
 
 docker build -t place1/wireguard-access-server .
 
@@ -16,6 +23,7 @@ docker run \
   --name wg \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
+  -v "$CONFIG_FILE:/config.yaml" \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
-  place1/wireguard-access-server
+  place1/wireguard-access-server --config /config.yaml

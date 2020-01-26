@@ -3,9 +3,9 @@ import Grid from '@material-ui/core/Grid';
 import { view } from 'react-easy-state';
 import { AppState } from '../Store';
 import Device from './Device';
-import AddDevice from './AddDevice';
 
 class Devices extends React.Component {
+
   componentDidMount() {
     this.load();
   }
