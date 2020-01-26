@@ -5,7 +5,7 @@ export interface IDevice {
   publicKey: string;
   endpoint: string;
   address: string;
-  dns: string;
+  dns: string[];
   createdAt: string;
   serverPublicKey: string;
   // TODO: these fields on backend
