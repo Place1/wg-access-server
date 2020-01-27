@@ -37,13 +37,16 @@ func main() {
 		time.Sleep(1 * time.Second)
 	}
 
+	// The server's IP within the VPN virtual network
+	vpnip := services.ServerVPNIP(conf.VPN.CIDR)
+
 	// WireGuard
 	wgserver, err := services.NewWireGuard(
 		conf.WireGuard.InterfaceName,
 		conf.WireGuard.PrivateKey,
 		conf.WireGuard.Port,
 		conf.WireGuard.ExternalAddress,
-		conf.WireGuard.DNS,
+		[]string{vpnip.IP.String()},
 	)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to create wgserver"))
@@ -64,6 +67,13 @@ func main() {
 	} else {
 		logrus.Warn("VPN.GatewayInterface is not configured - vpn clients will not have access to the internet")
 	}
+
+	// DNS Server
+	dns, err := services.NewDNSServer(conf.DNS.Upstream)
+	if err != nil {
+		logrus.Fatal(errors.Wrap(err, "failed to start dns server"))
+	}
+	defer dns.Close()
 
 	// Storage
 	var storageDriver storage.Storage

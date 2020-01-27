@@ -11,21 +11,30 @@ require (
 	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/gorilla/handlers v1.4.2 // indirect
 	github.com/gorilla/mux v1.7.3
+	github.com/jonboulle/clockwork v0.1.0 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
+	github.com/miekg/dns v1.1.27
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.8.1
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
 	github.com/prometheus/client_golang v1.2.1
 	github.com/russellhaering/goxmldsig v0.0.0-20180430223755-7acd5e4a6ef7 // indirect
 	github.com/sirupsen/logrus v1.4.2
-	github.com/spf13/viper v1.4.0
+	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/vishvananda/netlink v1.0.0
 	github.com/vishvananda/netns v0.0.0-20190625233234-7109fa855b0f // indirect
-	golang.org/x/crypto v0.0.0-20191002192127-34f69633bfdc
+	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413 // indirect
+	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
+	golang.org/x/sys v0.0.0-20191210023423-ac6580df4449 // indirect
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20191008142428-8d021180e987
-	google.golang.org/grpc v1.24.0 // indirect
+	google.golang.org/appengine v1.6.1 // indirect
+	google.golang.org/grpc v1.25.1 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/ldap.v2 v2.5.1 // indirect
 	gopkg.in/square/go-jose.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v2 v2.2.2

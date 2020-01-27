@@ -118,10 +118,6 @@ wireguard:
   externalAddress: ""
   // The WireGuard ListenPort
   port: 51820
-  // The DNS servers that VPN clients will be directed to use
-  dns:
-    - "1.1.1.1"
-    - "8.8.8.8"
 } `yaml:"wireguard"`
 vpn:
   // CIDR configures a network address space
@@ -135,6 +131,13 @@ vpn:
   // If not configured then the server will select the default
   // network interface e.g. eth0
   gatewayInterface: ""
+dns:
+  // The upstream DNS servers that VPN clients will use
+  // VPN Clients will connect to a DNS proxy running on the
+  // wireguard server, which will send DNS requests to this
+  // upstream server.
+  upstream:
+    - "1.1.1.1"
 auth:
   // The below are all optional.
   // Different authentication backends can be configured.

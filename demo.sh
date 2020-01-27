@@ -24,6 +24,9 @@ docker run \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
   -v "$CONFIG_FILE:/config.yaml" \
+  -v demo-data:/data \
+  -e "LOG_LEVEL=Debug" \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
+  -p 53:53/udp \
   place1/wireguard-access-server /server --config /config.yaml
