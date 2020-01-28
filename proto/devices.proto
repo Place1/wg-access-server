@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package proto;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service Devices {
+  rpc AddDevice(AddDeviceReq) returns (Device) {}
+  rpc ListDevices(ListDevicesReq) returns (ListDevicesRes) {}
+  rpc DeleteDevice(DeleteDeviceReq) returns (google.protobuf.Empty) {}
+}
+
+message Device {
+  string name = 1;
+  string owner = 2;
+  string public_key = 3;
+  string address = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message AddDeviceReq {
+  string name = 1;
+  string public_key = 2;
+}
+
+message ListDevicesReq {
+
+}
+
+message ListDevicesRes {
+  repeated Device items = 1;
+}
+
+message DeleteDeviceReq {
+  string name = 1;
+}

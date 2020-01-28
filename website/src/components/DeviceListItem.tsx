@@ -8,15 +8,17 @@ import DonutSmallIcon from '@material-ui/icons/DonutSmall';
 import MenuItem from '@material-ui/core/MenuItem';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import { view } from 'react-easy-state';
-import { IDevice, AppState } from '../Store';
+import { AppState } from '../Store';
 import { IconMenu } from './IconMenu';
 import { PopoverDisplay } from './PopoverDisplay';
+import { Device } from '../sdk/devices_pb'
+import { grpc } from '../Api';
 
 interface Props {
-  device: IDevice;
+  device: Device.AsObject;
 }
 
-class Device extends React.Component<Props> {
+class DeviceListItem extends React.Component<Props> {
   dateString(date: Date) {
     if (date.getUTCMilliseconds() === 0) {
       return 'never';
@@ -25,13 +27,13 @@ class Device extends React.Component<Props> {
   }
 
   removeDevice = async () => {
-    const res = await fetch(`/api/devices/${this.props.device.name}`, {
-      method: 'DELETE',
-    });
-    if (res.status === 204) {
+    try {
+      await grpc.devices.deleteDevice({
+        name: this.props.device.name,
+      });
       AppState.devices = AppState.devices.filter(device => device.name !== this.props.device.name);
-    } else {
-      window.alert(await res.text());
+    } catch {
+      window.alert('api request failed');
     }
   };
 
@@ -58,11 +60,10 @@ class Device extends React.Component<Props> {
           <Typography component="p">
             Public Key: <PopoverDisplay label="show">{device.publicKey}</PopoverDisplay>
           </Typography>
-          <Typography component="p">Endpoint: {device.endpoint}</Typography>
         </CardContent>
       </Card>
     );
   }
 }
 
-export default view(Device);
+export default view(DeviceListItem);

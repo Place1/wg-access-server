@@ -1,4 +1,4 @@
-package services
+package devices
 
 import (
 	"fmt"
@@ -7,19 +7,21 @@ import (
 	"sync"
 	"time"
 
+	"github.com/place1/wg-embed/pkg/wgembed"
+
 	"github.com/pkg/errors"
 	"github.com/place1/wireguard-access-server/internal/storage"
 	"github.com/sirupsen/logrus"
 )
 
 type DeviceManager struct {
-	wgserver *WireGuard
-	storage  storage.Storage
-	cidr     string
+	iface   string
+	storage storage.Storage
+	cidr    string
 }
 
-func NewDeviceManager(w *WireGuard, s storage.Storage, cidr string) *DeviceManager {
-	return &DeviceManager{w, s, cidr}
+func New(iface string, s storage.Storage, cidr string) *DeviceManager {
+	return &DeviceManager{iface, s, cidr}
 }
 
 func (d *DeviceManager) Sync() error {
@@ -28,7 +30,7 @@ func (d *DeviceManager) Sync() error {
 		return errors.Wrap(err, "failed to list devices")
 	}
 	for _, device := range devices {
-		if err := d.wgserver.AddPeer(device.PublicKey, device.Address); err != nil {
+		if err := wgembed.AddPeer(d.iface, device.PublicKey, device.Address); err != nil {
 			logrus.Warn(errors.Wrapf(err, "failed to sync device '%s' (ignoring)", device.Name))
 		}
 	}
@@ -46,21 +48,18 @@ func (d *DeviceManager) AddDevice(user string, name string, publicKey string) (*
 	}
 
 	device := &storage.Device{
-		Owner:           user,
-		Name:            name,
-		PublicKey:       publicKey,
-		Endpoint:        d.wgserver.Endpoint(),
-		Address:         clientAddr,
-		DNS:             d.wgserver.DNS(),
-		CreatedAt:       time.Now(),
-		ServerPublicKey: d.wgserver.PublicKey(),
+		Owner:     user,
+		Name:      name,
+		PublicKey: publicKey,
+		Address:   clientAddr,
+		CreatedAt: time.Now(),
 	}
 
 	if err := d.storage.Save(key(user, device.Name), device); err != nil {
 		return nil, errors.Wrap(err, "failed to save the new device")
 	}
 
-	if err := d.wgserver.AddPeer(publicKey, clientAddr); err != nil {
+	if err := wgembed.AddPeer(d.iface, publicKey, clientAddr); err != nil {
 		return nil, errors.Wrap(err, "unable to provision peer")
 	}
 
@@ -83,7 +82,7 @@ func (d *DeviceManager) DeleteDevice(user string, name string) error {
 	if err := d.storage.Delete(key(user, name)); err != nil {
 		return err
 	}
-	if err := d.wgserver.RemovePeer(device.PublicKey); err != nil {
+	if err := wgembed.RemovePeer(d.iface, device.PublicKey); err != nil {
 		return errors.Wrap(err, "device was removed from storage but failed to be removed from the wireguard interface")
 	}
 	return nil

@@ -115,8 +115,24 @@ export class GetConnected extends React.Component<Props> {
           </Grid>
         </TabPanel>
         <TabPanel for={Platform.Android} value={this.state.platform}>
-          <p>TODO: I don't have an android phone :(</p>
-          <p>PRs welcome :)</p>
+          <Grid container direction="row" justify="space-around" alignItems="center">
+            <Grid item>
+              <List>
+                <ListItem>
+                  <ListItemText primary="1. Install the WireGuard app" />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="2. Add a tunnel" />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="3. Create from QR code" />
+                </ListItem>
+              </List>
+            </Grid>
+            <Grid item>
+              <img alt="wireguard qr code" src={this.props.qrCodeUri} />
+            </Grid>
+          </Grid>
         </TabPanel>
         <TabPanel for={Platform.Windows} value={this.state.platform}>
           <Grid container direction="row" justify="space-around" alignItems="center">

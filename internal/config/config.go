@@ -40,13 +40,9 @@ type AppConfig struct {
 		Directory string `yaml:"directory"`
 	} `yaml:"storage"`
 	WireGuard struct {
-		// UserspaceImplementation is a command (program on $PATH)
-		// that implements the WireGuard protocol in userspace.
-		// In our Docker image we make use of `boringtun` so that
-		// users aren't required to setup kernel modules
-		UserspaceImplementation string `yaml:"userspaceImplementation"`
 		// The network interface name of the WireGuard
-		// network device
+		// network device.
+		// Defaults to wg0
 		InterfaceName string `yaml:"interfaceName"`
 		// The WireGuard PrivateKey
 		// If this value is lost then any existing
@@ -60,7 +56,7 @@ type AppConfig struct {
 		// use to connect to the wireguard interface
 		// By default, this will use the Web.ExternalAddress
 		// domain with the WireGuard.Port
-		ExternalAddress string `yaml:"externalAddress`
+		ExternalAddress *string `yaml:"externalAddress"`
 		// The WireGuard ListenPort
 		Port int `yaml:"port"`
 	} `yaml:"wireguard"`
@@ -73,16 +69,13 @@ type AppConfig struct {
 		// rules that send VPN traffic from clients to this interface
 		// Most use-cases will want this interface to have access
 		// to the outside internet
-		GatewayInterface string `yaml:"gatewayInterface`
+		GatewayInterface string `yaml:"gatewayInterface"`
 	}
 	DNS struct {
 		// TODO: docs
 		Upstream []string `yaml:"upstream"`
 	} `yaml:"dns"`
-	Auth struct {
-		OIDC   *auth.OIDCConfig   `yaml:"oidc"`
-		Gitlab *auth.GitlabConfig `yaml:"gitlab"`
-	} `yaml:"auth"`
+	Auth *auth.AuthConfig `yaml:"auth"`
 }
 
 var (
@@ -122,10 +115,6 @@ func Read() *AppConfig {
 		config.WireGuard.PrivateKey = v
 	}
 
-	if v, ok := os.LookupEnv("WIREGUARD_USERSPACE_IMPLEMENTATION"); ok {
-		config.WireGuard.UserspaceImplementation = v
-	}
-
 	level, err := logrus.ParseLevel(config.LogLevel)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "invalid log level - should be one of fatal, error, warn, info, debug, trace"))
@@ -148,22 +137,6 @@ func Read() *AppConfig {
 		}
 	}
 
-	// if config.Web.ExternalAddress == "" && config.VPN.GatewayInterface != "" {
-	// 	if ip, err := linkIPAddr(config.VPN.GatewayInterface); err == nil {
-	// 		config.Web.ExternalAddress = fmt.Sprintf("http://%s:%d", ip.String(), config.Web.Port)
-	// 		logrus.Warnf("no external address was configured - using %s from the gateway interface", config.Web.ExternalAddress)
-	// 	}
-	// }
-
-	// if config.WireGuard.ExternalAddress == "" {
-	// 	u, err := url.Parse(config.Web.ExternalAddress)
-	// 	if err != nil {
-	// 		logrus.Warn(errors.Wrap(err, "no WireGuard.External was configured and Web.ExternalAddress could not be parsed"))
-	// 	} else {
-	// 		config.WireGuard.ExternalAddress = fmt.Sprintf("%s:%d", u.Hostname(), config.WireGuard.Port)
-	// 	}
-	// }
-
 	if config.WireGuard.PrivateKey == "" {
 		logrus.Warn("no private key has been configured! using an in-memory private key that will be lost when the process exits!")
 		key, err := wgtypes.GeneratePrivateKey()
@@ -181,6 +154,9 @@ func Read() *AppConfig {
 }
 
 func IsAuthEnabled(config *AppConfig) bool {
+	if config.Auth == nil {
+		return false
+	}
 	return config.Auth.OIDC != nil || config.Auth.Gitlab != nil
 }
 

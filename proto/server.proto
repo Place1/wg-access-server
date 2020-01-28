@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package proto;
+
+import "google/protobuf/wrappers.proto";
+
+service Server {
+  rpc Info(InfoReq) returns (InfoRes) {}
+}
+
+message InfoReq {
+
+}
+
+message InfoRes {
+  string public_key = 1;
+  google.protobuf.StringValue host = 2;
+  int32 port = 3;
+  string host_vpn_ip = 4;
+}

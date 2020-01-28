@@ -2,7 +2,8 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import { view } from 'react-easy-state';
 import { AppState } from '../Store';
-import Device from './Device';
+import DeviceListItem from './DeviceListItem';
+import { grpc } from '../Api';
 
 class Devices extends React.Component {
 
@@ -11,9 +12,8 @@ class Devices extends React.Component {
   }
 
   async load() {
-    const res = await fetch('/api/devices');
-    const data = await res.json();
-    AppState.devices = data.items;
+    const res = await grpc.devices.listDevices({});
+    AppState.devices = res.items;
   }
 
   render() {
@@ -21,7 +21,7 @@ class Devices extends React.Component {
       <Grid container spacing={3}>
         {AppState.devices.map((device, i) => (
           <Grid key={i} item xs={12} sm={6} md={4} lg={3}>
-            <Device device={device} />
+            <DeviceListItem device={device} />
           </Grid>
         ))}
       </Grid>
