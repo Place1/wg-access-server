@@ -20,11 +20,11 @@ type DNSServer struct {
 }
 
 func NewDNSServer(upstream []string) (*DNSServer, error) {
-	logrus.Infof("starting dns server")
-
 	if len(upstream) == 0 {
 		upstream = []string{"1.1.1.1"}
 	}
+
+	logrus.Infof("starting dns server with upstreams: %v", upstream)
 
 	dnsServer := &DNSServer{
 		server: &dns.Server{
@@ -33,6 +33,7 @@ func NewDNSServer(upstream []string) (*DNSServer, error) {
 		},
 		client: &dns.Client{
 			SingleInflight: true,
+			Timeout:        5 * time.Second,
 		},
 		cache:    cache.New(10*time.Minute, 10*time.Minute),
 		upstream: upstream,
@@ -59,13 +60,15 @@ func (d *DNSServer) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 			dns.HandleFailed(w, r)
 		}
 	}()
+
+	if logrus.GetLevel() == logrus.DebugLevel {
+		// log behind a condition to ensure we don't call prettyPrintMsg
+		// when the log level would filter out the message anyway
+		logrus.Debugf("dns query: %s", prettyPrintMsg(r))
+	}
+
 	switch r.Opcode {
 	case dns.OpcodeQuery:
-		if logrus.GetLevel() == logrus.DebugLevel {
-			// log behind a condition to ensure we don't call prettyPrintMsg
-			// when the log level would filter out the message anyway
-			logrus.Debugf("dns query: %s", prettyPrintMsg(r))
-		}
 		m, err := d.Lookup(r)
 		if err != nil {
 			logrus.Errorf("failed lookup record with error: %s\n%s", err.Error(), r)
@@ -74,8 +77,12 @@ func (d *DNSServer) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 		}
 		m.SetReply(r)
 		w.WriteMsg(m)
-		return
+	default:
+		m := &dns.Msg{}
+		m.SetReply(r)
+		w.WriteMsg(m)
 	}
+
 }
 
 func (d *DNSServer) Lookup(m *dns.Msg) (*dns.Msg, error) {
