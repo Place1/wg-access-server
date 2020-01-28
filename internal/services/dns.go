@@ -61,11 +61,7 @@ func (d *DNSServer) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 		}
 	}()
 
-	if logrus.GetLevel() == logrus.DebugLevel {
-		// log behind a condition to ensure we don't call prettyPrintMsg
-		// when the log level would filter out the message anyway
-		logrus.Debugf("dns query: %s", prettyPrintMsg(r))
-	}
+	logrus.Debugf("dns query: %s", prettyPrintMsg(r))
 
 	switch r.Opcode {
 	case dns.OpcodeQuery:
@@ -90,9 +86,7 @@ func (d *DNSServer) Lookup(m *dns.Msg) (*dns.Msg, error) {
 
 	// check the cache first
 	if item, found := d.cache.Get(key); found {
-		if logrus.GetLevel() == logrus.DebugLevel {
-			logrus.Debugf("dns cache hit %s", prettyPrintMsg(m))
-		}
+		logrus.Debugf("dns cache hit %s", prettyPrintMsg(m))
 		return item.(*dns.Msg), nil
 	}
 
@@ -104,7 +98,7 @@ func (d *DNSServer) Lookup(m *dns.Msg) (*dns.Msg, error) {
 
 	if len(response.Answer) > 0 {
 		ttl := time.Duration(response.Answer[0].Header().Ttl) * time.Second
-		logrus.Debugf("caching dns response for %v seconds", ttl)
+		logrus.Debugf("caching dns response for %s for %v seconds", prettyPrintMsg(m), ttl)
 		d.cache.Set(key, response, ttl)
 	}
 
