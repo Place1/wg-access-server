@@ -19,5 +19,7 @@ func (c *GitlabConfig) Provider() *authruntime.Provider {
 		RedirectURL:  c.RedirectURL,
 		Scopes:       []string{"openid"},
 	}
-	return o.Provider()
+	p := o.Provider()
+	p.Type = "Gitlab"
+	return p
 }

@@ -4,11 +4,11 @@ import (
 	"html/template"
 	"io"
 
-	"github.com/place1/wireguard-access-server/internal/auth/authconfig"
+	"github.com/place1/wireguard-access-server/internal/auth/authruntime"
 )
 
 type LoginPage struct {
-	Config *authconfig.AuthConfig
+	Providers []*authruntime.Provider
 }
 
 func RenderLoginPage(w io.Writer, data LoginPage) error {
@@ -34,11 +34,11 @@ const loginPage string = `
 
 	.form {
 		position: absolute;
-		top: 40%;
+		top: 50%;
 		left: 50%;
+		transform: translate(-50%, -50%);
 		background-color: #fff;
 		width: 285px;
-		margin: -140px 0 0 -182px;
 		padding: 40px;
 		box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
 	}
@@ -59,7 +59,6 @@ const loginPage string = `
 		border: 1px solid #ccc;
 		color: #ccc;
 		box-sizing: border-box;
-		transition: 0.2s linear;
 	}
 
 	.form * {
@@ -105,34 +104,25 @@ const loginPage string = `
 		background-color: #4d4d4d;
 		border-radius: 50%;
 	}
-
-	.error, .valid{display:none;}
 </style>
 
-
-
-<section class="form animated flipInX">
+<section class="form">
   <h2>Login To Your Account</h2>
-  <p class="valid">Valid. Please wait a moment.</p>
-  <p class="error">Error. Please enter correct Username &amp; password.</p>
-	<form class="loginbox" autocomplete="off">
 
-		{{if .Config.Basic}}
-			<input placeholder="Username" type="text" id="username"></input>
-			<input placeholder="Password" type="password" id="password"></input>
-			<button id="submit">Login</button>
-		{{end}}
+	{{range $i, $p := .Providers}}
+		<a href="/signin/{{$i}}">
+			<button>{{$p.Type}}</button>
+		</a>
+	{{end}}
 
-		<hr />
-
-		{{if .Config.OIDC}}
-			<button>{{.Config.OIDC.Name}}</button>
-		{{end}}
-
-		{{if .Config.Gitlab}}
-			<button>{{.Config.Gitlab.Name}}</button>
-		{{end}}
-
+	<!--
+	<form autocomplete="off">
+		<input placeholder="Username" type="text" id="username"></input>
+		<input placeholder="Password" type="password" id="password"></input>
+		<button id="submit">Login</button>
 	</form>
+	<hr />
+	-->
+
 </section>
 `

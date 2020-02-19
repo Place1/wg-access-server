@@ -1,6 +1,8 @@
 package authconfig
 
-import "github.com/place1/wireguard-access-server/internal/auth/authruntime"
+import (
+	"github.com/place1/wireguard-access-server/internal/auth/authruntime"
+)
 
 type AuthConfig struct {
 	OIDC   *OIDCConfig      `yaml:"oidc"`

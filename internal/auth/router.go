@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/place1/wireguard-access-server/internal/auth/authconfig"
 	"github.com/place1/wireguard-access-server/internal/auth/authruntime"
@@ -27,16 +28,31 @@ func (m *AuthMiddleware) Wrap(next http.Handler) http.Handler {
 	runtime := authruntime.NewProviderRuntime(sessions.NewCookieStore([]byte(authutil.RandomString(32))))
 	router := mux.NewRouter()
 
-	for _, p := range m.config.Providers() {
-		p.RegisterRoutes(router, runtime)
+	providers := m.config.Providers()
+
+	for _, p := range providers {
+		if p.RegisterRoutes != nil {
+			p.RegisterRoutes(router, runtime)
+		}
 	}
 
-	router.PathPrefix("/signin").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/signin", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, authtemplates.RenderLoginPage(w, authtemplates.LoginPage{
-			Config: m.config,
+			Providers: providers,
 		}))
-	}))
+	})
+
+	router.HandleFunc("/signin/{index}", func(w http.ResponseWriter, r *http.Request) {
+		index, err := strconv.Atoi(mux.Vars(r)["index"])
+		if err != nil || (index < 0 || index >= len(providers)) {
+			fmt.Fprintf(w, "unknown provider")
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		provider := providers[index]
+		provider.Invoke(w, r, runtime)
+	})
 
 	router.PathPrefix("/").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if s, err := runtime.GetSession(r); err == nil {

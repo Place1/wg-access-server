@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/mux"
 	"github.com/place1/wireguard-access-server/internal/auth/authruntime"
 	"github.com/place1/wireguard-access-server/internal/auth/authsession"
 	"github.com/tg123/go-htpasswd"
@@ -21,16 +20,15 @@ type BasicAuthConfig struct {
 
 func (c *BasicAuthConfig) Provider() *authruntime.Provider {
 	return &authruntime.Provider{
-		RegisterRoutes: func(router *mux.Router, runtime *authruntime.ProviderRuntime) error {
-			router.HandleFunc("/login", basicAuthLogin(c, runtime))
-			return nil
+		Type: "Basic",
+		Invoke: func(w http.ResponseWriter, r *http.Request, runtime *authruntime.ProviderRuntime) {
+			basicAuthLogin(c, runtime)(w, r)
 		},
 	}
 }
 
 func basicAuthLogin(c *BasicAuthConfig, runtime *authruntime.ProviderRuntime) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		u, p, ok := r.BasicAuth()
 		if !ok {
 			w.Header().Set("WWW-Authenticate", `Basic realm="site"`)

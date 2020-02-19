@@ -3,10 +3,12 @@ package authconfig
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/coreos/go-oidc"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 	"github.com/place1/wireguard-access-server/internal/auth/authruntime"
 	"github.com/place1/wireguard-access-server/internal/auth/authsession"
 	"github.com/place1/wireguard-access-server/internal/auth/authutil"
@@ -43,10 +45,18 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 		Endpoint:     provider.Endpoint(),
 	}
 
+	redirectURL, err := url.Parse(c.RedirectURL)
+	if err != nil {
+		panic(errors.Wrapf(err, "redirect url is not valid: %s", c.RedirectURL))
+	}
+
 	return &authruntime.Provider{
+		Type: "OIDC",
+		Invoke: func(w http.ResponseWriter, r *http.Request, runtime *authruntime.ProviderRuntime) {
+			loginHandler(runtime, oauthConfig)(w, r)
+		},
 		RegisterRoutes: func(router *mux.Router, runtime *authruntime.ProviderRuntime) error {
-			router.HandleFunc("/login", loginHandler(runtime, oauthConfig))
-			router.HandleFunc("/callback", callbackHandler(runtime, oauthConfig, provider))
+			router.HandleFunc(redirectURL.Path, callbackHandler(runtime, oauthConfig, provider))
 			return nil
 		},
 	}
