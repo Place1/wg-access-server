@@ -1,4 +1,6 @@
-package auth
+package authconfig
+
+import "github.com/place1/wireguard-access-server/internal/auth/authruntime"
 
 type AuthConfig struct {
 	OIDC   *OIDCConfig      `yaml:"oidc"`
@@ -6,8 +8,8 @@ type AuthConfig struct {
 	Basic  *BasicAuthConfig `yaml:"basic"`
 }
 
-func (c *AuthConfig) Providers() []*Provider {
-	providers := []*Provider{}
+func (c *AuthConfig) Providers() []*authruntime.Provider {
+	providers := []*authruntime.Provider{}
 
 	if c.OIDC != nil {
 		providers = append(providers, c.OIDC.Provider())

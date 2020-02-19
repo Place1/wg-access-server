@@ -1,4 +1,4 @@
-package auth
+package authsession
 
 import (
 	"context"
@@ -23,7 +23,7 @@ type authSessionKey string
 
 var sessionKey authSessionKey = "auth-session"
 
-func getSession(store sessions.Store, r *http.Request) (*AuthSession, error) {
+func GetSession(store sessions.Store, r *http.Request) (*AuthSession, error) {
 	session, _ := store.Get(r, string(sessionKey))
 	if data, ok := session.Values[string(sessionKey)].([]byte); ok {
 		s := &AuthSession{}
@@ -36,7 +36,7 @@ func getSession(store sessions.Store, r *http.Request) (*AuthSession, error) {
 	return nil, errors.New("session not authenticated")
 }
 
-func setSession(store sessions.Store, r *http.Request, w http.ResponseWriter, s *AuthSession) error {
+func SetSession(store sessions.Store, r *http.Request, w http.ResponseWriter, s *AuthSession) error {
 	data, err := json.Marshal(s)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal session")
@@ -51,7 +51,7 @@ func setSession(store sessions.Store, r *http.Request, w http.ResponseWriter, s 
 	return nil
 }
 
-func setIdentityCtx(parent context.Context, session *AuthSession) context.Context {
+func SetIdentityCtx(parent context.Context, session *AuthSession) context.Context {
 	return context.WithValue(parent, sessionKey, session)
 }
 

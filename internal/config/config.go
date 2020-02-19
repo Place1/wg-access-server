@@ -10,7 +10,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/place1/wireguard-access-server/internal/auth"
+	"github.com/place1/wireguard-access-server/internal/auth/authconfig"
 	"github.com/vishvananda/netlink"
 
 	"github.com/pkg/errors"
@@ -75,7 +75,7 @@ type AppConfig struct {
 		// TODO: docs
 		Upstream []string `yaml:"upstream"`
 	} `yaml:"dns"`
-	Auth *auth.AuthConfig `yaml:"auth"`
+	Auth *authconfig.AuthConfig `yaml:"auth"`
 }
 
 var (

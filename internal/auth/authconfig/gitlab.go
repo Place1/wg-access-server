@@ -1,4 +1,6 @@
-package auth
+package authconfig
+
+import "github.com/place1/wireguard-access-server/internal/auth/authruntime"
 
 type GitlabConfig struct {
 	Name         string `yaml:"name"`
@@ -8,7 +10,7 @@ type GitlabConfig struct {
 	RedirectURL  string `yaml:"redirectURL"`
 }
 
-func (c *GitlabConfig) Provider() *Provider {
+func (c *GitlabConfig) Provider() *authruntime.Provider {
 	o := OIDCConfig{
 		Name:         c.Name,
 		Issuer:       c.BaseURL,

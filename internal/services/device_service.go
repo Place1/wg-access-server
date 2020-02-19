@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	"github.com/place1/wireguard-access-server/internal/auth"
+	"github.com/place1/wireguard-access-server/internal/auth/authsession"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/place1/wireguard-access-server/internal/devices"
@@ -19,7 +19,7 @@ type DeviceService struct {
 }
 
 func (d *DeviceService) AddDevice(ctx context.Context, req *proto.AddDeviceReq) (*proto.Device, error) {
-	user, err := auth.CurrentUser(ctx)
+	user, err := authsession.CurrentUser(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
 	}
@@ -34,7 +34,7 @@ func (d *DeviceService) AddDevice(ctx context.Context, req *proto.AddDeviceReq) 
 }
 
 func (d *DeviceService) ListDevices(ctx context.Context, req *proto.ListDevicesReq) (*proto.ListDevicesRes, error) {
-	user, err := auth.CurrentUser(ctx)
+	user, err := authsession.CurrentUser(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
 	}
@@ -50,7 +50,7 @@ func (d *DeviceService) ListDevices(ctx context.Context, req *proto.ListDevicesR
 }
 
 func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDeviceReq) (*empty.Empty, error) {
-	user, err := auth.CurrentUser(ctx)
+	user, err := authsession.CurrentUser(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
 	}

@@ -1,4 +1,4 @@
-package auth
+package authconfig
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/place1/wireguard-access-server/internal/auth/authruntime"
+	"github.com/place1/wireguard-access-server/internal/auth/authsession"
 	"github.com/tg123/go-htpasswd"
 )
 
@@ -17,16 +19,16 @@ type BasicAuthConfig struct {
 	Users []string `yaml:"users"`
 }
 
-func (c *BasicAuthConfig) Provider() *Provider {
-	return &Provider{
-		RegisterRoutes: func(router *mux.Router, runtime *ProviderRuntime) error {
+func (c *BasicAuthConfig) Provider() *authruntime.Provider {
+	return &authruntime.Provider{
+		RegisterRoutes: func(router *mux.Router, runtime *authruntime.ProviderRuntime) error {
 			router.HandleFunc("/login", basicAuthLogin(c, runtime))
 			return nil
 		},
 	}
 }
 
-func basicAuthLogin(c *BasicAuthConfig, runtime *ProviderRuntime) http.HandlerFunc {
+func basicAuthLogin(c *BasicAuthConfig, runtime *authruntime.ProviderRuntime) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		u, p, ok := r.BasicAuth()
@@ -38,8 +40,8 @@ func basicAuthLogin(c *BasicAuthConfig, runtime *ProviderRuntime) http.HandlerFu
 		}
 
 		if ok := checkCreds(c.Users, u, p); ok {
-			runtime.SetSession(w, r, &AuthSession{
-				Identity: &Identity{
+			runtime.SetSession(w, r, &authsession.AuthSession{
+				Identity: &authsession.Identity{
 					Subject: u,
 				},
 			})

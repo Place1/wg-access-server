@@ -1,14 +1,15 @@
-package auth
+package authconfig
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/base64"
 	"net/http"
 	"time"
 
 	"github.com/coreos/go-oidc"
 	"github.com/gorilla/mux"
+	"github.com/place1/wireguard-access-server/internal/auth/authruntime"
+	"github.com/place1/wireguard-access-server/internal/auth/authsession"
+	"github.com/place1/wireguard-access-server/internal/auth/authutil"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
@@ -22,7 +23,7 @@ type OIDCConfig struct {
 	RedirectURL  string   `yaml:"redirectURL"`
 }
 
-func (c *OIDCConfig) Provider() *Provider {
+func (c *OIDCConfig) Provider() *authruntime.Provider {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	provider, err := oidc.NewProvider(ctx, c.Issuer)
@@ -42,8 +43,8 @@ func (c *OIDCConfig) Provider() *Provider {
 		Endpoint:     provider.Endpoint(),
 	}
 
-	return &Provider{
-		RegisterRoutes: func(router *mux.Router, runtime *ProviderRuntime) error {
+	return &authruntime.Provider{
+		RegisterRoutes: func(router *mux.Router, runtime *authruntime.ProviderRuntime) error {
 			router.HandleFunc("/login", loginHandler(runtime, oauthConfig))
 			router.HandleFunc("/callback", callbackHandler(runtime, oauthConfig, provider))
 			return nil
@@ -51,10 +52,10 @@ func (c *OIDCConfig) Provider() *Provider {
 	}
 }
 
-func loginHandler(runtime *ProviderRuntime, oauthConfig *oauth2.Config) http.HandlerFunc {
+func loginHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		oauthStateString := randomString(32)
-		runtime.SetSession(w, r, &AuthSession{
+		oauthStateString := authutil.RandomString(32)
+		runtime.SetSession(w, r, &authsession.AuthSession{
 			Nonce: &oauthStateString,
 		})
 		url := oauthConfig.AuthCodeURL(oauthStateString)
@@ -62,7 +63,7 @@ func loginHandler(runtime *ProviderRuntime, oauthConfig *oauth2.Config) http.Han
 	}
 }
 
-func callbackHandler(runtime *ProviderRuntime, oauthConfig *oauth2.Config, provider *oidc.Provider) http.HandlerFunc {
+func callbackHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.Config, provider *oidc.Provider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s, err := runtime.GetSession(r)
 		if err != nil {
@@ -84,21 +85,12 @@ func callbackHandler(runtime *ProviderRuntime, oauthConfig *oauth2.Config, provi
 			return
 		}
 
-		runtime.SetSession(w, r, &AuthSession{
-			Identity: &Identity{
+		runtime.SetSession(w, r, &authsession.AuthSession{
+			Identity: &authsession.Identity{
 				Subject: info.Subject,
 			},
 		})
 
 		runtime.Done(w, r)
 	}
-}
-
-func randomString(size int) string {
-	blk := make([]byte, size)
-	_, err := rand.Read(blk)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	return base64.StdEncoding.EncodeToString(blk)
 }

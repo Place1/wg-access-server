@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/place1/wg-embed/pkg/wgembed"
-	"github.com/place1/wireguard-access-server/internal/auth"
+	"github.com/place1/wireguard-access-server/internal/auth/authsession"
 	"github.com/place1/wireguard-access-server/internal/config"
 	"github.com/place1/wireguard-access-server/proto/proto"
 	"github.com/sirupsen/logrus"
@@ -17,7 +17,7 @@ type ServerService struct {
 }
 
 func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.InfoRes, error) {
-	if _, err := auth.CurrentUser(ctx); err != nil {
+	if _, err := authsession.CurrentUser(ctx); err != nil {
 		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
 	}
 
