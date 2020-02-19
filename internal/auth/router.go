@@ -54,11 +54,16 @@ func (m *AuthMiddleware) Wrap(next http.Handler) http.Handler {
 		provider.Invoke(w, r, runtime)
 	})
 
+	router.HandleFunc("/signout", func(w http.ResponseWriter, r *http.Request) {
+		runtime.ClearSession(w, r)
+		runtime.Restart(w, r)
+	})
+
 	router.PathPrefix("/").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if s, err := runtime.GetSession(r); err == nil {
 			next.ServeHTTP(w, r.WithContext(authsession.SetIdentityCtx(r.Context(), s)))
 		} else {
-			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+			next.ServeHTTP(w, r)
 		}
 	}))
 

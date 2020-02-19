@@ -29,7 +29,7 @@ const loginPage string = `
 	}
 
 	body {
-		background-color: #44c4e7;
+		background-color: #3899c9;
 	}
 
 	.form {
@@ -40,13 +40,14 @@ const loginPage string = `
 		background-color: #fff;
 		width: 285px;
 		padding: 40px;
-		box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+		box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 	}
 
 	.form h2 {
-		margin: 0 0 20px;
+		margin: 0 0 35px;
+		text-align: center;
 		line-height: 1;
-		color: #44c4e7;
+		color: black;
 		font-size: 22px;
 		font-weight: 400;
 	}
@@ -61,8 +62,16 @@ const loginPage string = `
 		box-sizing: border-box;
 	}
 
-	.form * {
+	.form a {
+		display: block;
+	}
+
+	.form > * {
 		margin: 0 0 20px;
+	}
+
+	.form > *:last-child {
+		margin-bottom: 0px;
 	}
 
 	.form input:focus {
@@ -107,7 +116,7 @@ const loginPage string = `
 </style>
 
 <section class="form">
-  <h2>Login To Your Account</h2>
+  <h2>Sign In</h2>
 
 	{{range $i, $p := .Providers}}
 		<a href="/signin/{{$i}}">

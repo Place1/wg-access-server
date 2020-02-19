@@ -30,6 +30,14 @@ func (p *ProviderRuntime) GetSession(r *http.Request) (*authsession.AuthSession,
 	return authsession.GetSession(p.store, r)
 }
 
+func (p *ProviderRuntime) ClearSession(w http.ResponseWriter, r *http.Request) error {
+	return authsession.ClearSession(p.store, r, w)
+}
+
+func (p *ProviderRuntime) Restart(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
+}
+
 func (p *ProviderRuntime) Done(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }

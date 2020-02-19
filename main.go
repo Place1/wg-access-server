@@ -15,6 +15,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/place1/wireguard-access-server/internal/auth"
+	"github.com/place1/wireguard-access-server/internal/auth/authsession"
 	"github.com/place1/wireguard-access-server/internal/config"
 	"github.com/place1/wireguard-access-server/internal/devices"
 	"github.com/place1/wireguard-access-server/internal/dnsproxy"
@@ -103,16 +104,20 @@ func main() {
 	})
 	grpcServer := grpcweb.WrapServer(server)
 
-	var handler http.Handler = http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
+	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
 				logrus.WithField("stack", string(debug.Stack())).Error(err)
 			}
 		}()
-		if grpcServer.IsGrpcWebRequest(req) {
-			grpcServer.ServeHTTP(resp, req)
+		if grpcServer.IsGrpcWebRequest(r) {
+			grpcServer.ServeHTTP(w, r)
 		} else {
-			router.ServeHTTP(resp, req)
+			if authsession.Authenticated(r.Context()) {
+				router.ServeHTTP(w, r)
+			} else {
+				http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
+			}
 		}
 	})
 

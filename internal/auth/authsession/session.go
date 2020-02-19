@@ -27,8 +27,7 @@ func GetSession(store sessions.Store, r *http.Request) (*AuthSession, error) {
 	session, _ := store.Get(r, string(sessionKey))
 	if data, ok := session.Values[string(sessionKey)].([]byte); ok {
 		s := &AuthSession{}
-		err := json.Unmarshal(data, s)
-		if err != nil {
+		if err := json.Unmarshal(data, s); err != nil {
 			return nil, errors.Wrap(err, "failed to parse session")
 		}
 		return s, nil
@@ -43,9 +42,17 @@ func SetSession(store sessions.Store, r *http.Request, w http.ResponseWriter, s 
 	}
 	session, _ := store.Get(r, string(sessionKey))
 	session.Values[string(sessionKey)] = data
-	err = session.Save(r, w)
-	if err != nil {
-		logrus.Error(errors.Wrap(err, "failed to save session"))
+	if err := session.Save(r, w); err != nil {
+		return err
+	}
+	return nil
+}
+
+func ClearSession(store sessions.Store, r *http.Request, w http.ResponseWriter) error {
+	session, _ := store.Get(r, string(sessionKey))
+	session.Options.MaxAge = -1
+	if err := session.Save(r, w); err != nil {
+		logrus.Error(err)
 		return err
 	}
 	return nil
@@ -62,4 +69,9 @@ func CurrentUser(ctx context.Context) (*Identity, error) {
 		}
 	}
 	return nil, errors.New("unauthenticated")
+}
+
+func Authenticated(ctx context.Context) bool {
+	_, err := CurrentUser(ctx)
+	return err == nil
 }
