@@ -47,6 +47,7 @@ export class Server {
 
 
 
+
 export declare namespace InfoReq {
 	export type AsObject = {
 	}
@@ -54,9 +55,13 @@ export declare namespace InfoReq {
 
 export class InfoReq extends jspb.Message {
 
-	constructor() {
+	private static repeatedFields_ = [
+		
+	];
+
+	constructor(data?: jspb.Message.MessageArray) {
 		super();
-		jspb.Message.initialize(this, [], 0, -1, [], null);
+		jspb.Message.initialize(this, data || [], 0, -1, InfoReq.repeatedFields_, null);
 	}
 
 
@@ -96,7 +101,8 @@ export class InfoReq extends jspb.Message {
 		return message;
 	}
 
-}export declare namespace InfoRes {
+}
+export declare namespace InfoRes {
 	export type AsObject = {
 		publicKey: string,
 		host?: googleProtobufWrappers.StringValue.AsObject,
@@ -107,9 +113,13 @@ export class InfoReq extends jspb.Message {
 
 export class InfoRes extends jspb.Message {
 
-	constructor() {
+	private static repeatedFields_ = [
+		
+	];
+
+	constructor(data?: jspb.Message.MessageArray) {
 		super();
-		jspb.Message.initialize(this, [], 0, -1, [], null);
+		jspb.Message.initialize(this, data || [], 0, -1, InfoRes.repeatedFields_, null);
 	}
 
 
@@ -153,11 +163,11 @@ export class InfoRes extends jspb.Message {
 
 	toObject(): InfoRes.AsObject {
 		let f: any;
-		return {
-			publicKey: this.getPublicKey(),
+		return {publicKey: this.getPublicKey(),
 			host: (f = this.getHost()) && f.toObject(),
 			port: this.getPort(),
 			hostVpnIp: this.getHostVpnIp(),
+			
 		};
 	}
 

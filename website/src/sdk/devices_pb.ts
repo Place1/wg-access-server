@@ -98,6 +98,7 @@ export class Devices {
 
 
 
+
 export declare namespace Device {
 	export type AsObject = {
 		name: string,
@@ -110,9 +111,13 @@ export declare namespace Device {
 
 export class Device extends jspb.Message {
 
-	constructor() {
+	private static repeatedFields_ = [
+		
+	];
+
+	constructor(data?: jspb.Message.MessageArray) {
 		super();
-		jspb.Message.initialize(this, [], 0, -1, [], null);
+		jspb.Message.initialize(this, data || [], 0, -1, Device.repeatedFields_, null);
 	}
 
 
@@ -164,12 +169,12 @@ export class Device extends jspb.Message {
 
 	toObject(): Device.AsObject {
 		let f: any;
-		return {
-			name: this.getName(),
+		return {name: this.getName(),
 			owner: this.getOwner(),
 			publicKey: this.getPublicKey(),
 			address: this.getAddress(),
 			createdAt: (f = this.getCreatedAt()) && f.toObject(),
+			
 		};
 	}
 
@@ -238,7 +243,8 @@ export class Device extends jspb.Message {
 		return message;
 	}
 
-}export declare namespace AddDeviceReq {
+}
+export declare namespace AddDeviceReq {
 	export type AsObject = {
 		name: string,
 		publicKey: string,
@@ -247,9 +253,13 @@ export class Device extends jspb.Message {
 
 export class AddDeviceReq extends jspb.Message {
 
-	constructor() {
+	private static repeatedFields_ = [
+		
+	];
+
+	constructor(data?: jspb.Message.MessageArray) {
 		super();
-		jspb.Message.initialize(this, [], 0, -1, [], null);
+		jspb.Message.initialize(this, data || [], 0, -1, AddDeviceReq.repeatedFields_, null);
 	}
 
 
@@ -277,9 +287,9 @@ export class AddDeviceReq extends jspb.Message {
 
 	toObject(): AddDeviceReq.AsObject {
 		let f: any;
-		return {
-			name: this.getName(),
+		return {name: this.getName(),
 			publicKey: this.getPublicKey(),
+			
 		};
 	}
 
@@ -323,16 +333,21 @@ export class AddDeviceReq extends jspb.Message {
 		return message;
 	}
 
-}export declare namespace ListDevicesReq {
+}
+export declare namespace ListDevicesReq {
 	export type AsObject = {
 	}
 }
 
 export class ListDevicesReq extends jspb.Message {
 
-	constructor() {
+	private static repeatedFields_ = [
+		
+	];
+
+	constructor(data?: jspb.Message.MessageArray) {
 		super();
-		jspb.Message.initialize(this, [], 0, -1, [], null);
+		jspb.Message.initialize(this, data || [], 0, -1, ListDevicesReq.repeatedFields_, null);
 	}
 
 
@@ -372,17 +387,22 @@ export class ListDevicesReq extends jspb.Message {
 		return message;
 	}
 
-}export declare namespace ListDevicesRes {
+}
+export declare namespace ListDevicesRes {
 	export type AsObject = {
-		items?: Array<Device.AsObject>,
+		items: Array<Device.AsObject>,
 	}
 }
 
 export class ListDevicesRes extends jspb.Message {
 
-	constructor() {
+	private static repeatedFields_ = [
+		1,
+	];
+
+	constructor(data?: jspb.Message.MessageArray) {
 		super();
-		jspb.Message.initialize(this, [], 0, -1, [], null);
+		jspb.Message.initialize(this, data || [], 0, -1, ListDevicesRes.repeatedFields_, null);
 	}
 
 
@@ -390,7 +410,7 @@ export class ListDevicesRes extends jspb.Message {
 		return jspb.Message.getRepeatedWrapperField(this, Device, 1);
 	}
 
-	setItems(value?: Array<Device>): void {
+	setItems(value: Array<Device>): void {
 		(jspb.Message as any).setRepeatedWrapperField(this, 1, value);
 	}
 	
@@ -407,7 +427,7 @@ export class ListDevicesRes extends jspb.Message {
 	toObject(): ListDevicesRes.AsObject {
 		let f: any;
 		return {
-			items: (f = this.getItems()) && f.toObject(),
+			items: this.getItems().map((item) => item.toObject()),
 		};
 	}
 
@@ -444,7 +464,8 @@ export class ListDevicesRes extends jspb.Message {
 		return message;
 	}
 
-}export declare namespace DeleteDeviceReq {
+}
+export declare namespace DeleteDeviceReq {
 	export type AsObject = {
 		name: string,
 	}
@@ -452,9 +473,13 @@ export class ListDevicesRes extends jspb.Message {
 
 export class DeleteDeviceReq extends jspb.Message {
 
-	constructor() {
+	private static repeatedFields_ = [
+		
+	];
+
+	constructor(data?: jspb.Message.MessageArray) {
 		super();
-		jspb.Message.initialize(this, [], 0, -1, [], null);
+		jspb.Message.initialize(this, data || [], 0, -1, DeleteDeviceReq.repeatedFields_, null);
 	}
 
 
@@ -474,8 +499,8 @@ export class DeleteDeviceReq extends jspb.Message {
 
 	toObject(): DeleteDeviceReq.AsObject {
 		let f: any;
-		return {
-			name: this.getName(),
+		return {name: this.getName(),
+			
 		};
 	}
 
