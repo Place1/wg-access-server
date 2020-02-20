@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"net"
 
 	"github.com/coreos/go-iptables/iptables"
@@ -59,4 +60,29 @@ func ConfigureForwarding(wgIface string, gatewayIface string, cidr string) error
 		return errors.Wrap(err, "failed to set ip tables rule")
 	}
 	return nil
+}
+
+func MustParseCIDR(cidr string) (net.IP, *net.IPNet) {
+	ip, ipnet, err := net.ParseCIDR(cidr)
+	if err != nil {
+		panic(err)
+	}
+	return ip, ipnet
+}
+
+func MustParseIP(ip string) net.IP {
+	netip, _ := MustParseCIDR(fmt.Sprintf("%s/32", ip))
+	return netip
+}
+
+func nextIP(ip net.IP) net.IP {
+	next := make([]byte, len(ip))
+	copy(next, ip)
+	for j := len(next) - 1; j >= 0; j-- {
+		next[j]++
+		if next[j] > 0 {
+			break
+		}
+	}
+	return next
 }

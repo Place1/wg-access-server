@@ -1,11 +1,9 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
-import Container from '@material-ui/core/Container';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Fab from '@material-ui/core/Fab';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Grid from '@material-ui/core/Grid';
@@ -18,8 +16,9 @@ import qrcode from 'qrcode';
 import { makeStyles } from '@material-ui/core/styles';
 import { codeBlock } from 'common-tags';
 import { box_keyPair } from 'tweetnacl-ts';
-import { AppState, IDevice } from '../Store';
+import { AppState } from '../Store';
 import { GetConnected } from './GetConnected';
+import { grpc } from '../Api';
 
 
 const useStyles = makeStyles(theme => ({
@@ -42,15 +41,13 @@ const useStyles = makeStyles(theme => ({
 
 export default function AddDevice() {
   const classes = useStyles();
-  const [formOpen, setFormOpen] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [error, setError] = React.useState('');
   const [name, setName] = React.useState('');
   const [qrCodeUri, setQrCodeUri] = React.useState('');
   const [configFileUri, setConfigFileUri] = React.useState('');
 
-  const closeForm = () => {
-    setFormOpen(false);
+  const reset = () => {
     setName('');
   };
 
@@ -58,41 +55,32 @@ export default function AddDevice() {
     event.preventDefault();
 
     const keypair = box_keyPair();
-    const b64PublicKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
-    const b64PrivateKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.secretKey) as any)));
+    const publicKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
+    const privateKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.secretKey) as any)));
 
-    const res = await fetch('/api/devices', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: name,
-        publicKey: b64PublicKey,
-      }),
-    });
-    if (res.status >= 400) {
-      setError(await res.text());
-      return;
+    try {
+      const device = await grpc.devices.addDevice({ name, publicKey });
+      const info = await grpc.server.info({});
+      AppState.devices.push(device);
+      const configFile = codeBlock`
+        [Interface]
+        PrivateKey = ${privateKey}
+        Address = ${device.address}
+        DNS = ${info.hostVpnIp}
+
+        [Peer]
+        PublicKey = ${info.publicKey}
+        AllowedIPs = 0.0.0.0/1, 128.0.0.0/1, ::/0
+        Endpoint = ${`${info.host?.value || window.location.hostname}:${info.port || '51820'}`}
+      `;
+      setQrCodeUri(await qrcode.toDataURL(configFile));
+      setConfigFileUri(URL.createObjectURL(new Blob([configFile])));
+      reset();
+      setDialogOpen(true);
+    } catch (error) {
+      console.log(error);
+      setError('failed');
     }
-    const { device } = (await res.json()) as { device: IDevice };
-
-    AppState.devices.push(device);
-
-    const configFile = codeBlock`
-      [Interface]
-      PrivateKey = ${b64PrivateKey}
-      Address = ${device.address}
-      DNS = ${device.dns}
-
-      [Peer]
-      PublicKey = ${device.serverPublicKey}
-      AllowedIPs = 0.0.0.0/1, 128.0.0.0/1, ::/0
-      Endpoint = ${device.endpoint || `${window.location.hostname}:51820`}
-    `;
-
-    setQrCodeUri(await qrcode.toDataURL(configFile));
-    setConfigFileUri(URL.createObjectURL(new Blob([configFile])));
-
-    closeForm();
-    setDialogOpen(true);
   };
 
   return (
@@ -100,12 +88,8 @@ export default function AddDevice() {
       <Grid container spacing={3}>
         <Grid item xs></Grid>
         <Grid item xs={12} md={4} lg={6}>
-          <Container hidden={formOpen}>
-            <Fab color="secondary" aria-label="add" className={classes.fabButton} onClick={() => setFormOpen(true)}>
-              <AddIcon />
-            </Fab>
-          </Container>
-          <Paper hidden={!formOpen} className={classes.paper}>
+          <Paper className={classes.paper}>
+            <h2>Add A Device</h2>
             <form onSubmit={addDevice}>
               <FormControl error={error !== ''} fullWidth>
                 <InputLabel htmlFor="device-name">Device Name</InputLabel>
@@ -121,7 +105,7 @@ export default function AddDevice() {
                 <Button
                   color="secondary"
                   type="button"
-                  onClick={closeForm}
+                  onClick={reset}
                   className={classes.button}
                 >
                   Cancel
@@ -133,7 +117,7 @@ export default function AddDevice() {
                   type="submit"
                   className={classes.button}
                 >
-                  Next
+                  Add
                 </Button>
               </Typography>
             </form>

@@ -1,6 +1,4 @@
-# WG Access Server
-
-_i'm still thinking of a name..._
+# wg-access-server
 
 ## What is this
 
@@ -8,121 +6,121 @@ This project aims to create a simple VPN solution for developers,
 homelab enthusiasts and anyone else feeling adventurous.
 
 This project offers a single docker container that provides a WireGuard
-VPN server and device management web ui that's simple to use.
+VPN server and device management web ui.
 
-Today, this project allows you to deploy a WireGuard VPN using a single
-docker container; use a web ui to add/connect your Linux/Mac/Windows/iOS/Android
-device; and manage connected devices. The server will automatically
-configure ip routes and iptables rules to ensure that client VPN traffic
-can access the internet.
+You can use wg-access-server's web ui to connect your Linux/Mac/Windows/iOS/Android
+devices. The server automatically configure iptables rules to ensure that client VPN traffic
+can access the internet via the server's default gateway or configured gateway NIC.
+Currently, all VPN clients can route traffic to each other. VPN client isolation via
+iptables can be added if there's demand for it.
 
-The docker container runs wireguard in userspace using [boringtun](https://github.com/cloudflare/boringtun)
-and only required NET_ADMIN plus access to /dev/net/tun.
-The privileges are required by boringtun to create a userspace tun/tap device
-which is a userspace virtual network interface ([wikipedia](https://en.wikipedia.org/wiki/TUN/TAP))
-and for the software to configure iptables and network routes within it's network
-namespace. The container doesn't require host networking but it can be used so that
-VPN client's can access IP addresses otherwise accessible from the host's network.
+wg-access-server embeds a user-space wireguard implementation to simplify
+deployment - you just run the container, no kernel setup required.
 
-Soon I hope to add the following features
+Support for the kernal's wireguard implementation could be added if
+there's demand for it.
 
-- [ ] headless mode
-  * in this mode there'll be no web ui
-  * you can add devices (i.e. WireGuard peers) via files, flags or the environment
-  * intended for use by developers to easily deploy a one-shot style
-    VPN into a network to get access to it on their local machine,
-    i'm hoping to use this mode to VPN into a kubernetes cluster's
-    overlay network including DNS and cluster service routing.
-- [x] singleuser mode
-  * this is how the project currently works but I'll expand it to support authentication
-- [x] multiuser mode
-  - [x] support pluggable authentication backends including OAuth, OpenID Connect, LDAP, etc.
-  - [x] allow different users to manage thier own devices without seeing others
-  - [ ] allow network isolation to be turned on or off allowing users to communicate or be isolated
+Currently wg-access-server requires `NET_ADMIN` and access to `/dev/net/tun` to create
+a user-space virtual network interface ([wikipedia](https://en.wikipedia.org/wiki/TUN/TAP)).
+
+wg-access-server also configures iptables and network routes within it's own network
+namespace to route client VPN traffic. The container doesn't require host networking
+but it can be enabled if you want client VPN traffic to be able to access the host's
+network as well.
 
 ## Running with Docker
+
+Here's a quick command to run the server to try it out.
+
+If you open your browser using your LAN ip address you can even connect your
+phone to try it out: for example, i'll open my browser at http://192.168.0.15:8000
+using my laptop's LAN IP address.
 
 ```
 docker run \
   -it \
   --rm \
-  --name wg \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
+  -v wg-access-server-data:/data \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
   place1/wg-access-server
 ```
 
-To use a custom [configuration](#configuration) file, please add a `CONFIG` environment variable and make sure the configuration file is mounted:
-```
-  ...
-  -e CONFIG=/config/config.yaml
-  -v ./config.yaml:/config/config.yaml
-  ...
-```
-
 ## Configuration
 
-You can configure the server using a config file.
+You can configure the server using a yaml configuration file. Just mount the file into the container like this:
 
-```bash
-sudo go run ./main.go --config ./config.yaml
+```
+docker run \
+  ... \
+  -v $(pwd)/config.yaml:/config.yaml \
+  place1/wg-access-server
 ```
 
-Here's an example showing the default values:
+Here's and example showing the recommended config:
+
+```yaml
+wireguard:
+  // The WireGuard PrivateKey
+  // You can generate this value using "$ wg genkey"
+  // If this value is empty then the server will use an in-memory
+  // generated key
+  privateKey: ""
+// Auth configures optional authentication backends
+// to controll access to the web ui.
+// Devices will be managed on a per-user basis if any
+// auth backends are configured.
+// If no authentication backends are configured then
+// the server will not require any authentication.
+// It's recommended to make use of basic authentication
+// or use an upstream HTTP proxy that enforces authentication
+// Optional
+auth:
+  // HTTP Basic Authentication
+  basic:
+    // Users is a list of htpasswd encoded username:password pairs
+    // supports BCrypt, Sha, Ssha, Md5
+    // You can create a user using "htpasswd -nB <username>"
+    users: []
+```
+
+Here's an example showing the all config values:
 
 ```yaml
 loglevel: debug
-web:
-  // ExternalAddress is that users access the web ui
-  // using. This value is required for using auth backends
-  // This value should include the scheme.
-  // The port should be included if non-standard.
-  // e.g. http://192.168.0.2:8000
-  // or https://myvpn.example.com
-  externalAddress: ""
-  // Port that the web server should listen on
-  port: 8000
 storage:
   // Directory that VPN devices (WireGuard peers)
   // should be saved under.
   // If this value is empty then an InMemory storage
   // backend will be used (not recommended).
-  directory: ""
+  // Defaults to "/data" inside the docker container
+  directory: /data
 wireguard:
-  // UserspaceImplementation is a command (program on $PATH)
-  // that implements the WireGuard protocol in userspace.
-  // In our Docker image we make use of `boringtun` so that
-  // users aren't required to setup kernel modules.
-  // You can leave this value empty if you want to run wireguard
-  // in-kernal. The server will still connect to the "WireGuard.InterfaceName"
-  userspaceImplementation: ""
   // The network interface name for wireguard
+  // Optional
   interfaceName: wg0
   // The WireGuard PrivateKey
-  // If this value is lost then any existing
-  // clients (WireGuard peers) will no longer
-  // be able to connect.
-  // Clients will either have to manually update
-  // their connection configuration or setup
-  // their VPN again using the web ui (easier for most people)
+  // You can generate this value using "$ wg genkey"
   // If this value is empty then the server will use an in-memory
   // generated key
   privateKey: ""
-  // ExternalAddress is the address that users
+  // ExternalAddress is the address that clients
   // use to connect to the wireguard interface
-  // This value is used in the generated client config
-  // files. If this value is empty then the frontend
-  // will use `${window.location.hostname}:51820`
-  externalAddress: ""
+  // By default, this will be empty and the web ui
+  // will use the current page's origin i.e. window.location.origin
+  // Optional
+  externalHost: ""
   // The WireGuard ListenPort
+  // Optional
   port: 51820
 } `yaml:"wireguard"`
 vpn:
   // CIDR configures a network address space
   // that client (WireGuard peers) will be allocated
-  // an IP address from
+  // an IP address from.
+  // Optional
   cidr: "10.44.0.0/24"
   // GatewayInterface will be used in iptable forwarding
   // rules that send VPN traffic from clients to this interface
@@ -130,63 +128,85 @@ vpn:
   // to the outside internet
   // If not configured then the server will select the default
   // network interface e.g. eth0
+  // Optional
   gatewayInterface: ""
 dns:
-  // The upstream DNS servers that VPN clients will use
-  // VPN Clients will connect to a DNS proxy running on the
-  // wireguard server, which will send DNS requests to this
-  // upstream server.
+  // upstream DNS servers.
+  // that the server-side DNS proxy will forward requests to.
+  // By default /etc/resolv.conf will be used to find upstream
+  // DNS servers.
+  // Optional
   upstream:
     - "1.1.1.1"
+// Auth configures optional authentication backends
+// to controll access to the web ui.
+// Devices will be managed on a per-user basis if any
+// auth backends are configured.
+// If no authentication backends are configured then
+// the server will not require any authentication.
+// It's recommended to make use of basic authentication
+// or use an upstream HTTP proxy that enforces authentication
+// Optional
 auth:
-  // The below are all optional.
-  // Different authentication backends can be configured.
-  // If no authentication backends are configured then
-  // the server will not require authentication.
-  // The server embeds dex to provide the authentication
-  // integrations - https://github.com/dexidp/dex
+  // HTTP Basic Authentication
+  basic:
+    // Users is a list of htpasswd encoded username:password pairs
+    // supports BCrypt, Sha, Ssha, Md5
+    // You can create a user using "htpasswd -nB <username>"
+    users: []
   oidc:
     name: ""
     issuer: ""
     clientID: ""
     clientSecret: ""
+    scopes: ""
+    redirectURL: ""
   gitlab:
     name: ""
     baseURL: ""
     clientID: ""
     clientSecret: ""
-}
-```
-
-You can also set some configuration via environment variables:
-
-```bash
-export LOG_LEVEL="info"
-export STORAGE_DIRECTORY="/my-data"
-export WIREGUARD_PRIVATE_KEY="$(wg genkey)"
-sudo go run ./main.go
+    redirectURL: ""
 ```
 
 ## Screenshots
 
-![IOS Connection Dialog](./screenshots/get-connected-ios.png)
+![Connect iOS](./screenshots/connect-ios.png)
 
-![Windows Connection Dialog](./screenshots/get-connected-windows.png)
+![Connect MacOS](./screenshots/connect-macos.png)
+
+![Devices](./screenshots/devices.png)
+
+![Sign In](./screenshots/signin.png)
+
+## Roadmap
+
+- [ ] Implement administration features
+  - administration of all devices
+  - see when a device last connected
+  - see owns the device
+- [ ] VPN network client isolation
+- [ ] ??? PRs, feedback, suggestions welcome
 
 ## Development
 
-The software is made up a Golang server, React webapp and a WireGuard
-implementation that must be provided by the system.
+The software is made up a Golang Server and React App.
 
 Here's how I develop locally:
 
-1. run `./dev-wg.sh` to get wireguard running locally on `:51820`
 2. run `cd website && npm install && npm start` to get the frontend running on `:3000`
 3. run `sudo go run ./main.go` to get the server running on `:8000`
 
 Here are some notes about the development configuration:
 
 - sudo is required because the server uses iptables/ip to configure the VPN networking
-- you'll access the website on `:3000` and it'll proxy API requests to `:8000` thanks to webpack dev proxy
-- because we haven't configured a WIREGUARD_PRIVATE_KEY the server will generate one in-memory
-- similarly we didn't configure a STORAGE_DIRECTORY so the server will store client config in-memory
+- you'll access the website on `:3000` and it'll proxy API requests to `:8000` thanks to webpack
+- in-memory storage and generated wireguard keys will be used
+
+GRPC codegeneration:
+
+The client communicates with the server via gRPC-Web. You can edit the API specification
+in `./proto/*.proto`.
+
+After changing a service or message definition you'll want to re-generate server and client
+code using: `./codegen.sh`.
