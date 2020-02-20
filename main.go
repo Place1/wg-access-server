@@ -121,8 +121,17 @@ func main() {
 		}
 	})
 
-	if conf.Auth != nil {
+	if conf.IsAuthEnabled() {
 		handler = auth.New(conf.Auth).Wrap(handler)
+	} else {
+		base := handler
+		handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			base.ServeHTTP(w, r.WithContext(authsession.SetIdentityCtx(r.Context(), &authsession.AuthSession{
+				Identity: &authsession.Identity{
+					Subject: "default",
+				},
+			})))
+		})
 	}
 
 	// Listen

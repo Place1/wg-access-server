@@ -153,11 +153,8 @@ func Read() *AppConfig {
 	return &config
 }
 
-func IsAuthEnabled(config *AppConfig) bool {
-	if config.Auth == nil {
-		return false
-	}
-	return config.Auth.OIDC != nil || config.Auth.Gitlab != nil
+func (config *AppConfig) IsAuthEnabled() bool {
+	return config.Auth != nil
 }
 
 func defaultInterface() (string, error) {
