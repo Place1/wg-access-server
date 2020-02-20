@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/rand"
-	"fmt"
 	"math"
 	"net/http"
 	"runtime/debug"
@@ -64,7 +63,7 @@ func main() {
 	}
 
 	// DNS Server
-	dns, err := dnsproxy.New(conf.DNS.Upstream)
+	dns, err := dnsproxy.New()
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to start dns server"))
 	}
@@ -136,7 +135,7 @@ func main() {
 	}
 
 	// Listen
-	address := fmt.Sprintf("0.0.0.0:%d", conf.Web.Port)
+	address := "0.0.0.0:8000"
 	srv := &http.Server{
 		Addr:    address,
 		Handler: handler,

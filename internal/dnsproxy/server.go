@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"net"
 	"runtime/debug"
+	"strings"
 	"time"
 
+	"github.com/docker/libnetwork/resolvconf"
+	"github.com/docker/libnetwork/types"
 	"github.com/miekg/dns"
 	"github.com/patrickmn/go-cache"
 	"github.com/pkg/errors"
@@ -19,12 +22,20 @@ type DNSServer struct {
 	upstream []string
 }
 
-func New(upstream []string) (*DNSServer, error) {
-	if len(upstream) == 0 {
-		upstream = []string{"1.1.1.1"}
+func New() (*DNSServer, error) {
+
+	upstream := []string{}
+
+	if r, err := resolvconf.Get(); err == nil {
+		upstream = resolvconf.GetNameservers(r.Content, types.IPv4)
 	}
 
-	logrus.Infof("starting dns server with upstreams: %v", upstream)
+	if len(upstream) == 0 {
+		logrus.Warn("failed to get nameservers from /etc/resolv.conf defaulting to 1.1.1.1 for DNS instead")
+		upstream = append(upstream, "1.1.1.1")
+	}
+
+	logrus.Infof("starting dns server with upstreams: %s", strings.Join(upstream, ", "))
 
 	dnsServer := &DNSServer{
 		server: &dns.Server{

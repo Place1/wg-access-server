@@ -23,6 +23,7 @@ RUN go build -o server
 FROM alpine:3.10
 RUN apk add iptables
 RUN apk add wireguard-tools
+ENV CONFIG="/config.yaml"
 ENV STORAGE_DIRECTORY="/data"
 COPY --from=server /code/server /server
 COPY --from=website /code/build /website/build

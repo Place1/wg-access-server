@@ -21,18 +21,7 @@ import (
 
 type AppConfig struct {
 	LogLevel string `yaml:"loglevel"`
-	Web      struct {
-		// ExternalAddress is that users access the web ui
-		// using. This value is required for using auth backends
-		// This value should include the scheme.
-		// The port should be included if non-standard.
-		// e.g. http://192.168.0.2:8000
-		// or https://myvpn.example.com
-		ExternalAddress string `yaml:"externalAddress"`
-		// Port that the web server should listen on
-		Port int `yaml:"port"`
-	} `yaml:"web"`
-	Storage struct {
+	Storage  struct {
 		// Directory that VPN devices (WireGuard peers)
 		// should be saved under.
 		// If this value is empty then an InMemory storage
@@ -52,12 +41,13 @@ type AppConfig struct {
 		// their connection configuration or setup
 		// their VPN again using the web ui (easier for most people)
 		PrivateKey string `yaml:"privateKey"`
-		// ExternalAddress is the address that users
+		// ExternalAddress is the address that clients
 		// use to connect to the wireguard interface
-		// By default, this will use the Web.ExternalAddress
-		// domain with the WireGuard.Port
-		ExternalAddress *string `yaml:"externalAddress"`
+		// By default, this will be empty and the web ui
+		// will use the current page's origin.
+		ExternalHost *string `yaml:"externalHost"`
 		// The WireGuard ListenPort
+		// Defaults to 51820
 		Port int `yaml:"port"`
 	} `yaml:"wireguard"`
 	VPN struct {
@@ -71,10 +61,12 @@ type AppConfig struct {
 		// to the outside internet
 		GatewayInterface string `yaml:"gatewayInterface"`
 	}
-	DNS struct {
-		// TODO: docs
-		Upstream []string `yaml:"upstream"`
-	} `yaml:"dns"`
+	// Auth configures optional authentication backends
+	// to controll access to the web ui.
+	// Devices will be managed on a per-user basis if any
+	// auth backends are configured.
+	// If no authentication backends are configured then
+	// the server will not require any authentication.
 	Auth *authconfig.AuthConfig `yaml:"auth"`
 }
 
@@ -88,18 +80,15 @@ func Read() *AppConfig {
 
 	config := AppConfig{}
 	config.LogLevel = "info"
-	config.Web.Port = 8000
 	config.WireGuard.InterfaceName = "wg0"
 	config.WireGuard.Port = 51820
 	config.VPN.CIDR = "10.44.0.0/24"
 
 	if *configPath != "" {
-		b, err := ioutil.ReadFile(*configPath)
-		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to read the configuration file"))
-		}
-		if err := yaml.Unmarshal(b, &config); err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
+		if b, err := ioutil.ReadFile(*configPath); err == nil {
+			if err := yaml.Unmarshal(b, &config); err != nil {
+				logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
+			}
 		}
 	}
 

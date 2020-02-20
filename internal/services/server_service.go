@@ -27,16 +27,10 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		return nil, status.Errorf(codes.Internal, "failed to get public key")
 	}
 
-	port, err := wgembed.Port(s.Config.WireGuard.InterfaceName)
-	if err != nil {
-		logrus.Error(err)
-		return nil, status.Errorf(codes.Internal, "failed to get port")
-	}
-
 	return &proto.InfoRes{
-		Host:      stringValue(s.Config.WireGuard.ExternalAddress),
+		Host:      stringValue(s.Config.WireGuard.ExternalHost),
 		PublicKey: publicKey,
-		Port:      int32(port),
+		Port:      int32(s.Config.WireGuard.Port),
 		HostVpnIp: ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
 	}, nil
 }
