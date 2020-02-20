@@ -1,7 +1,7 @@
 package authconfig
 
 import (
-	"github.com/place1/wireguard-access-server/internal/auth/authruntime"
+	"github.com/place1/wg-access-server/internal/auth/authruntime"
 )
 
 type AuthConfig struct {

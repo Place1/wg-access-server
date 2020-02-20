@@ -10,7 +10,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/place1/wireguard-access-server/internal/auth/authconfig"
+	"github.com/place1/wg-access-server/internal/auth/authconfig"
 	"github.com/vishvananda/netlink"
 
 	"github.com/pkg/errors"

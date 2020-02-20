@@ -1,4 +1,4 @@
-module github.com/place1/wireguard-access-server
+module github.com/place1/wg-access-server
 
 go 1.13
 

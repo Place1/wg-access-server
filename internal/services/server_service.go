@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/place1/wg-embed/pkg/wgembed"
-	"github.com/place1/wireguard-access-server/internal/auth/authsession"
-	"github.com/place1/wireguard-access-server/internal/config"
-	"github.com/place1/wireguard-access-server/proto/proto"
+	"github.com/place1/wg-access-server/internal/auth/authsession"
+	"github.com/place1/wg-access-server/internal/config"
+	"github.com/place1/wg-access-server/proto/proto"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

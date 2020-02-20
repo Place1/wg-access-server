@@ -11,7 +11,7 @@ import (
 	"github.com/place1/wg-embed/pkg/wgembed"
 
 	"github.com/pkg/errors"
-	"github.com/place1/wireguard-access-server/internal/storage"
+	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/sirupsen/logrus"
 )
 

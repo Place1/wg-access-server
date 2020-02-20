@@ -3,12 +3,12 @@ package services
 import (
 	"context"
 
-	"github.com/place1/wireguard-access-server/internal/auth/authsession"
+	"github.com/place1/wg-access-server/internal/auth/authsession"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/place1/wireguard-access-server/internal/devices"
-	"github.com/place1/wireguard-access-server/internal/storage"
-	"github.com/place1/wireguard-access-server/proto/proto"
+	"github.com/place1/wg-access-server/internal/devices"
+	"github.com/place1/wg-access-server/internal/storage"
+	"github.com/place1/wg-access-server/proto/proto"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

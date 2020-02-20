@@ -8,19 +8,19 @@ import (
 	"runtime/debug"
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"github.com/place1/wireguard-access-server/proto/proto"
+	"github.com/place1/wg-access-server/proto/proto"
 
 	"github.com/gorilla/mux"
 	"github.com/place1/wg-embed/pkg/wgembed"
 
 	"github.com/pkg/errors"
-	"github.com/place1/wireguard-access-server/internal/auth"
-	"github.com/place1/wireguard-access-server/internal/auth/authsession"
-	"github.com/place1/wireguard-access-server/internal/config"
-	"github.com/place1/wireguard-access-server/internal/devices"
-	"github.com/place1/wireguard-access-server/internal/dnsproxy"
-	"github.com/place1/wireguard-access-server/internal/services"
-	"github.com/place1/wireguard-access-server/internal/storage"
+	"github.com/place1/wg-access-server/internal/auth"
+	"github.com/place1/wg-access-server/internal/auth/authsession"
+	"github.com/place1/wg-access-server/internal/config"
+	"github.com/place1/wg-access-server/internal/devices"
+	"github.com/place1/wg-access-server/internal/dnsproxy"
+	"github.com/place1/wg-access-server/internal/services"
+	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/sirupsen/logrus"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"

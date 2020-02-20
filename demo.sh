@@ -15,7 +15,7 @@ fi
 
 CONFIG_FILE="$1"
 
-docker build -t place1/wireguard-access-server .
+docker build -t place1/wg-access-server .
 
 docker run \
   -it \
@@ -29,4 +29,4 @@ docker run \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
   -p 53:53/udp \
-  place1/wireguard-access-server /server --config /config.yaml
+  place1/wg-access-server /server --config /config.yaml

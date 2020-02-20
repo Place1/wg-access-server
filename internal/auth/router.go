@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/place1/wireguard-access-server/internal/auth/authconfig"
-	"github.com/place1/wireguard-access-server/internal/auth/authruntime"
-	"github.com/place1/wireguard-access-server/internal/auth/authsession"
-	"github.com/place1/wireguard-access-server/internal/auth/authtemplates"
-	"github.com/place1/wireguard-access-server/internal/auth/authutil"
+	"github.com/place1/wg-access-server/internal/auth/authconfig"
+	"github.com/place1/wg-access-server/internal/auth/authruntime"
+	"github.com/place1/wg-access-server/internal/auth/authsession"
+	"github.com/place1/wg-access-server/internal/auth/authtemplates"
+	"github.com/place1/wg-access-server/internal/auth/authutil"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"

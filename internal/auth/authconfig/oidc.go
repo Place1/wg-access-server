@@ -9,9 +9,9 @@ import (
 	"github.com/coreos/go-oidc"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
-	"github.com/place1/wireguard-access-server/internal/auth/authruntime"
-	"github.com/place1/wireguard-access-server/internal/auth/authsession"
-	"github.com/place1/wireguard-access-server/internal/auth/authutil"
+	"github.com/place1/wg-access-server/internal/auth/authruntime"
+	"github.com/place1/wg-access-server/internal/auth/authsession"
+	"github.com/place1/wg-access-server/internal/auth/authutil"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
