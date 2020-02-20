@@ -144,6 +144,15 @@ auth:
 
 ![Sign In](./screenshots/signin.png)
 
+## Roadmap
+
+- [ ] Implement administration features
+  - administration of all devices
+  - see when a device last connected
+  - see owns the device
+- [ ] VPN network client isolation
+- [ ] ??? PRs, feedback, suggestions welcome
+
 ## Development
 
 The software is made up a Golang Server and React App.
