@@ -59,6 +59,9 @@ docker run \
   place1/wg-access-server
 ```
 
+If you want to put the config file in a different location in the container you
+can set the config file path using: `-e CONFIG=/path/to/config.yaml`
+
 Here's and example showing the recommended config:
 
 ```yaml
