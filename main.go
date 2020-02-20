@@ -63,7 +63,7 @@ func main() {
 	}
 
 	// DNS Server
-	dns, err := dnsproxy.New()
+	dns, err := dnsproxy.New(conf.DNS.Upstream)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to start dns server"))
 	}

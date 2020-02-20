@@ -61,6 +61,9 @@ type AppConfig struct {
 		// to the outside internet
 		GatewayInterface string `yaml:"gatewayInterface"`
 	}
+	DNS struct {
+		Upstream []string `yaml:"upstream"`
+	} `yaml:"dns"`
 	// Auth configures optional authentication backends
 	// to controll access to the web ui.
 	// Devices will be managed on a per-user basis if any

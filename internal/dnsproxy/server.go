@@ -22,12 +22,12 @@ type DNSServer struct {
 	upstream []string
 }
 
-func New() (*DNSServer, error) {
+func New(upstream []string) (*DNSServer, error) {
 
-	upstream := []string{}
-
-	if r, err := resolvconf.Get(); err == nil {
-		upstream = resolvconf.GetNameservers(r.Content, types.IPv4)
+	if len(upstream) == 0 {
+		if r, err := resolvconf.Get(); err == nil {
+			upstream = resolvconf.GetNameservers(r.Content, types.IPv4)
+		}
 	}
 
 	if len(upstream) == 0 {

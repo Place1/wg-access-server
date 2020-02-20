@@ -59,7 +59,34 @@ docker run \
   place1/wg-access-server
 ```
 
-Here's an example showing the default values:
+Here's and example showing the recommended config:
+
+```yaml
+wireguard:
+  // The WireGuard PrivateKey
+  // You can generate this value using "$ wg genkey"
+  // If this value is empty then the server will use an in-memory
+  // generated key
+  privateKey: ""
+// Auth configures optional authentication backends
+// to controll access to the web ui.
+// Devices will be managed on a per-user basis if any
+// auth backends are configured.
+// If no authentication backends are configured then
+// the server will not require any authentication.
+// It's recommended to make use of basic authentication
+// or use an upstream HTTP proxy that enforces authentication
+// Optional
+auth:
+  // HTTP Basic Authentication
+  basic:
+    // Users is a list of htpasswd encoded username:password pairs
+    // supports BCrypt, Sha, Ssha, Md5
+    // You can create a user using "htpasswd -nB <username>"
+    users: []
+```
+
+Here's an example showing the all config values:
 
 ```yaml
 loglevel: debug
@@ -103,6 +130,14 @@ vpn:
   // network interface e.g. eth0
   // Optional
   gatewayInterface: ""
+dns:
+  // upstream DNS servers.
+  // that the server-side DNS proxy will forward requests to.
+  // By default /etc/resolv.conf will be used to find upstream
+  // DNS servers.
+  // Optional
+  upstream:
+    - "1.1.1.1"
 // Auth configures optional authentication backends
 // to controll access to the web ui.
 // Devices will be managed on a per-user basis if any
