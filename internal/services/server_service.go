@@ -3,10 +3,10 @@ package services
 import (
 	"context"
 
-	"github.com/place1/wg-embed/pkg/wgembed"
 	"github.com/place1/wg-access-server/internal/auth/authsession"
 	"github.com/place1/wg-access-server/internal/config"
 	"github.com/place1/wg-access-server/proto/proto"
+	"github.com/place1/wg-embed/pkg/wgembed"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -37,5 +37,6 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		Host:      stringValue(s.Config.WireGuard.ExternalAddress),
 		PublicKey: publicKey,
 		Port:      int32(port),
+		HostVpnIp: ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
 	}, nil
 }

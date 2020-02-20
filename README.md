@@ -46,7 +46,6 @@ Soon I hope to add the following features
 docker run \
   -it \
   --rm \
-  --name wg \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
   -p 8000:8000/tcp \

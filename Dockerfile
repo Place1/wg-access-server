@@ -6,7 +6,7 @@ RUN npm install
 COPY ./website/ ./
 RUN npm run build
 
-FROM golang:1.13 as server
+FROM golang:1.13.8 as server
 WORKDIR /code
 ENV GOOS=linux
 ENV GARCH=amd64
@@ -15,6 +15,7 @@ ENV GO111MODULE=on
 COPY ./go.mod ./
 COPY ./go.sum ./
 RUN go mod download
+COPY ./proto/ ./proto/
 COPY ./main.go ./main.go
 COPY ./internal/ ./internal
 RUN go build -o server
