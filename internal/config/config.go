@@ -148,6 +148,11 @@ func Read() *AppConfig {
 
 	if config.Storage.Directory == "" {
 		logrus.Warn("storage directory not configured - using in-memory storage backend! wireguard devices will be lost when the process exits!")
+	} else {
+		config.Storage.Directory, err = filepath.Abs(config.Storage.Directory)
+		if err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to get absolute path to storage directory"))
+		}
 	}
 
 	return &config

@@ -73,6 +73,7 @@ func main() {
 	// Storage
 	var storageDriver storage.Storage
 	if conf.Storage.Directory != "" {
+		logrus.Infof("storing data in %s", conf.Storage.Directory)
 		storageDriver = storage.NewDiskStorage(conf.Storage.Directory)
 	} else {
 		storageDriver = storage.NewMemoryStorage()
@@ -128,7 +129,7 @@ func main() {
 		handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			base.ServeHTTP(w, r.WithContext(authsession.SetIdentityCtx(r.Context(), &authsession.AuthSession{
 				Identity: &authsession.Identity{
-					Subject: "default",
+					Subject: "",
 				},
 			})))
 		})

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -89,7 +90,7 @@ func (d *DeviceManager) DeleteDevice(user string, name string) error {
 }
 
 func key(user string, device string) string {
-	return fmt.Sprintf("%s/%s", user, device)
+	return filepath.Join(user, device)
 }
 
 var nextIPLock = sync.Mutex{}
