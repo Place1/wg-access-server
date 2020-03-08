@@ -67,6 +67,10 @@ func (d *DeviceManager) AddDevice(user string, name string, publicKey string) (*
 	return device, nil
 }
 
+func (d *DeviceManager) ListAllDevices() ([]*storage.Device, error) {
+	return d.storage.List("")
+}
+
 func (d *DeviceManager) ListDevices(user string) ([]*storage.Device, error) {
 	prefix := ""
 	if user != "" {
