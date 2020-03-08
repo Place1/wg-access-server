@@ -1,6 +1,7 @@
 package authconfig
 
 import (
+	"strings"
 	"context"
 	"net/http"
 	"net/url"
@@ -23,6 +24,7 @@ type OIDCConfig struct {
 	ClientSecret string   `yaml:"clientSecret"`
 	Scopes       []string `yaml:"scopes"`
 	RedirectURL  string   `yaml:"redirectURL"`
+	EmailDomains []string `yaml:"emailDomains"`
 }
 
 func (c *OIDCConfig) Provider() *authruntime.Provider {
@@ -53,16 +55,16 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 	return &authruntime.Provider{
 		Type: "OIDC",
 		Invoke: func(w http.ResponseWriter, r *http.Request, runtime *authruntime.ProviderRuntime) {
-			loginHandler(runtime, oauthConfig)(w, r)
+			c.loginHandler(runtime, oauthConfig)(w, r)
 		},
 		RegisterRoutes: func(router *mux.Router, runtime *authruntime.ProviderRuntime) error {
-			router.HandleFunc(redirectURL.Path, callbackHandler(runtime, oauthConfig, provider))
+			router.HandleFunc(redirectURL.Path, c.callbackHandler(runtime, oauthConfig, provider))
 			return nil
 		},
 	}
 }
 
-func loginHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.Config) http.HandlerFunc {
+func (c *OIDCConfig) loginHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		oauthStateString := authutil.RandomString(32)
 		runtime.SetSession(w, r, &authsession.AuthSession{
@@ -73,7 +75,7 @@ func loginHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.Conf
 	}
 }
 
-func callbackHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.Config, provider *oidc.Provider) http.HandlerFunc {
+func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.Config, provider *oidc.Provider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s, err := runtime.GetSession(r)
 		if err != nil {
@@ -95,6 +97,11 @@ func callbackHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.C
 			return
 		}
 
+		if !verifyEmailDomain(c.EmailDomains, info.Email) {
+			http.Error(w, "email domain not authorized", http.StatusForbidden)
+			return
+		}
+
 		runtime.SetSession(w, r, &authsession.AuthSession{
 			Identity: &authsession.Identity{
 				Subject: info.Subject,
@@ -103,4 +110,20 @@ func callbackHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.C
 
 		runtime.Done(w, r)
 	}
+}
+
+func verifyEmailDomain(allowedDomains []string, email string) bool {
+	if len(allowedDomains) == 0 {
+		return true
+	}
+
+	parsed := strings.Split(email, "@")
+
+	for _, domain := range allowedDomains {
+		if domain == parsed[1] {
+			return true
+		}
+	}
+
+	return false
 }
