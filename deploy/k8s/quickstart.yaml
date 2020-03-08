@@ -1,0 +1,132 @@
+---
+# Source: wg-access-server/templates/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "quickstart-wg-access-server"
+  labels:
+    helm.sh/chart: wg-access-server-0.0.9
+    app: wg-access-server
+    app.kubernetes.io/name: wg-access-server
+    app.kubernetes.io/instance: quickstart
+    app.kubernetes.io/version: "0.0.9"
+    app.kubernetes.io/managed-by: Helm
+data:
+  'config.yaml': |
+    wireguard:
+      privateKey: ""
+---
+# Source: wg-access-server/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: quickstart-wg-access-server-web
+  labels:
+    helm.sh/chart: wg-access-server-0.0.9
+    app: wg-access-server
+    app.kubernetes.io/name: wg-access-server
+    app.kubernetes.io/instance: quickstart
+    app.kubernetes.io/version: "0.0.9"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: wg-access-server
+    app.kubernetes.io/name: wg-access-server
+    app.kubernetes.io/instance: quickstart
+---
+# Source: wg-access-server/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: quickstart-wg-access-server-wireguard
+  labels:
+    helm.sh/chart: wg-access-server-0.0.9
+    app: wg-access-server
+    app.kubernetes.io/name: wg-access-server
+    app.kubernetes.io/instance: quickstart
+    app.kubernetes.io/version: "0.0.9"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 51820
+      targetPort: wireguard
+      protocol: UDP
+      name: wireguard
+  selector:
+    app: wg-access-server
+    app.kubernetes.io/name: wg-access-server
+    app.kubernetes.io/instance: quickstart
+---
+# Source: wg-access-server/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quickstart-wg-access-server
+  labels:
+    helm.sh/chart: wg-access-server-0.0.9
+    app: wg-access-server
+    app.kubernetes.io/name: wg-access-server
+    app.kubernetes.io/instance: quickstart
+    app.kubernetes.io/version: "0.0.9"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  strategy:
+    type: "Recreate"
+  selector:
+    matchLabels:
+      app: wg-access-server
+      app.kubernetes.io/name: wg-access-server
+      app.kubernetes.io/instance: quickstart
+  template:
+    metadata:
+      labels:
+        app: wg-access-server
+        app.kubernetes.io/name: wg-access-server
+        app.kubernetes.io/instance: quickstart
+    spec:
+      containers:
+        - name: wg-access-server
+          securityContext:
+            capabilities:
+              add: ['NET_ADMIN']
+          image: "place1/wg-access-server:0.0.9"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+            - name: wireguard
+              containerPort: 51820
+              protocol: UDP
+          volumeMounts:
+            - name: tun
+              mountPath: /dev/net/tun
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /config.yaml
+              subPath: config.yaml
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {}
+      volumes:
+        - name: tun
+          hostPath:
+            type: 'CharDevice'
+            path: /dev/net/tun
+        - name: data
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: "quickstart-wg-access-server"
