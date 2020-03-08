@@ -164,12 +164,20 @@ auth:
     clientSecret: ""
     scopes: ""
     redirectURL: ""
+    // Optionally restrict login to users with an allowed email domain
+    // if empty or omitted, any email domain will be allowed.
+    emailDomains:
+      - example.com
   gitlab:
     name: ""
     baseURL: ""
     clientID: ""
     clientSecret: ""
     redirectURL: ""
+    // Optionally restrict login to users with an allowed email domain
+    // if empty or omitted, any email domain will be allowed.
+    emailDomains:
+      - example.com
 ```
 
 ## Screenshots
