@@ -21,11 +21,11 @@ class Devices extends React.Component {
 
   async poll() {
     while (this.mounted) {
-      const info = await grpc.server.info({});
-      AppState.info = info;
+      // we sleep first because we pre-load the list of
+      // devices when the app starts up (index.tsx)
+      await sleep(5);
       const res = await grpc.devices.listDevices({});
       AppState.devices = res.items;
-      await sleep(5);
     }
   }
 

@@ -6,14 +6,14 @@ import Avatar from '@material-ui/core/Avatar';
 import WifiIcon from '@material-ui/icons/Wifi';
 import WifiOffIcon from '@material-ui/icons/WifiOff';
 import MenuItem from '@material-ui/core/MenuItem';
-import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import numeral from 'numeral';
+import { lastSeen } from '../Util';
 import { view } from 'react-easy-state';
 import { AppState } from '../Store';
 import { IconMenu } from './IconMenu';
 import { PopoverDisplay } from './PopoverDisplay';
 import { Device } from '../sdk/devices_pb'
-import { grpc, toDate } from '../Api';
+import { grpc } from '../Api';
 
 interface Props {
   device: Device.AsObject;
@@ -30,16 +30,6 @@ class DeviceListItem extends React.Component<Props> {
       window.alert('api request failed');
     }
   };
-
-  lastSeen() {
-    if (this.props.device.lastHandshakeTime === undefined) {
-      return 'Never';
-    }
-    return formatDistanceToNow(toDate(this.props.device.lastHandshakeTime!), {
-      includeSeconds: true,
-      addSuffix: true,
-    });
-  }
 
   render() {
     const device = this.props.device;
@@ -90,7 +80,7 @@ class DeviceListItem extends React.Component<Props> {
                   </tr>
                   <tr>
                     <td>Last Seen</td>
-                    <td>{this.lastSeen()}</td>
+                    <td>{lastSeen(device.lastHandshakeTime)}</td>
                   </tr>
                 </>
               }

@@ -10,6 +10,10 @@ type AuthConfig struct {
 	Basic  *BasicAuthConfig `yaml:"basic"`
 }
 
+func (c *AuthConfig) IsEnabled() bool {
+	return c.OIDC != nil || c.Gitlab != nil || c.Basic != nil
+}
+
 func (c *AuthConfig) Providers() []*authruntime.Provider {
 	providers := []*authruntime.Provider{}
 

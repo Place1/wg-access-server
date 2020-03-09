@@ -15,6 +15,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -22,6 +23,8 @@ import (
 type AppConfig struct {
 	LogLevel        string `yaml:"loglevel"`
 	DisableMetadata bool   `yaml:"disableMetadata"`
+	AdminSubject    string `yaml:"adminSubject"`
+	AdminPassword   string `yaml:"adminPassword"`
 	Storage         struct {
 		// Directory that VPN devices (WireGuard peers)
 		// should be saved under.
@@ -71,7 +74,7 @@ type AppConfig struct {
 	// auth backends are configured.
 	// If no authentication backends are configured then
 	// the server will not require any authentication.
-	Auth *authconfig.AuthConfig `yaml:"auth"`
+	Auth authconfig.AuthConfig `yaml:"auth"`
 }
 
 var (
@@ -81,6 +84,7 @@ var (
 	storagePath     = app.Flag("storage", "Path to a storage directory").OverrideDefaultFromEnvar("STORAGE_DIRECTORY").String()
 	privateKey      = app.Flag("private-key", "Wireguard private key").OverrideDefaultFromEnvar("WIREGUARD_PRIVATE_KEY").String()
 	disableMetadata = app.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").OverrideDefaultFromEnvar("DISABLE_METADATA").Default("false").Bool()
+	adminPassword   = app.Flag("admin-password", "Admin password (provide plaintext, stored in-memory only)").OverrideDefaultFromEnvar("ADMIN_PASSWORD").String()
 )
 
 func Read() *AppConfig {
@@ -94,6 +98,7 @@ func Read() *AppConfig {
 	config.DisableMetadata = *disableMetadata
 	config.Storage.Directory = *storagePath
 	config.WireGuard.PrivateKey = *privateKey
+	config.AdminPassword = *adminPassword
 
 	if *configPath != "" {
 		if b, err := ioutil.ReadFile(*configPath); err == nil {
@@ -148,11 +153,20 @@ func Read() *AppConfig {
 		os.MkdirAll(config.Storage.Directory, 0700)
 	}
 
-	return &config
-}
+	if config.AdminPassword != "" {
+		if config.Auth.Basic == nil {
+			config.Auth.Basic = &authconfig.BasicAuthConfig{}
+		}
+		// htpasswd.AcceptBcrypt(config.AdminPassword)
+		pw, err := bcrypt.GenerateFromPassword([]byte(config.AdminPassword), bcrypt.DefaultCost)
+		if err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to generate a bcrypt hash for the provided admin password"))
+		}
+		config.AdminSubject = "admin"
+		config.Auth.Basic.Users = append(config.Auth.Basic.Users, fmt.Sprintf("admin:%s", string(pw)))
+	}
 
-func (config *AppConfig) IsAuthEnabled() bool {
-	return config.Auth != nil
+	return &config
 }
 
 func defaultInterface() (string, error) {

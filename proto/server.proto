@@ -18,4 +18,5 @@ message InfoRes {
   int32 port = 3;
   string host_vpn_ip = 4;
   bool metadata_enabled = 5;
+  bool is_admin = 6;
 }

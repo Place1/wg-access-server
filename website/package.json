@@ -24,6 +24,7 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-easy-state": "^6.1.3",
+    "react-router-dom": "^5.1.2",
     "react-scripts": "3.3.0",
     "tweetnacl-ts": "^1.0.3",
     "typeface-roboto": "0.0.75",
@@ -49,6 +50,7 @@
     "@types/common-tags": "^1.8.0",
     "@types/numeral": "0.0.26",
     "@types/qrcode": "^1.3.4",
+    "@types/react-router-dom": "^5.1.3",
     "grpc-ts-web": "0.1.6",
     "prettier": "^1.19.1"
   }

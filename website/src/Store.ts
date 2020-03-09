@@ -10,3 +10,10 @@ interface State {
 export const AppState = store<State>({
   devices: [],
 });
+
+console.info('see global app state by typing "window.AppState"');
+Object.assign(window as any, {
+  get AppState() {
+    return JSON.parse(JSON.stringify(AppState));
+  }
+});
