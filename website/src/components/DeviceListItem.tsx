@@ -12,7 +12,7 @@ import { AppState } from '../Store';
 import { IconMenu } from './IconMenu';
 import { PopoverDisplay } from './PopoverDisplay';
 import { Device } from '../sdk/devices_pb'
-import { grpc } from '../Api';
+import { grpc, toDate } from '../Api';
 
 interface Props {
   device: Device.AsObject;
@@ -57,6 +57,21 @@ class DeviceListItem extends React.Component<Props> {
           }
         />
         <CardContent>
+          <Typography component="p">
+            Connected: {device.connected ? 'yes' : 'no'}
+          </Typography>
+          <Typography component="p">
+            Endpoint: {device.endpoint}
+          </Typography>
+          <Typography component="p">
+            Sent: {device.transmitBytes} bytes
+          </Typography>
+          <Typography component="p">
+            Received: {device.receiveBytes} bytes
+          </Typography>
+          <Typography component="p">
+            Last Handshake Time: {toDate(device.lastHandshakeTime!).toLocaleString()}
+          </Typography>
           <Typography component="p">
             Public Key: <PopoverDisplay label="show">{device.publicKey}</PopoverDisplay>
           </Typography>
