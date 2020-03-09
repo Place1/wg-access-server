@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "codegen": "grpc-ts-web -o src/sdk ../proto/*.proto",
+    "codegen": "node_modules/.bin/grpc-ts-web -o src/sdk ../proto/*.proto",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

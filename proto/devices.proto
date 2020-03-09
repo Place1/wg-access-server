@@ -17,6 +17,11 @@ message Device {
   string public_key = 3;
   string address = 4;
   google.protobuf.Timestamp created_at = 5;
+  bool connected = 6;
+  google.protobuf.Timestamp last_handshake_time = 7;
+  int64 receive_bytes = 8;
+  int64 transmit_bytes = 9;
+  string endpoint = 10;
 }
 
 message AddDeviceReq {

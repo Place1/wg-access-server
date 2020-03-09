@@ -60,7 +60,6 @@ export default function AddDevice() {
 
     try {
       const device = await grpc.devices.addDevice({ name, publicKey });
-      const info = await grpc.server.info({});
       AppState.devices.push(device);
       const configFile = codeBlock`
         [Interface]

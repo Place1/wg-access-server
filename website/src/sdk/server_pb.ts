@@ -108,6 +108,7 @@ export declare namespace InfoRes {
 		host?: googleProtobufWrappers.StringValue.AsObject,
 		port: number,
 		hostVpnIp: string,
+		metadataEnabled: boolean,
 	}
 }
 
@@ -155,6 +156,14 @@ export class InfoRes extends jspb.Message {
 		(jspb.Message as any).setProto3StringField(this, 4, value);
 	}
 
+	getMetadataEnabled(): boolean {
+		return jspb.Message.getFieldWithDefault(this, 5, false);
+	}
+
+	setMetadataEnabled(value: boolean): void {
+		(jspb.Message as any).setProto3BooleanField(this, 5, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		InfoRes.serializeBinaryToWriter(this, writer);
@@ -167,6 +176,7 @@ export class InfoRes extends jspb.Message {
 			host: (f = this.getHost()) && f.toObject(),
 			port: this.getPort(),
 			hostVpnIp: this.getHostVpnIp(),
+			metadataEnabled: this.getMetadataEnabled(),
 			
 		};
 	}
@@ -187,6 +197,10 @@ export class InfoRes extends jspb.Message {
 		const field4 = message.getHostVpnIp();
 		if (field4.length > 0) {
 			writer.writeString(4, field4);
+		}
+		const field5 = message.getMetadataEnabled();
+		if (field5 != false) {
+			writer.writeBool(5, field5);
 		}
 	}
 
@@ -220,6 +234,10 @@ export class InfoRes extends jspb.Message {
 				const field4 = reader.readString()
 				message.setHostVpnIp(field4);
 				break;
+			case 5:
+				const field5 = reader.readBool()
+				message.setMetadataEnabled(field5);
+				break;
 			default:
 				reader.skipField();
 				break;
@@ -248,6 +266,7 @@ function InfoResFromObject(obj: InfoRes.AsObject | undefined): InfoRes | undefin
 	message.setHost(StringValueFromObject(obj.host));
 	message.setPort(obj.port);
 	message.setHostVpnIp(obj.hostVpnIp);
+	message.setMetadataEnabled(obj.metadataEnabled);
 	return message;
 }
 

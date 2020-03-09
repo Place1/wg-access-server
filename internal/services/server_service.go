@@ -28,9 +28,10 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 	}
 
 	return &proto.InfoRes{
-		Host:      stringValue(s.Config.WireGuard.ExternalHost),
-		PublicKey: publicKey,
-		Port:      int32(s.Config.WireGuard.Port),
-		HostVpnIp: ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
+		Host:            stringValue(s.Config.WireGuard.ExternalHost),
+		PublicKey:       publicKey,
+		Port:            int32(s.Config.WireGuard.Port),
+		HostVpnIp:       ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
+		MetadataEnabled: s.Config.MetadataEnabled,
 	}, nil
 }

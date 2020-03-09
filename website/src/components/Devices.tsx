@@ -12,6 +12,8 @@ class Devices extends React.Component {
   }
 
   async load() {
+    const info = await grpc.server.info({});
+    AppState.info = info;
     const res = await grpc.devices.listDevices({});
     AppState.devices = res.items;
   }

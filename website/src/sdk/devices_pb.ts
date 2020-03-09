@@ -106,6 +106,11 @@ export declare namespace Device {
 		publicKey: string,
 		address: string,
 		createdAt?: googleProtobufTimestamp.Timestamp.AsObject,
+		connected: boolean,
+		lastHandshakeTime?: googleProtobufTimestamp.Timestamp.AsObject,
+		receiveBytes: number,
+		transmitBytes: number,
+		endpoint: string,
 	}
 }
 
@@ -161,6 +166,46 @@ export class Device extends jspb.Message {
 		(jspb.Message as any).setWrapperField(this, 5, value);
 	}
 
+	getConnected(): boolean {
+		return jspb.Message.getFieldWithDefault(this, 6, false);
+	}
+
+	setConnected(value: boolean): void {
+		(jspb.Message as any).setProto3BooleanField(this, 6, value);
+	}
+
+	getLastHandshakeTime(): googleProtobufTimestamp.Timestamp {
+		return jspb.Message.getWrapperField(this, googleProtobufTimestamp.Timestamp, 7);
+	}
+
+	setLastHandshakeTime(value?: googleProtobufTimestamp.Timestamp): void {
+		(jspb.Message as any).setWrapperField(this, 7, value);
+	}
+
+	getReceiveBytes(): number {
+		return jspb.Message.getFieldWithDefault(this, 8, 0);
+	}
+
+	setReceiveBytes(value: number): void {
+		(jspb.Message as any).setProto3IntField(this, 8, value);
+	}
+
+	getTransmitBytes(): number {
+		return jspb.Message.getFieldWithDefault(this, 9, 0);
+	}
+
+	setTransmitBytes(value: number): void {
+		(jspb.Message as any).setProto3IntField(this, 9, value);
+	}
+
+	getEndpoint(): string {
+		return jspb.Message.getFieldWithDefault(this, 10, "");
+	}
+
+	setEndpoint(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 10, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		Device.serializeBinaryToWriter(this, writer);
@@ -174,6 +219,11 @@ export class Device extends jspb.Message {
 			publicKey: this.getPublicKey(),
 			address: this.getAddress(),
 			createdAt: (f = this.getCreatedAt()) && f.toObject(),
+			connected: this.getConnected(),
+			lastHandshakeTime: (f = this.getLastHandshakeTime()) && f.toObject(),
+			receiveBytes: this.getReceiveBytes(),
+			transmitBytes: this.getTransmitBytes(),
+			endpoint: this.getEndpoint(),
 			
 		};
 	}
@@ -198,6 +248,26 @@ export class Device extends jspb.Message {
 		const field5 = message.getCreatedAt();
 		if (field5 != null) {
 			writer.writeMessage(5, field5, googleProtobufTimestamp.Timestamp.serializeBinaryToWriter);
+		}
+		const field6 = message.getConnected();
+		if (field6 != false) {
+			writer.writeBool(6, field6);
+		}
+		const field7 = message.getLastHandshakeTime();
+		if (field7 != null) {
+			writer.writeMessage(7, field7, googleProtobufTimestamp.Timestamp.serializeBinaryToWriter);
+		}
+		const field8 = message.getReceiveBytes();
+		if (field8 != 0) {
+			writer.writeInt64(8, field8);
+		}
+		const field9 = message.getTransmitBytes();
+		if (field9 != 0) {
+			writer.writeInt64(9, field9);
+		}
+		const field10 = message.getEndpoint();
+		if (field10.length > 0) {
+			writer.writeString(10, field10);
 		}
 	}
 
@@ -234,6 +304,27 @@ export class Device extends jspb.Message {
 				const field5 = new googleProtobufTimestamp.Timestamp();
 				reader.readMessage(field5, googleProtobufTimestamp.Timestamp.deserializeBinaryFromReader);
 				message.setCreatedAt(field5);
+				break;
+			case 6:
+				const field6 = reader.readBool()
+				message.setConnected(field6);
+				break;
+			case 7:
+				const field7 = new googleProtobufTimestamp.Timestamp();
+				reader.readMessage(field7, googleProtobufTimestamp.Timestamp.deserializeBinaryFromReader);
+				message.setLastHandshakeTime(field7);
+				break;
+			case 8:
+				const field8 = reader.readInt64()
+				message.setReceiveBytes(field8);
+				break;
+			case 9:
+				const field9 = reader.readInt64()
+				message.setTransmitBytes(field9);
+				break;
+			case 10:
+				const field10 = reader.readString()
+				message.setEndpoint(field10);
 				break;
 			default:
 				reader.skipField();
@@ -549,6 +640,11 @@ function DeviceFromObject(obj: Device.AsObject | undefined): Device | undefined 
 	message.setPublicKey(obj.publicKey);
 	message.setAddress(obj.address);
 	message.setCreatedAt(TimestampFromObject(obj.createdAt));
+	message.setConnected(obj.connected);
+	message.setLastHandshakeTime(TimestampFromObject(obj.lastHandshakeTime));
+	message.setReceiveBytes(obj.receiveBytes);
+	message.setTransmitBytes(obj.transmitBytes);
+	message.setEndpoint(obj.endpoint);
 	return message;
 }
 

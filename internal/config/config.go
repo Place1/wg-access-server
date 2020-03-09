@@ -20,8 +20,9 @@ import (
 )
 
 type AppConfig struct {
-	LogLevel string `yaml:"loglevel"`
-	Storage  struct {
+	LogLevel        string `yaml:"loglevel"`
+	MetadataEnabled bool   `yaml:"metadataEnabled"`
+	Storage         struct {
 		// Directory that VPN devices (WireGuard peers)
 		// should be saved under.
 		// If this value is empty then an InMemory storage
@@ -86,6 +87,7 @@ func Read() *AppConfig {
 	config.WireGuard.InterfaceName = "wg0"
 	config.WireGuard.Port = 51820
 	config.VPN.CIDR = "10.44.0.0/24"
+	config.MetadataEnabled = true
 
 	if *configPath != "" {
 		if b, err := ioutil.ReadFile(*configPath); err == nil {

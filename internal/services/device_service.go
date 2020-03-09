@@ -65,11 +65,16 @@ func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDevic
 
 func mapDevice(d *storage.Device) *proto.Device {
 	return &proto.Device{
-		Name:      d.Name,
-		Owner:     d.Owner,
-		PublicKey: d.PublicKey,
-		Address:   d.Address,
-		CreatedAt: TimeToTimestamp(d.CreatedAt),
+		Name:              d.Name,
+		Owner:             d.Owner,
+		PublicKey:         d.PublicKey,
+		Address:           d.Address,
+		CreatedAt:         TimeToTimestamp(d.CreatedAt),
+		Connected:         d.Connected,
+		LastHandshakeTime: TimeToTimestamp(d.LastHandshakeTime),
+		ReceiveBytes:      d.ReceiveBytes,
+		TransmitBytes:     d.TransmitBytes,
+		Endpoint:          d.Endpoint,
 	}
 }
 

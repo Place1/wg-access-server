@@ -17,4 +17,5 @@ message InfoRes {
   google.protobuf.StringValue host = 2;
   int32 port = 3;
   string host_vpn_ip = 4;
+  bool metadata_enabled = 5;
 }
