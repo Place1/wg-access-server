@@ -25,7 +25,8 @@ func New(iface string, s storage.Storage, cidr string) *DeviceManager {
 	return &DeviceManager{iface, s, cidr}
 }
 
-func (d *DeviceManager) Sync() error {
+func (d *DeviceManager) StartSync() error {
+	// sync devices from storage once
 	devices, err := d.ListDevices("")
 	if err != nil {
 		return errors.Wrap(err, "failed to list devices")
@@ -35,6 +36,10 @@ func (d *DeviceManager) Sync() error {
 			logrus.Warn(errors.Wrapf(err, "failed to sync device '%s' (ignoring)", device.Name))
 		}
 	}
+
+	// start the metrics loop
+	go metricsLoop(d)
+
 	return nil
 }
 

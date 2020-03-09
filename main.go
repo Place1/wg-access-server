@@ -80,7 +80,7 @@ func main() {
 
 	// Services
 	deviceManager := devices.New(wg.Name(), storageDriver, conf.VPN.CIDR)
-	if err := deviceManager.Sync(); err != nil {
+	if err := deviceManager.StartSync(); err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}
 
