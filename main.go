@@ -80,7 +80,7 @@ func main() {
 
 	// Services
 	deviceManager := devices.New(wg.Name(), storageDriver, conf.VPN.CIDR)
-	if err := deviceManager.StartSync(); err != nil {
+	if err := deviceManager.StartSync(conf.DisableMetadata); err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}
 
@@ -92,8 +92,8 @@ func main() {
 	server := grpc.NewServer([]grpc.ServerOption{
 		grpc.MaxRecvMsgSize(int(1 * math.Pow(2, 20))), // 1MB
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_recovery.UnaryServerInterceptor(),
 			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
+			grpc_recovery.UnaryServerInterceptor(),
 		)),
 	}...)
 	proto.RegisterServerServer(server, &services.ServerService{

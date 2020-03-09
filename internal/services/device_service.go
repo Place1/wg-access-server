@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"time"
 
 	"github.com/place1/wg-access-server/internal/auth/authsession"
 
@@ -69,12 +70,19 @@ func mapDevice(d *storage.Device) *proto.Device {
 		Owner:             d.Owner,
 		PublicKey:         d.PublicKey,
 		Address:           d.Address,
-		CreatedAt:         TimeToTimestamp(d.CreatedAt),
-		Connected:         d.Connected,
+		CreatedAt:         TimeToTimestamp(&d.CreatedAt),
 		LastHandshakeTime: TimeToTimestamp(d.LastHandshakeTime),
 		ReceiveBytes:      d.ReceiveBytes,
 		TransmitBytes:     d.TransmitBytes,
 		Endpoint:          d.Endpoint,
+		/**
+		 * Wireguard is a connectionless UDP protocol - data is only
+		 * sent over the wire when the client is sending real traffic.
+		 * Wireguard has no keep alive packets by default to remain as
+		 * silent as possible.
+		 *
+		 */
+		Connected: isConnected(d.LastHandshakeTime),
 	}
 }
 
@@ -84,4 +92,11 @@ func mapDevices(devices []*storage.Device) []*proto.Device {
 		items = append(items, mapDevice(d))
 	}
 	return items
+}
+
+func isConnected(lastHandshake *time.Time) bool {
+	if lastHandshake == nil {
+		return false
+	}
+	return lastHandshake.After(time.Now().Add(-1 * time.Minute))
 }

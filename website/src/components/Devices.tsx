@@ -4,18 +4,29 @@ import { view } from 'react-easy-state';
 import { AppState } from '../Store';
 import DeviceListItem from './DeviceListItem';
 import { grpc } from '../Api';
+import { sleep } from '../Util';
 
 class Devices extends React.Component {
 
+  private mounted = false;
+
   componentDidMount() {
-    this.load();
+    this.mounted = true;
+    this.poll();
   }
 
-  async load() {
-    const info = await grpc.server.info({});
-    AppState.info = info;
-    const res = await grpc.devices.listDevices({});
-    AppState.devices = res.items;
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  async poll() {
+    while (this.mounted) {
+      const info = await grpc.server.info({});
+      AppState.info = info;
+      const res = await grpc.devices.listDevices({});
+      AppState.devices = res.items;
+      await sleep(5);
+    }
   }
 
   render() {

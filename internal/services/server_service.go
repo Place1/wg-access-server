@@ -32,6 +32,6 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		PublicKey:       publicKey,
 		Port:            int32(s.Config.WireGuard.Port),
 		HostVpnIp:       ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
-		MetadataEnabled: s.Config.MetadataEnabled,
+		MetadataEnabled: !s.Config.DisableMetadata,
 	}, nil
 }

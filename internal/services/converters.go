@@ -13,8 +13,11 @@ func TimestampToTime(value *timestamp.Timestamp) time.Time {
 	return time.Unix(value.Seconds, int64(value.Nanos))
 }
 
-func TimeToTimestamp(value time.Time) *timestamp.Timestamp {
-	t, err := ptypes.TimestampProto(value)
+func TimeToTimestamp(value *time.Time) *timestamp.Timestamp {
+	if value == nil {
+		return nil
+	}
+	t, err := ptypes.TimestampProto(*value)
 	if err != nil {
 		logrus.Error("bad time value")
 		t = ptypes.TimestampNow()

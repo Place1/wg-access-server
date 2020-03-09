@@ -301,9 +301,7 @@ func init() {
 	proto.RegisterType((*DeleteDeviceReq)(nil), "proto.DeleteDeviceReq")
 }
 
-func init() {
-	proto.RegisterFile("devices.proto", fileDescriptor_6d27ec3f2c0e2043)
-}
+func init() { proto.RegisterFile("devices.proto", fileDescriptor_6d27ec3f2c0e2043) }
 
 var fileDescriptor_6d27ec3f2c0e2043 = []byte{
 	// 435 bytes of a gzipped FileDescriptorProto
