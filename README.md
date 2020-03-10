@@ -32,6 +32,8 @@ network as well.
 
 Here's a quick command to run the server to try it out.
 
+You can connect to the web server with http://localhost:8000
+
 If you open your browser using your LAN ip address you can even connect your
 phone to try it out: for example, i'll open my browser at http://192.168.0.15:8000
 using my laptop's LAN IP address.
@@ -205,8 +207,8 @@ The software is made up a Golang Server and React App.
 
 Here's how I develop locally:
 
-2. run `cd website && npm install && npm start` to get the frontend running on `:3000`
-3. run `sudo go run ./main.go` to get the server running on `:8000`
+1. run `cd website && npm install && npm start` to get the frontend running on `:3000`
+2. run `sudo go run ./main.go` to get the server running on `:8000`
 
 Here are some notes about the development configuration:
 
