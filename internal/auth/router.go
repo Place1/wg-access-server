@@ -16,10 +16,10 @@ import (
 )
 
 type AuthMiddleware struct {
-	config *authconfig.AuthConfig
+	config authconfig.AuthConfig
 }
 
-func New(config *authconfig.AuthConfig) *AuthMiddleware {
+func New(config authconfig.AuthConfig) *AuthMiddleware {
 	return &AuthMiddleware{config}
 }
 

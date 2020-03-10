@@ -15,13 +15,16 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type AppConfig struct {
 	LogLevel        string `yaml:"loglevel"`
-	MetadataEnabled bool   `yaml:"metadataEnabled"`
+	DisableMetadata bool   `yaml:"disableMetadata"`
+	AdminSubject    string `yaml:"adminSubject"`
+	AdminPassword   string `yaml:"adminPassword"`
 	Storage         struct {
 		// Directory that VPN devices (WireGuard peers)
 		// should be saved under.
@@ -71,23 +74,31 @@ type AppConfig struct {
 	// auth backends are configured.
 	// If no authentication backends are configured then
 	// the server will not require any authentication.
-	Auth *authconfig.AuthConfig `yaml:"auth"`
+	Auth authconfig.AuthConfig `yaml:"auth"`
 }
 
 var (
-	app        = kingpin.New("wg-access-server", "An all-in-one WireGuard Access Server & VPN solution")
-	configPath = app.Flag("config", "Path to a config file").OverrideDefaultFromEnvar("CONFIG").String()
+	app             = kingpin.New("wg-access-server", "An all-in-one WireGuard Access Server & VPN solution")
+	configPath      = app.Flag("config", "Path to a config file").OverrideDefaultFromEnvar("CONFIG").String()
+	logLevel        = app.Flag("log-level", "Log level (debug, info, error)").OverrideDefaultFromEnvar("LOG_LEVEL").Default("info").String()
+	storagePath     = app.Flag("storage", "Path to a storage directory").OverrideDefaultFromEnvar("STORAGE_DIRECTORY").String()
+	privateKey      = app.Flag("private-key", "Wireguard private key").OverrideDefaultFromEnvar("WIREGUARD_PRIVATE_KEY").String()
+	disableMetadata = app.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").OverrideDefaultFromEnvar("DISABLE_METADATA").Default("false").Bool()
+	adminPassword   = app.Flag("admin-password", "Admin password (provide plaintext, stored in-memory only)").OverrideDefaultFromEnvar("ADMIN_PASSWORD").String()
 )
 
 func Read() *AppConfig {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	config := AppConfig{}
-	config.LogLevel = "info"
+	config.LogLevel = *logLevel
 	config.WireGuard.InterfaceName = "wg0"
 	config.WireGuard.Port = 51820
 	config.VPN.CIDR = "10.44.0.0/24"
-	config.MetadataEnabled = true
+	config.DisableMetadata = *disableMetadata
+	config.Storage.Directory = *storagePath
+	config.WireGuard.PrivateKey = *privateKey
+	config.AdminPassword = *adminPassword
 
 	if *configPath != "" {
 		if b, err := ioutil.ReadFile(*configPath); err == nil {
@@ -95,18 +106,6 @@ func Read() *AppConfig {
 				logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
 			}
 		}
-	}
-
-	if v, ok := os.LookupEnv("LOG_LEVEL"); ok {
-		config.LogLevel = v
-	}
-
-	if v, ok := os.LookupEnv("STORAGE_DIRECTORY"); ok {
-		config.Storage.Directory = v
-	}
-
-	if v, ok := os.LookupEnv("WIREGUARD_PRIVATE_KEY"); ok {
-		config.WireGuard.PrivateKey = v
 	}
 
 	level, err := logrus.ParseLevel(config.LogLevel)
@@ -121,6 +120,10 @@ func Read() *AppConfig {
 			return "", fmt.Sprintf("%s:%d", filepath.Base(f.File), f.Line)
 		},
 	})
+
+	if config.DisableMetadata {
+		logrus.Info("Metadata collection has been disabled. No metrics or device connectivity information will be recorded or shown")
+	}
 
 	if config.VPN.GatewayInterface == "" {
 		iface, err := defaultInterface()
@@ -147,13 +150,23 @@ func Read() *AppConfig {
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err, "failed to get absolute path to storage directory"))
 		}
+		os.MkdirAll(config.Storage.Directory, 0700)
+	}
+
+	if config.AdminPassword != "" {
+		if config.Auth.Basic == nil {
+			config.Auth.Basic = &authconfig.BasicAuthConfig{}
+		}
+		// htpasswd.AcceptBcrypt(config.AdminPassword)
+		pw, err := bcrypt.GenerateFromPassword([]byte(config.AdminPassword), bcrypt.DefaultCost)
+		if err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to generate a bcrypt hash for the provided admin password"))
+		}
+		config.AdminSubject = "admin"
+		config.Auth.Basic.Users = append(config.Auth.Basic.Users, fmt.Sprintf("admin:%s", string(pw)))
 	}
 
 	return &config
-}
-
-func (config *AppConfig) IsAuthEnabled() bool {
-	return config.Auth != nil
 }
 
 func defaultInterface() (string, error) {

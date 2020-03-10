@@ -5,15 +5,15 @@ export function getCookie(name: string): string | undefined {
   const prefix = name + '=';
   let begin = dc.indexOf('; ' + prefix);
   let end = undefined;
-  if (begin == -1) {
+  if (begin === -1) {
     begin = dc.indexOf(prefix);
-    if (begin != 0) {
+    if (begin !== 0) {
       return undefined;
     }
   } else {
     begin += 2;
     end = document.cookie.indexOf(';', begin);
-    if (end == -1) {
+    if (end === -1) {
       end = dc.length;
     }
   }

@@ -15,7 +15,7 @@ export class PopoverDisplay extends React.Component<Props> {
   render() {
     return (
       <React.Fragment>
-        <Button variant="text" color="secondary" onClick={event => this.setState({ anchorEl: event.currentTarget })}>
+        <Button size="small" variant="outlined" color="secondary" style={{padding: 0}} onClick={event => this.setState({ anchorEl: event.currentTarget })}>
           {this.props.label}
         </Button>
         <Popover

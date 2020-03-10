@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"math"
 	"net/http"
+	"net/url"
+	"os"
 	"runtime/debug"
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
@@ -21,6 +23,8 @@ import (
 	"github.com/place1/wg-access-server/internal/services"
 	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/sirupsen/logrus"
+
+	"net/http/httputil"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -80,20 +84,28 @@ func main() {
 
 	// Services
 	deviceManager := devices.New(wg.Name(), storageDriver, conf.VPN.CIDR)
-	if err := deviceManager.StartSync(); err != nil {
+	if err := deviceManager.StartSync(conf.DisableMetadata); err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}
 
 	// Router
 	router := mux.NewRouter()
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("website/build")))
+
+	// if the built website exists, serve that
+	// otherwise proxy to a local webpack development server
+	if _, err := os.Stat("website/build"); os.IsNotExist(err) {
+		u, _ := url.Parse("http://localhost:3000")
+		router.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
+	} else {
+		router.PathPrefix("/").Handler(http.FileServer(http.Dir("website/build")))
+	}
 
 	// GRPC Server
 	server := grpc.NewServer([]grpc.ServerOption{
 		grpc.MaxRecvMsgSize(int(1 * math.Pow(2, 20))), // 1MB
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_recovery.UnaryServerInterceptor(),
 			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
+			grpc_recovery.UnaryServerInterceptor(),
 		)),
 	}...)
 	proto.RegisterServerServer(server, &services.ServerService{
@@ -121,7 +133,7 @@ func main() {
 		}
 	})
 
-	if conf.IsAuthEnabled() {
+	if conf.Auth.IsEnabled() {
 		handler = auth.New(conf.Auth).Wrap(handler)
 	} else {
 		base := handler

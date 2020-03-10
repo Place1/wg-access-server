@@ -60,6 +60,7 @@ export default function AddDevice() {
 
     try {
       const device = await grpc.devices.addDevice({ name, publicKey });
+      const info = AppState.info!;
       AppState.devices.push(device);
       const configFile = codeBlock`
         [Interface]
@@ -83,10 +84,10 @@ export default function AddDevice() {
   };
 
   return (
-    <React.Fragment>
+    <>
       <Grid container spacing={3}>
         <Grid item xs></Grid>
-        <Grid item xs={12} md={4} lg={6}>
+        <Grid item xs={12} md={7} lg={6}>
           <Paper className={classes.paper}>
             <h2>Add A Device</h2>
             <form onSubmit={addDevice}>
@@ -143,6 +144,6 @@ export default function AddDevice() {
           </Button>
         </DialogActions>
       </Dialog>
-    </React.Fragment>
+    </>
   );
 }

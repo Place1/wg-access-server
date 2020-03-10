@@ -25,9 +25,8 @@ type Device struct {
 	 */
 
 	// metadata about the device during the current session
-	Connected         bool      `json:"connected"`
-	LastHandshakeTime time.Time `json:"lastHandshakeTime"`
-	ReceiveBytes      int64     `json:"receivedBytes"`
-	TransmitBytes     int64     `json:"transmitBytes"`
-	Endpoint          string    `json:"endpoint"`
+	LastHandshakeTime *time.Time `json:"lastHandshakeTime"`
+	ReceiveBytes      int64      `json:"receivedBytes"`
+	TransmitBytes     int64      `json:"transmitBytes"`
+	Endpoint          string     `json:"endpoint"`
 }
