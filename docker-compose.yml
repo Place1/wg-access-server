@@ -7,6 +7,8 @@ services:
     #   context: .
     image: place1/wg-access-server
     container_name: wg-access-server
+    cap_add:
+      - NET_ADMIN
     volumes:
       - "wg-access-server-data:/data"
     #   - "config.yaml/config.yaml" # if you have a custom confg file
