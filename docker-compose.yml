@@ -3,7 +3,7 @@ services:
   wg-access-server:
     # to build the docker image from the source
     # build:
-    #   dockerfile: dockerfile
+    #   dockerfile: Dockerfile
     #   context: .
     image: place1/wg-access-server
     container_name: wg-access-server

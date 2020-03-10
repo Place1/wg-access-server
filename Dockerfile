@@ -18,7 +18,7 @@ FROM golang:1.13.8 as server
 
 WORKDIR /code
 
-# environment variable
+# Environment variable
 ENV GOOS=linux
 ENV GARCH=amd64
 ENV CGO_ENABLED=0
@@ -38,14 +38,19 @@ RUN go build -o server
 ### Server 
 FROM alpine:3.10
 
-# environment variable
+# Environment variable
 ENV CONFIG="/config.yaml"
 ENV STORAGE_DIRECTORY="/data"
 
 RUN apk add iptables
 RUN apk add wireguard-tools
+RUN apk add curl
 
 # Copy the final build for the frontend and backend
 COPY --from=server /code/server /server
 COPY --from=website /code/build /website/build
+
+HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://localhost:8000/ || exit 1
+
+# Command to start the server
 CMD /server
