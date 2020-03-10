@@ -1,0 +1,79 @@
+{{- $fullName := include "wg-access-server.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wg-access-server.fullname" . }}
+  labels:
+    {{- include "wg-access-server.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: "{{ .Values.strategy.type }}"
+  selector:
+    matchLabels:
+      {{- include "wg-access-server.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "wg-access-server.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            capabilities:
+              add: ['NET_ADMIN']
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+            - name: wireguard
+              containerPort: 51820
+              protocol: UDP
+          volumeMounts:
+            - name: tun
+              mountPath: /dev/net/tun
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /config.yaml
+              subPath: config.yaml
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: tun
+          hostPath:
+            type: 'CharDevice'
+            path: /dev/net/tun
+        - name: data
+        {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: "{{ $fullName }}"
+        {{- end }}
+        {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- end }}
+        - name: config
+          configMap:
+            name: "{{ $fullName }}"
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
