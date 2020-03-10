@@ -7,10 +7,6 @@ config:
     # generated key
     privateKey: ""
 
-web:
-  service:
-    type: ClusterIP
-
 wireguard:
   service:
     type: ClusterIP
