@@ -1,4 +1,4 @@
-### Build stage for the website frontend 
+### Build stage for the website frontend
 FROM node:10 as website
 
 WORKDIR /code
@@ -35,16 +35,17 @@ COPY ./internal/ ./internal
 
 RUN go build -o server
 
-### Server 
+### Server
 FROM alpine:3.10
+
+# Dependencies and tools
+RUN apk add iptables
+RUN apk add wireguard-tools
+RUN apk add curl
 
 # Environment variable
 ENV CONFIG="/config.yaml"
 ENV STORAGE_DIRECTORY="/data"
-
-RUN apk add iptables
-RUN apk add wireguard-tools
-RUN apk add curl
 
 # Copy the final build for the frontend and backend
 COPY --from=server /code/server /server
