@@ -1,0 +1,68 @@
+## Installing the Chart
+
+To install the chart with the release name `my-release`:
+
+```bash
+$ helm install my-release --repo https://place1.github.io/wg-access-server wg-access-server
+```
+
+The command deploys wg-access-server on the Kubernetes cluster in the default configuration. The configuration section lists the parameters that can be configured during installation.
+
+By default an in-memory wireguard private key will be generated and devices will not persist
+between pod restarts.
+
+## Uninstalling the Chart
+
+To uninstall/delete the my-release deployment:
+
+```bash
+$ helm delete my-release
+```
+
+The command removes all the Kubernetes components associated with the chart and deletes the release.
+
+## Example values.yaml
+
+```yaml
+config:
+  wireguard:
+    privateKey: "<wireguard-private-key>"
+    externalHost: "<loadbalancer-ip>:51820"
+persistence:
+  enabled: true
+ingress:
+  enabled: true
+  hosts: ["vpn.example.com"]
+  tls:
+    - hosts: ["vpn.example.com"]
+      secretName: "tls-wg-access-server"
+wireguard:
+  service:
+    type: "LoadBalancer"
+```
+
+## All Configuration
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| config | object | `{}` | inline wg-access-server config (config.yaml) |
+| wireguard.service.type | string | `"ClusterIP"` |  |
+| ingress.enabled | bool | `false` |  |
+| ingress.hosts | string | `nil` |  |
+| ingress.tls | list | `[]` |  |
+| ingress.annotations | object | `{}` |  |
+| persistence.enabled | bool | `false` |  |
+| persistence.size | string | `"100Mi"` |  |
+| persistence.subPath | string | `""` |  |
+| persistence.annotations | object | `{}` |  |
+| persistence.accessModes[0] | string | `"ReadWriteOnce"` |  |
+| strategy.type | string | `"Recreate"` |  |
+| resources | object | `{}` | pod cpu/memory resource requests and limits |
+| nameOverride | string | `""` |  |
+| fullnameOverride | string | `""` |  |
+| affinity | object | `{}` |  |
+| nodeSelector | object | `{}` |  |
+| tolerations | list | `[]` |  |
+| image.pullPolicy | string | `"IfNotPresent"` |  |
+| image.repository | string | `"place1/wg-access-server"` |  |
+| imagePullSecrets | list | `[]` |  |

@@ -1,0 +1,32 @@
+site_name: wg-access-server
+strict: true
+repo_name: place1/wg-access-server
+repo_url: https://github.com/place1/wg-access-server
+site_url: https://place1.github.io/wg-access-server
+
+theme:
+  name: material
+  include_sidebar: true
+  logo:
+    icon: cloud_queue # globe icon
+  feature:
+    tabs: false
+  palette:
+    primary: light blue
+    accent: teal
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - markdown_include.include:
+      base_path: docs
+  - meta
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: " ¶"
+
+plugins:
+  - search
