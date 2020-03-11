@@ -33,10 +33,12 @@ network as well.
 Here's a quick command to run the server to try it out.
 
 If you open your browser using your LAN ip address you can even connect your
-phone to try it out: for example, i'll open my browser at http://192.168.0.15:8000
-using my laptop's LAN IP address.
+phone to try it out: for example, i'll open my browser at http://192.168.0.XX:8000
+using the local LAN IP address.
 
-```
+You can connect to the web server on the local machine browser at http://localhost:8000
+
+```bash
 docker run \
   -it \
   --rm \
@@ -48,11 +50,21 @@ docker run \
   place1/wg-access-server
 ```
 
+## Running with Docker-Compose
+
+You modify the docker-compose.yml file for you need then run this following command.
+
+```bash
+docker-compose up -d
+```
+
+You can connect to the web server on the local machine browser at http://localhost:8000
+
 ## Configuration
 
 You can configure the server using a yaml configuration file. Just mount the file into the container like this:
 
-```
+```bash
 docker run \
   ... \
   -v $(pwd)/config.yaml:/config.yaml \
@@ -205,8 +217,8 @@ The software is made up a Golang Server and React App.
 
 Here's how I develop locally:
 
-2. run `cd website && npm install && npm start` to get the frontend running on `:3000`
-3. run `sudo go run ./main.go` to get the server running on `:8000`
+1. run `cd website && npm install && npm start` to get the frontend running on `:3000`
+2. run `sudo go run ./main.go` to get the server running on `:8000`
 
 Here are some notes about the development configuration:
 
