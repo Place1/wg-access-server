@@ -35,6 +35,14 @@ spec:
             - name: wireguard
               containerPort: 51820
               protocol: UDP
+          env:
+            {{- if .Values.wireguard.config.privateKey }}
+            - name: WIREGUARD_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ $fullName }}"
+                  key: privateKey
+            {{- end }}
           volumeMounts:
             - name: tun
               mountPath: /dev/net/tun

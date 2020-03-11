@@ -1,13 +1,9 @@
 # wg-access-server config
-config:
-  wireguard:
-    # The WireGuard PrivateKey
-    # You can generate this value using "$ wg genkey"
-    # If this value is empty then the server will use an in-memory
-    # generated key
-    privateKey: ""
+config: {}
 
 wireguard:
+  config:
+    privateKey: ""
   service:
     type: ClusterIP
 

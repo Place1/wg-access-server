@@ -26,8 +26,12 @@ The command removes all the Kubernetes components associated with the chart and 
 ```yaml
 config:
   wireguard:
-    privateKey: "<wireguard-private-key>"
     externalHost: "<loadbalancer-ip>:51820"
+wireguard:
+  config:
+    privateKey: "<wireguard-private-key>"
+  service:
+    type: "LoadBalancer"
 persistence:
   enabled: true
 ingress:
@@ -36,9 +40,6 @@ ingress:
   tls:
     - hosts: ["vpn.example.com"]
       secretName: "tls-wg-access-server"
-wireguard:
-  service:
-    type: "LoadBalancer"
 ```
 
 ## All Configuration
@@ -46,6 +47,7 @@ wireguard:
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | config | object | `{}` | inline wg-access-server config (config.yaml) |
+| wireguard.config.privateKey | string | "" | A wireguard private key. You can generate one using `$ wg genkey` |
 | wireguard.service.type | string | `"ClusterIP"` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts | string | `nil` |  |
