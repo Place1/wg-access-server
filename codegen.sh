@@ -1,9 +1,8 @@
 #!/bin/bash
 set -e
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
-OUT_DIR="$DIR/proto/proto"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+OUT_DIR="$SCRIPT_DIR/proto/proto"
 
 mkdir -p "$OUT_DIR" || true
 
@@ -12,4 +11,5 @@ protoc \
   proto/*.proto \
   --go_out="plugins=grpc:$OUT_DIR"
 
-cd website && npm run codegen
+cd website || exit
+npm run codegen

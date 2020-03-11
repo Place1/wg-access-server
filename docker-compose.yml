@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  wg-access-server:
+    # to build the docker image from the source
+    # build:
+    #   dockerfile: Dockerfile
+    #   context: .
+    image: place1/wg-access-server
+    container_name: wg-access-server
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - "wg-access-server-data:/data"
+    #   - "config.yaml/config.yaml" # if you have a custom confg file
+    ports:
+      - "8000:8000/tcp"
+      - "51820:51820/udp"
+    devices:
+      - "/dev/net/tun:/dev/net/tun"
+
+# shared volumes with the host
+volumes:
+  wg-access-server-data:
+    driver: local
