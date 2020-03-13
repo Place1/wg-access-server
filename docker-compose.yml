@@ -11,7 +11,7 @@ services:
       - NET_ADMIN
     volumes:
       - "wg-access-server-data:/data"
-    #   - "config.yaml/config.yaml" # if you have a custom confg file
+    #   - "./config.yaml:/config.yaml" # if you have a custom config file
     ports:
       - "8000:8000/tcp"
       - "51820:51820/udp"
