@@ -52,8 +52,5 @@ ENV STORAGE_DIRECTORY="/data"
 COPY --from=server /code/server /server
 COPY --from=website /code/build /website/build
 
-HEALTHCHECK --interval=5m --timeout=3s \
-  CMD curl -L --silent --show-error --fail http://localhost:8000/ || exit 1
-
 # Command to start the server
 CMD /server
