@@ -5,7 +5,7 @@ import json
 import yaml
 
 def is_release_candidate(version):
-    return version.endswith('-rc')
+    return '-rc' in version
 
 # print the latest tags so we don't have to google our own
 # image to check :P
