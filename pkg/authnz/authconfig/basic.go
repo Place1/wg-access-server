@@ -43,9 +43,13 @@ func basicAuthLogin(c *BasicAuthConfig, runtime *authruntime.ProviderRuntime) ht
 					Subject: u,
 				},
 			})
+			runtime.Done(w, r)
 		}
 
-		runtime.Done(w, r)
+		w.Header().Set("WWW-Authenticate", `Basic realm="site"`)
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprintln(w, "unauthorized")
+		return
 	}
 }
 

@@ -84,6 +84,7 @@ var (
 	storagePath     = app.Flag("storage", "Path to a storage directory").Envar("STORAGE_DIRECTORY").String()
 	privateKey      = app.Flag("private-key", "Wireguard private key").Envar("WIREGUARD_PRIVATE_KEY").String()
 	disableMetadata = app.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").Envar("DISABLE_METADATA").Default("false").Bool()
+	adminUsername   = app.Flag("admin-username", "Admin username (defaults to admin)").Envar("ADMIN_USERNAME").String()
 	adminPassword   = app.Flag("admin-password", "Admin password (provide plaintext, stored in-memory only)").Envar("ADMIN_PASSWORD").String()
 	upstreamDNS     = app.Flag("upstream-dns", "An upstream DNS server to proxy DNS traffic to").Envar("UPSTREAM_DNS").String()
 )
@@ -99,7 +100,13 @@ func Read() *AppConfig {
 	config.DisableMetadata = *disableMetadata
 	config.Storage.Directory = *storagePath
 	config.WireGuard.PrivateKey = *privateKey
-	config.AdminPassword = *adminPassword
+	if adminPassword != nil {
+		config.AdminPassword = *adminPassword
+		config.AdminSubject = *adminUsername
+		if config.AdminSubject == "" {
+			config.AdminSubject = "admin"
+		}
+	}
 	if upstreamDNS != nil {
 		config.DNS.Upstream = []string{*upstreamDNS}
 	}
@@ -166,8 +173,7 @@ func Read() *AppConfig {
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err, "failed to generate a bcrypt hash for the provided admin password"))
 		}
-		config.AdminSubject = "admin"
-		config.Auth.Basic.Users = append(config.Auth.Basic.Users, fmt.Sprintf("admin:%s", string(pw)))
+		config.Auth.Basic.Users = append(config.Auth.Basic.Users, fmt.Sprintf("%s:%s", config.AdminSubject, string(pw)))
 	}
 
 	return &config
