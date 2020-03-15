@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"fmt"
 	"math"
 	"net/http"
 	"net/url"
@@ -90,6 +91,12 @@ func main() {
 
 	// Router
 	router := mux.NewRouter()
+
+	// Healthcheck endpoint
+	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintln(w, "ok")
+	})
 
 	// if the built website exists, serve that
 	// otherwise proxy to a local webpack development server
