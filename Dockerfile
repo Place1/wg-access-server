@@ -31,7 +31,8 @@ RUN go mod download
 
 COPY ./proto/ ./proto/
 COPY ./main.go ./main.go
-COPY ./internal/ ./internal
+COPY ./internal/ ./internal/
+COPY ./pkg/ ./pkg/
 
 RUN go build -o server
 
