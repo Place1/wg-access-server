@@ -1,31 +1,30 @@
 import React from 'react';
-import { view } from 'react-easy-state';
-import TableContainer from '@material-ui/core/TableContainer';
 import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import TableBody from '@material-ui/core/TableBody';
+import { observer } from 'mobx-react';
+import { lazyObservable } from 'mobx-utils';
+import { grpc } from '../../Api';
 import { Device } from '../../sdk/devices_pb';
-import { dateToTimestamp } from '../../Api';
 import { lastSeen } from '../../Util';
 
-class AllDevices extends React.Component {
+@observer
+export class AllDevices extends React.Component {
+
+  devices = lazyObservable<Device.AsObject[]>(async sink => {
+    const res = await grpc.devices.listAllDevices({});
+    sink(res.items);
+  });
+
   render() {
-    const rows: Array<Device.AsObject> = [
-      {
-        name: 'Example',
-        owner: 'John',
-        connected: false,
-        lastHandshakeTime: dateToTimestamp(new Date()),
-        endpoint: "192.160.0.100",
-        address: "10.44.0.2",
-        publicKey: "example",
-        receiveBytes: 0,
-        transmitBytes: 0,
-        createdAt: dateToTimestamp(new Date()),
-      },
-    ];
+    if (!this.devices.current()) {
+      return <p>loading...</p>
+    }
+
+    const rows = this.devices.current();
 
     return (
       <TableContainer>
@@ -55,5 +54,3 @@ class AllDevices extends React.Component {
     );
   }
 }
-
-export default view(AllDevices);

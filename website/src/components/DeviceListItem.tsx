@@ -8,24 +8,26 @@ import WifiOffIcon from '@material-ui/icons/WifiOff';
 import MenuItem from '@material-ui/core/MenuItem';
 import numeral from 'numeral';
 import { lastSeen } from '../Util';
-import { view } from 'react-easy-state';
-import { AppState } from '../Store';
+import { AppState } from '../AppState';
 import { IconMenu } from './IconMenu';
 import { PopoverDisplay } from './PopoverDisplay';
 import { Device } from '../sdk/devices_pb'
 import { grpc } from '../Api';
+import { observer } from 'mobx-react';
 
 interface Props {
   device: Device.AsObject;
+  onRemove: () => void;
 }
 
-class DeviceListItem extends React.Component<Props> {
+@observer
+export class DeviceListItem extends React.Component<Props> {
   removeDevice = async () => {
     try {
       await grpc.devices.deleteDevice({
         name: this.props.device.name,
       });
-      AppState.devices = AppState.devices.filter(device => device.name !== this.props.device.name);
+      this.props.onRemove();
     } catch {
       window.alert('api request failed');
     }
@@ -95,5 +97,3 @@ class DeviceListItem extends React.Component<Props> {
     );
   }
 }
-
-export default view(DeviceListItem);

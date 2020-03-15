@@ -9,16 +9,16 @@ import {
   Switch,
   Route,
 } from 'react-router-dom';
-import { view } from 'react-easy-state';
+import { observer } from 'mobx-react';
 import { grpc } from './Api';
-import { AppState } from './Store';
-import YourDevices from './pages/YourDevices';
-import AllDevices from './pages/admin/AllDevices';
+import { AppState } from './AppState';
+import { YourDevices } from './pages/YourDevices';
+import { AllDevices } from './pages/admin/AllDevices';
 
+@observer
 class App extends React.Component {
 
   async componentDidMount() {
-    AppState.devices = (await grpc.devices.listDevices({})).items;
     AppState.info = await grpc.server.info({});
   }
 
@@ -45,6 +45,4 @@ class App extends React.Component {
   }
 }
 
-const Root = view(App);
-
-ReactDOM.render(<Root />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));

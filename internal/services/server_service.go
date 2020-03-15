@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 
-	"github.com/place1/wg-access-server/internal/auth/authsession"
 	"github.com/place1/wg-access-server/internal/config"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/place1/wg-access-server/proto/proto"
 	"github.com/place1/wg-embed/pkg/wgembed"
 	"github.com/sirupsen/logrus"
@@ -34,6 +34,6 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		Port:            int32(s.Config.WireGuard.Port),
 		HostVpnIp:       ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
 		MetadataEnabled: !s.Config.DisableMetadata,
-		IsAdmin:         s.Config.AdminSubject == user.Subject,
+		IsAdmin:         user.Claims.Contains("admin"),
 	}, nil
 }

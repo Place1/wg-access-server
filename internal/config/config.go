@@ -10,7 +10,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/place1/wg-access-server/internal/auth/authconfig"
+	"github.com/place1/wg-access-server/pkg/authnz/authconfig"
 	"github.com/vishvananda/netlink"
 
 	"github.com/pkg/errors"
@@ -79,12 +79,13 @@ type AppConfig struct {
 
 var (
 	app             = kingpin.New("wg-access-server", "An all-in-one WireGuard Access Server & VPN solution")
-	configPath      = app.Flag("config", "Path to a config file").OverrideDefaultFromEnvar("CONFIG").String()
-	logLevel        = app.Flag("log-level", "Log level (debug, info, error)").OverrideDefaultFromEnvar("LOG_LEVEL").Default("info").String()
-	storagePath     = app.Flag("storage", "Path to a storage directory").OverrideDefaultFromEnvar("STORAGE_DIRECTORY").String()
-	privateKey      = app.Flag("private-key", "Wireguard private key").OverrideDefaultFromEnvar("WIREGUARD_PRIVATE_KEY").String()
-	disableMetadata = app.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").OverrideDefaultFromEnvar("DISABLE_METADATA").Default("false").Bool()
-	adminPassword   = app.Flag("admin-password", "Admin password (provide plaintext, stored in-memory only)").OverrideDefaultFromEnvar("ADMIN_PASSWORD").String()
+	configPath      = app.Flag("config", "Path to a config file").Envar("CONFIG").String()
+	logLevel        = app.Flag("log-level", "Log level (debug, info, error)").Envar("LOG_LEVEL").Default("info").String()
+	storagePath     = app.Flag("storage", "Path to a storage directory").Envar("STORAGE_DIRECTORY").String()
+	privateKey      = app.Flag("private-key", "Wireguard private key").Envar("WIREGUARD_PRIVATE_KEY").String()
+	disableMetadata = app.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").Envar("DISABLE_METADATA").Default("false").Bool()
+	adminPassword   = app.Flag("admin-password", "Admin password (provide plaintext, stored in-memory only)").Envar("ADMIN_PASSWORD").String()
+	upstreamDNS     = app.Flag("upstream-dns", "An upstream DNS server to proxy DNS traffic to").Envar("UPSTREAM_DNS").String()
 )
 
 func Read() *AppConfig {
@@ -99,6 +100,9 @@ func Read() *AppConfig {
 	config.Storage.Directory = *storagePath
 	config.WireGuard.PrivateKey = *privateKey
 	config.AdminPassword = *adminPassword
+	if upstreamDNS != nil {
+		config.DNS.Upstream = []string{*upstreamDNS}
+	}
 
 	if *configPath != "" {
 		if b, err := ioutil.ReadFile(*configPath); err == nil {

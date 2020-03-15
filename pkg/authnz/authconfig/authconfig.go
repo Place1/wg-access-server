@@ -1,7 +1,7 @@
 package authconfig
 
 import (
-	"github.com/place1/wg-access-server/internal/auth/authruntime"
+	"github.com/place1/wg-access-server/pkg/authnz/authruntime"
 )
 
 type AuthConfig struct {

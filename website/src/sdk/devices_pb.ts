@@ -32,6 +32,12 @@ export class Devices {
 		googleProtobufEmpty.Empty.deserializeBinary
 	);
 
+	private methodInfoListAllDevices = new grpcWeb.AbstractClientBase.MethodInfo(
+		ListAllDevicesRes,
+		(req: ListAllDevicesReq) => req.serializeBinary(),
+		ListAllDevicesRes.deserializeBinary
+	);
+
 	constructor(
 		private hostname: string,
 		private defaultMetadata?: () => grpcWeb.Metadata,
@@ -84,6 +90,25 @@ export class Devices {
 				Object.assign({}, this.defaultMetadata ? this.defaultMetadata() : {}, metadata),
 				this.methodInfoDeleteDevice,
 				(err: grpcWeb.Error, res: googleProtobufEmpty.Empty) => {
+					if (err) {
+						reject(err);
+					} else {
+						resolve(res.toObject());
+					}
+				},
+			);
+		});
+	}
+
+	listAllDevices(req: ListAllDevicesReq.AsObject, metadata?: grpcWeb.Metadata): Promise<ListAllDevicesRes.AsObject> {
+		return new Promise((resolve, reject) => {
+			const message = ListAllDevicesReqFromObject(req);
+			this.client_.rpcCall(
+				this.hostname + '/proto.Devices/ListAllDevices',
+				message,
+				Object.assign({}, this.defaultMetadata ? this.defaultMetadata() : {}, metadata),
+				this.methodInfoListAllDevices,
+				(err: grpcWeb.Error, res: ListAllDevicesRes) => {
 					if (err) {
 						reject(err);
 					} else {
@@ -628,6 +653,137 @@ export class DeleteDeviceReq extends jspb.Message {
 	}
 
 }
+export declare namespace ListAllDevicesReq {
+	export type AsObject = {
+	}
+}
+
+export class ListAllDevicesReq extends jspb.Message {
+
+	private static repeatedFields_ = [
+		
+	];
+
+	constructor(data?: jspb.Message.MessageArray) {
+		super();
+		jspb.Message.initialize(this, data || [], 0, -1, ListAllDevicesReq.repeatedFields_, null);
+	}
+
+
+	serializeBinary(): Uint8Array {
+		const writer = new jspb.BinaryWriter();
+		ListAllDevicesReq.serializeBinaryToWriter(this, writer);
+		return writer.getResultBuffer();
+	}
+
+	toObject(): ListAllDevicesReq.AsObject {
+		let f: any;
+		return {
+		};
+	}
+
+	static serializeBinaryToWriter(message: ListAllDevicesReq, writer: jspb.BinaryWriter): void {
+	}
+
+	static deserializeBinary(bytes: Uint8Array): ListAllDevicesReq {
+		var reader = new jspb.BinaryReader(bytes);
+		var message = new ListAllDevicesReq();
+		return ListAllDevicesReq.deserializeBinaryFromReader(message, reader);
+	}
+
+	static deserializeBinaryFromReader(message: ListAllDevicesReq, reader: jspb.BinaryReader): ListAllDevicesReq {
+		while (reader.nextField()) {
+			if (reader.isEndGroup()) {
+				break;
+			}
+			const field = reader.getFieldNumber();
+			switch (field) {
+			default:
+				reader.skipField();
+				break;
+			}
+		}
+		return message;
+	}
+
+}
+export declare namespace ListAllDevicesRes {
+	export type AsObject = {
+		items: Array<Device.AsObject>,
+	}
+}
+
+export class ListAllDevicesRes extends jspb.Message {
+
+	private static repeatedFields_ = [
+		1,
+	];
+
+	constructor(data?: jspb.Message.MessageArray) {
+		super();
+		jspb.Message.initialize(this, data || [], 0, -1, ListAllDevicesRes.repeatedFields_, null);
+	}
+
+
+	getItems(): Array<Device> {
+		return jspb.Message.getRepeatedWrapperField(this, Device, 1);
+	}
+
+	setItems(value: Array<Device>): void {
+		(jspb.Message as any).setRepeatedWrapperField(this, 1, value);
+	}
+	
+	addItems(value?: Device, index?: number): Device {
+		return jspb.Message.addToRepeatedWrapperField(this, 1, value, Device, index);
+	}
+
+	serializeBinary(): Uint8Array {
+		const writer = new jspb.BinaryWriter();
+		ListAllDevicesRes.serializeBinaryToWriter(this, writer);
+		return writer.getResultBuffer();
+	}
+
+	toObject(): ListAllDevicesRes.AsObject {
+		let f: any;
+		return {
+			items: this.getItems().map((item) => item.toObject()),
+		};
+	}
+
+	static serializeBinaryToWriter(message: ListAllDevicesRes, writer: jspb.BinaryWriter): void {
+		const field1 = message.getItems();
+		if (field1.length > 0) {
+			writer.writeRepeatedMessage(1, field1, Device.serializeBinaryToWriter);
+		}
+	}
+
+	static deserializeBinary(bytes: Uint8Array): ListAllDevicesRes {
+		var reader = new jspb.BinaryReader(bytes);
+		var message = new ListAllDevicesRes();
+		return ListAllDevicesRes.deserializeBinaryFromReader(message, reader);
+	}
+
+	static deserializeBinaryFromReader(message: ListAllDevicesRes, reader: jspb.BinaryReader): ListAllDevicesRes {
+		while (reader.nextField()) {
+			if (reader.isEndGroup()) {
+				break;
+			}
+			const field = reader.getFieldNumber();
+			switch (field) {
+			case 1:
+				const field1 = new Device();
+				reader.readMessage(field1, Device.deserializeBinaryFromReader);
+				message.addItems(field1);
+				break;
+			default:
+				reader.skipField();
+				break;
+			}
+		}
+		return message;
+	}
+
+}
 
 
 function DeviceFromObject(obj: Device.AsObject | undefined): Device | undefined {
@@ -693,6 +849,25 @@ function DeleteDeviceReqFromObject(obj: DeleteDeviceReq.AsObject | undefined): D
 	}
 	const message = new DeleteDeviceReq();
 	message.setName(obj.name);
+	return message;
+}
+
+function ListAllDevicesReqFromObject(obj: ListAllDevicesReq.AsObject | undefined): ListAllDevicesReq | undefined {
+	if (obj === undefined) {
+		return undefined;
+	}
+	const message = new ListAllDevicesReq();
+	return message;
+}
+
+function ListAllDevicesResFromObject(obj: ListAllDevicesRes.AsObject | undefined): ListAllDevicesRes | undefined {
+	if (obj === undefined) {
+		return undefined;
+	}
+	const message = new ListAllDevicesRes();
+	(obj.items || [])
+		.map((item) => DeviceFromObject(item))
+		.forEach((item) => message.addItems(item));
 	return message;
 }
 

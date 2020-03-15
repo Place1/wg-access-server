@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"io"
 
-	"github.com/place1/wg-access-server/internal/auth/authruntime"
+	"github.com/place1/wg-access-server/pkg/authnz/authruntime"
 )
 
 type LoginPage struct {

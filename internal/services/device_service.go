@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/place1/wg-access-server/internal/auth/authsession"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/place1/wg-access-server/internal/devices"
@@ -62,6 +62,27 @@ func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDevic
 	}
 
 	return &empty.Empty{}, nil
+}
+
+func (d *DeviceService) ListAllDevices(ctx context.Context, req *proto.ListAllDevicesReq) (*proto.ListAllDevicesRes, error) {
+	user, err := authsession.CurrentUser(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
+	}
+
+	if !user.Claims.Contains("admin") {
+		return nil, status.Errorf(codes.PermissionDenied, "must be an admin")
+	}
+
+	devices, err := d.DeviceManager.ListAllDevices()
+	if err != nil {
+		logrus.Error(err)
+		return nil, status.Errorf(codes.Internal, "failed to retrieve devices")
+	}
+
+	return &proto.ListAllDevicesRes{
+		Items: mapDevices(devices),
+	}, nil
 }
 
 func mapDevice(d *storage.Device) *proto.Device {

@@ -15,13 +15,13 @@ import (
 	"github.com/place1/wg-embed/pkg/wgembed"
 
 	"github.com/pkg/errors"
-	"github.com/place1/wg-access-server/internal/auth"
-	"github.com/place1/wg-access-server/internal/auth/authsession"
 	"github.com/place1/wg-access-server/internal/config"
 	"github.com/place1/wg-access-server/internal/devices"
 	"github.com/place1/wg-access-server/internal/dnsproxy"
 	"github.com/place1/wg-access-server/internal/services"
 	"github.com/place1/wg-access-server/internal/storage"
+	"github.com/place1/wg-access-server/pkg/authnz"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/sirupsen/logrus"
 
 	"net/http/httputil"
@@ -134,7 +134,12 @@ func main() {
 	})
 
 	if conf.Auth.IsEnabled() {
-		handler = auth.New(conf.Auth).Wrap(handler)
+		handler = authnz.New(conf.Auth, func(user *authsession.Identity) error {
+			if user.Subject == conf.AdminSubject {
+				user.Claims.Add("admin", "true")
+			}
+			return nil
+		}).Wrap(handler)
 	} else {
 		base := handler
 		handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

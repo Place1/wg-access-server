@@ -1,17 +1,10 @@
 import React from 'react';
-import { view } from 'react-easy-state';
-import AddDevice from '../components/AddDevice';
-import Devices from '../components/Devices';
+import { Devices } from '../components/Devices';
 
-class YourDevices extends React.Component {
+export class YourDevices extends React.Component {
   render() {
     return (
-      <>
-        <Devices />
-        <AddDevice />
-      </>
+      <Devices />
     );
   }
 }
-
-export default view(YourDevices);

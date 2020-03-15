@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/place1/wg-access-server/internal/auth/authruntime"
-	"github.com/place1/wg-access-server/internal/auth/authsession"
+	"github.com/place1/wg-access-server/pkg/authnz/authruntime"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/tg123/go-htpasswd"
 )
 

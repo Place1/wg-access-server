@@ -9,6 +9,9 @@ service Devices {
   rpc AddDevice(AddDeviceReq) returns (Device) {}
   rpc ListDevices(ListDevicesReq) returns (ListDevicesRes) {}
   rpc DeleteDevice(DeleteDeviceReq) returns (google.protobuf.Empty) {}
+
+  // admin only
+  rpc ListAllDevices(ListAllDevicesReq) returns (ListAllDevicesRes) {}
 }
 
 message Device {
@@ -39,4 +42,12 @@ message ListDevicesRes {
 
 message DeleteDeviceReq {
   string name = 1;
+}
+
+message ListAllDevicesReq {
+
+}
+
+message ListAllDevicesRes {
+  repeated Device items = 1;
 }
