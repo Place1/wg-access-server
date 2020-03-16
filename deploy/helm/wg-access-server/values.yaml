@@ -1,6 +1,11 @@
 # wg-access-server config
 config: {}
 
+web:
+  config:
+    adminUsername: ""
+    adminPassword: ""
+
 wireguard:
   config:
     privateKey: ""

@@ -43,6 +43,20 @@ spec:
                   name: "{{ $fullName }}"
                   key: privateKey
             {{- end }}
+            {{- if .Values.web.config.adminUsername }}
+            - name: ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ $fullName }}"
+                  key: adminUsername
+            {{- end}}
+            {{- if .Values.web.config.adminPassword }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ $fullName }}"
+                  key: adminPassword
+            {{- end}}
           volumeMounts:
             - name: tun
               mountPath: /dev/net/tun

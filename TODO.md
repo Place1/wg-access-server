@@ -23,3 +23,5 @@
   - isolate clients
   - forward to internet only (isolate LAN/WAN)
   - allowed networks (configure forwarding to specific CIDRs)
+    - also limit which CIDRs clients forward
+    - i.e. only forward to specific server-side LAN and not all internet traffic
