@@ -19,6 +19,7 @@ import (
 	"github.com/place1/wg-access-server/internal/config"
 	"github.com/place1/wg-access-server/internal/devices"
 	"github.com/place1/wg-access-server/internal/dnsproxy"
+	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/internal/services"
 	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz"
@@ -37,7 +38,7 @@ func main() {
 	conf := config.Read()
 
 	// The server's IP within the VPN virtual network
-	vpnip := services.ServerVPNIP(conf.VPN.CIDR)
+	vpnip := network.ServerVPNIP(conf.VPN.CIDR)
 
 	// WireGuard Server
 	wg, err := wgembed.New(conf.WireGuard.InterfaceName)
@@ -55,12 +56,12 @@ func main() {
 	})
 
 	// Networking configuration
-	if err := services.ConfigureRouting(conf.WireGuard.InterfaceName, conf.VPN.CIDR); err != nil {
+	if err := network.ConfigureRouting(conf.WireGuard.InterfaceName, conf.VPN.CIDR); err != nil {
 		logrus.Fatal(err)
 	}
 	if conf.VPN.GatewayInterface != "" {
 		logrus.Infof("vpn gateway interface is %s", conf.VPN.GatewayInterface)
-		if err := services.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR); err != nil {
+		if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR); err != nil {
 			logrus.Fatal(err)
 		}
 	} else {

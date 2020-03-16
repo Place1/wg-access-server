@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/place1/wg-access-server/internal/network"
 	"context"
 
 	"github.com/place1/wg-access-server/internal/config"
@@ -32,7 +33,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		Host:            stringValue(s.Config.WireGuard.ExternalHost),
 		PublicKey:       publicKey,
 		Port:            int32(s.Config.WireGuard.Port),
-		HostVpnIp:       ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
+		HostVpnIp:       network.ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
 		MetadataEnabled: !s.Config.DisableMetadata,
 		IsAdmin:         user.Claims.Contains("admin"),
 	}, nil
