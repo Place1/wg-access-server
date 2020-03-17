@@ -56,16 +56,13 @@ func main() {
 	})
 
 	// Networking configuration
-	if err := network.ConfigureRouting(conf.WireGuard.InterfaceName, conf.VPN.CIDR); err != nil {
-		logrus.Fatal(err)
+	rules := network.NetworkRules{
+		AllowVPNLAN:    true,
+		AllowServerLAN: true,
+		AllowInternet:  true,
 	}
-	if conf.VPN.GatewayInterface != "" {
-		logrus.Infof("vpn gateway interface is %s", conf.VPN.GatewayInterface)
-		if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR); err != nil {
-			logrus.Fatal(err)
-		}
-	} else {
-		logrus.Warn("VPN.GatewayInterface is not configured - vpn clients will not have access to the internet")
+	if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR, rules); err != nil {
+		logrus.Fatal(err)
 	}
 
 	// DNS Server
