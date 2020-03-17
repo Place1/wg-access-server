@@ -90,12 +90,6 @@ func main() {
 	// Router
 	router := mux.NewRouter()
 
-	// Healthcheck endpoint
-	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, "ok")
-	})
-
 	// if the built website exists, serve that
 	// otherwise proxy to a local webpack development server
 	if _, err := os.Stat("website/build"); os.IsNotExist(err) {
@@ -156,11 +150,18 @@ func main() {
 		})
 	}
 
+	publicRouter := mux.NewRouter()
+	publicRouter.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		fmt.Fprintf(w, "ok")
+	})).Methods("GET")
+	publicRouter.NotFoundHandler = handler
+
 	// Listen
 	address := "0.0.0.0:8000"
 	srv := &http.Server{
 		Addr:    address,
-		Handler: handler,
+		Handler: publicRouter,
 	}
 
 	// Start Web server
