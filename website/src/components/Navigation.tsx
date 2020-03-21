@@ -23,7 +23,7 @@ export default function Navigation() {
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" className={classes.title}>
-          <span>Your Devices</span>
+          <span>Welcome</span>
           {AppState.info?.isAdmin &&
             <Chip label="admin" color="secondary" variant="outlined" size="small" style={{ marginLeft: 20, background: 'white' }} />
           }

@@ -2,41 +2,20 @@
 
 ## What is this
 
-This project aims to create a simple VPN solution for developers,
+wg-access-server is a single binary that provides a WireGuard
+VPN server and device management web ui. We support user authentication,
+_1 click_ device registration that works with Mac, Linux, Windows, Ios and Android
+including QR codes. You can configure different network isolation modes for
+better control and more.
+
+This project aims to deliver a simple VPN solution for developers,
 homelab enthusiasts and anyone else feeling adventurous.
 
-This project offers a single docker container that provides a WireGuard
-VPN server and device management web ui.
-
-You can use wg-access-server's web ui to connect your Linux/Mac/Windows/iOS/Android
-devices. The server automatically configure iptables rules to ensure that client VPN traffic
-can access the internet via the server's default gateway or configured gateway NIC.
-Currently, all VPN clients can route traffic to each other. VPN client isolation via
-iptables can be added if there's demand for it.
-
-wg-access-server embeds a user-space wireguard implementation to simplify
-deployment - you just run the container, no kernel setup required.
-
-Support for the kernal's wireguard implementation could be added if
-there's demand for it.
-
-Currently wg-access-server requires `NET_ADMIN` and access to `/dev/net/tun` to create
-a user-space virtual network interface ([wikipedia](https://en.wikipedia.org/wiki/TUN/TAP)).
-
-wg-access-server also configures iptables and network routes within it's own network
-namespace to route client VPN traffic. The container doesn't require host networking
-but it can be enabled if you want client VPN traffic to be able to access the host's
-network as well.
+wg-access-server is a functional but young project. Contributes are welcome!
 
 ## Running with Docker
 
 Here's a quick command to run the server to try it out.
-
-If you open your browser using your LAN ip address you can even connect your
-phone to try it out: for example, i'll open my browser at http://192.168.0.XX:8000
-using the local LAN IP address.
-
-You can connect to the web server on the local machine browser at http://localhost:8000
 
 ```bash
 docker run \
@@ -45,171 +24,44 @@ docker run \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
   -v wg-access-server-data:/data \
+  -e "WIREGUARD_PRIVATE_KEY=$(wg genkey)" \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
   place1/wg-access-server
 ```
+
+If you open your browser using your LAN ip address you can even connect your
+phone to try it out: for example, i'll open my browser at http://192.168.0.XX:8000
+using the local LAN IP address.
+
+You can connect to the web server on the local machine browser at http://localhost:8000
 
 ## Running with Docker-Compose
 
 You modify the docker-compose.yml file for you need then run this following command.
 
 ```bash
-docker-compose up -d
+docker-compose up
 ```
 
 You can connect to the web server on the local machine browser at http://localhost:8000
 
-## Configuration
-
-You can configure the server using a yaml configuration file. Just mount the file into the container like this:
-
-```bash
-docker run \
-  ... \
-  -v $(pwd)/config.yaml:/config.yaml \
-  place1/wg-access-server
-```
-
-If you want to put the config file in a different location in the container you
-can set the config file path using: `-e CONFIG=/path/to/config.yaml`
-
-Here's and example showing the recommended config:
-
-```yaml
-wireguard:
-  // The WireGuard PrivateKey
-  // You can generate this value using "$ wg genkey"
-  // If this value is empty then the server will use an in-memory
-  // generated key
-  privateKey: ""
-// Auth configures optional authentication backends
-// to controll access to the web ui.
-// Devices will be managed on a per-user basis if any
-// auth backends are configured.
-// If no authentication backends are configured then
-// the server will not require any authentication.
-// It's recommended to make use of basic authentication
-// or use an upstream HTTP proxy that enforces authentication
-// Optional
-auth:
-  // HTTP Basic Authentication
-  basic:
-    // Users is a list of htpasswd encoded username:password pairs
-    // supports BCrypt, Sha, Ssha, Md5
-    // You can create a user using "htpasswd -nB <username>"
-    users: []
-```
-
-Here's an example showing the all config values:
-
-```yaml
-loglevel: debug
-storage:
-  // Directory that VPN devices (WireGuard peers)
-  // should be saved under.
-  // If this value is empty then an InMemory storage
-  // backend will be used (not recommended).
-  // Defaults to "/data" inside the docker container
-  directory: /data
-wireguard:
-  // The network interface name for wireguard
-  // Optional
-  interfaceName: wg0
-  // The WireGuard PrivateKey
-  // You can generate this value using "$ wg genkey"
-  // If this value is empty then the server will use an in-memory
-  // generated key
-  privateKey: ""
-  // ExternalAddress is the address that clients
-  // use to connect to the wireguard interface
-  // By default, this will be empty and the web ui
-  // will use the current page's origin i.e. window.location.origin
-  // Optional
-  externalHost: ""
-  // The WireGuard ListenPort
-  // Optional
-  port: 51820
-} `yaml:"wireguard"`
-vpn:
-  // CIDR configures a network address space
-  // that client (WireGuard peers) will be allocated
-  // an IP address from.
-  // Optional
-  cidr: "10.44.0.0/24"
-  // GatewayInterface will be used in iptable forwarding
-  // rules that send VPN traffic from clients to this interface
-  // Most use-cases will want this interface to have access
-  // to the outside internet
-  // If not configured then the server will select the default
-  // network interface e.g. eth0
-  // Optional
-  gatewayInterface: ""
-dns:
-  // upstream DNS servers.
-  // that the server-side DNS proxy will forward requests to.
-  // By default /etc/resolv.conf will be used to find upstream
-  // DNS servers.
-  // Optional
-  upstream:
-    - "1.1.1.1"
-// Auth configures optional authentication backends
-// to controll access to the web ui.
-// Devices will be managed on a per-user basis if any
-// auth backends are configured.
-// If no authentication backends are configured then
-// the server will not require any authentication.
-// It's recommended to make use of basic authentication
-// or use an upstream HTTP proxy that enforces authentication
-// Optional
-auth:
-  // HTTP Basic Authentication
-  basic:
-    // Users is a list of htpasswd encoded username:password pairs
-    // supports BCrypt, Sha, Ssha, Md5
-    // You can create a user using "htpasswd -nB <username>"
-    users: []
-  oidc:
-    name: ""
-    issuer: ""
-    clientID: ""
-    clientSecret: ""
-    scopes: ""
-    redirectURL: ""
-    // Optionally restrict login to users with an allowed email domain
-    // if empty or omitted, any email domain will be allowed.
-    emailDomains:
-      - example.com
-  gitlab:
-    name: ""
-    baseURL: ""
-    clientID: ""
-    clientSecret: ""
-    redirectURL: ""
-    // Optionally restrict login to users with an allowed email domain
-    // if empty or omitted, any email domain will be allowed.
-    emailDomains:
-      - example.com
-```
+If you open your browser to your machine's LAN IP address you'll be able
+to connect your phone using the UI and QR code!
 
 ## Screenshots
 
-![Connect iOS](./screenshots/connect-ios.png)
+![Devices](https://github.com/Place1/wg-access-server/raw/master/screenshots/devices.png)
 
-![Connect MacOS](./screenshots/connect-macos.png)
+![Connect iOS](https://github.com/Place1/wg-access-server/raw/master/screenshots/connect-ios.png)
 
-![Devices](./screenshots/devices.png)
+![Connect MacOS](https://github.com/Place1/wg-access-server/raw/master/screenshots/connect-macos.png)
 
-![Sign In](./screenshots/signin.png)
+![Sign In](https://github.com/Place1/wg-access-server/raw/master/screenshots/signin.png)
 
-## Roadmap
+## Changelog
 
-- [ ] Implement administration features
-  - administration of all devices
-  - see when a device last connected
-  - see owns the device
-- [ ] VPN network client isolation
-- [ ] ??? PRs, feedback, suggestions welcome
+See the [CHANGELOG.md](https://github.com/Place1/wg-access-server/blob/master/CHANGELOG.md) file
 
 ## Development
 

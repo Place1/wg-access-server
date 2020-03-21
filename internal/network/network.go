@@ -42,20 +42,24 @@ func ConfigureRouting(wgIface string, cidr string) error {
 type NetworkRules struct {
 	// AllowVPNLAN enables routing between VPN clients
 	// i.e. allows the VPN to work like a LAN.
-	AllowVPNLAN bool
+	// true by default
+	AllowVPNLAN bool `yaml:"allowVPNLAN"`
 	// AllowServerLAN enables routing to private IPv4
 	// address ranges. Enabling this will allow VPN clients
 	// to access networks on the server's LAN.
-	AllowServerLAN bool
+	// true by default
+	AllowServerLAN bool `yaml:"allowServerLAN"`
 	// AllowInternet enables routing of all traffic
 	// to the public internet.
-	AllowInternet bool
+	// true by default
+	AllowInternet bool `yaml:"allowInternet"`
 	// AllowedNetworks allows you to whitelist a partcular
 	// network CIDR. This is useful if you want to block
 	// access to the Server's LAN but allow access to a few
 	// specific IPs or a small range.
 	// e.g. "192.0.2.0/24" or "192.0.2.10/32".
-	AllowedNetworks []string
+	// no networks are whitelisted by default (empty array)
+	AllowedNetworks []string `yaml:"allowedNetworks"`
 }
 
 func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, rules NetworkRules) error {
