@@ -2,8 +2,11 @@ package main
 
 import (
 	"crypto/rand"
+	"fmt"
 	"math"
 	"net/http"
+	"net/url"
+	"os"
 	"runtime/debug"
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
@@ -13,14 +16,17 @@ import (
 	"github.com/place1/wg-embed/pkg/wgembed"
 
 	"github.com/pkg/errors"
-	"github.com/place1/wg-access-server/internal/auth"
-	"github.com/place1/wg-access-server/internal/auth/authsession"
 	"github.com/place1/wg-access-server/internal/config"
 	"github.com/place1/wg-access-server/internal/devices"
 	"github.com/place1/wg-access-server/internal/dnsproxy"
+	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/internal/services"
 	"github.com/place1/wg-access-server/internal/storage"
+	"github.com/place1/wg-access-server/pkg/authnz"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/sirupsen/logrus"
+
+	"net/http/httputil"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -32,7 +38,7 @@ func main() {
 	conf := config.Read()
 
 	// The server's IP within the VPN virtual network
-	vpnip := services.ServerVPNIP(conf.VPN.CIDR)
+	vpnip := network.ServerVPNIP(conf.VPN.CIDR)
 
 	// WireGuard Server
 	wg, err := wgembed.New(conf.WireGuard.InterfaceName)
@@ -49,17 +55,8 @@ func main() {
 		},
 	})
 
-	// Networking configuration
-	if err := services.ConfigureRouting(conf.WireGuard.InterfaceName, conf.VPN.CIDR); err != nil {
+	if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR, *conf.VPN.Rules); err != nil {
 		logrus.Fatal(err)
-	}
-	if conf.VPN.GatewayInterface != "" {
-		logrus.Infof("vpn gateway interface is %s", conf.VPN.GatewayInterface)
-		if err := services.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR); err != nil {
-			logrus.Fatal(err)
-		}
-	} else {
-		logrus.Warn("VPN.GatewayInterface is not configured - vpn clients will not have access to the internet")
 	}
 
 	// DNS Server
@@ -80,20 +77,28 @@ func main() {
 
 	// Services
 	deviceManager := devices.New(wg.Name(), storageDriver, conf.VPN.CIDR)
-	if err := deviceManager.Sync(); err != nil {
+	if err := deviceManager.StartSync(conf.DisableMetadata); err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}
 
 	// Router
 	router := mux.NewRouter()
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("website/build")))
+
+	// if the built website exists, serve that
+	// otherwise proxy to a local webpack development server
+	if _, err := os.Stat("website/build"); os.IsNotExist(err) {
+		u, _ := url.Parse("http://localhost:3000")
+		router.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
+	} else {
+		router.PathPrefix("/").Handler(http.FileServer(http.Dir("website/build")))
+	}
 
 	// GRPC Server
 	server := grpc.NewServer([]grpc.ServerOption{
 		grpc.MaxRecvMsgSize(int(1 * math.Pow(2, 20))), // 1MB
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_recovery.UnaryServerInterceptor(),
 			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
+			grpc_recovery.UnaryServerInterceptor(),
 		)),
 	}...)
 	proto.RegisterServerServer(server, &services.ServerService{
@@ -121,8 +126,13 @@ func main() {
 		}
 	})
 
-	if conf.IsAuthEnabled() {
-		handler = auth.New(conf.Auth).Wrap(handler)
+	if conf.Auth.IsEnabled() {
+		handler = authnz.New(conf.Auth, func(user *authsession.Identity) error {
+			if user.Subject == conf.AdminSubject {
+				user.Claims.Add("admin", "true")
+			}
+			return nil
+		}).Wrap(handler)
 	} else {
 		base := handler
 		handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -134,11 +144,18 @@ func main() {
 		})
 	}
 
+	publicRouter := mux.NewRouter()
+	publicRouter.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		fmt.Fprintf(w, "ok")
+	})).Methods("GET")
+	publicRouter.NotFoundHandler = handler
+
 	// Listen
 	address := "0.0.0.0:8000"
 	srv := &http.Server{
 		Addr:    address,
-		Handler: handler,
+		Handler: publicRouter,
 	}
 
 	// Start Web server

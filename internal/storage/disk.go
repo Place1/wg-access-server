@@ -28,7 +28,7 @@ func NewDiskStorage(directory string) *DiskStorage {
 
 func (s *DiskStorage) Save(key string, device *Device) error {
 	path := s.deviceFilePath(key)
-	logrus.Infof("saving new device %s", path)
+	logrus.Debugf("saving device %s", path)
 	bytes, err := json.Marshal(device)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal device")

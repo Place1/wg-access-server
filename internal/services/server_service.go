@@ -1,10 +1,11 @@
 package services
 
 import (
+	"github.com/place1/wg-access-server/internal/network"
 	"context"
 
-	"github.com/place1/wg-access-server/internal/auth/authsession"
 	"github.com/place1/wg-access-server/internal/config"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/place1/wg-access-server/proto/proto"
 	"github.com/place1/wg-embed/pkg/wgembed"
 	"github.com/sirupsen/logrus"
@@ -17,7 +18,8 @@ type ServerService struct {
 }
 
 func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.InfoRes, error) {
-	if _, err := authsession.CurrentUser(ctx); err != nil {
+	user, err := authsession.CurrentUser(ctx)
+	if err != nil {
 		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
 	}
 
@@ -28,9 +30,11 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 	}
 
 	return &proto.InfoRes{
-		Host:      stringValue(s.Config.WireGuard.ExternalHost),
-		PublicKey: publicKey,
-		Port:      int32(s.Config.WireGuard.Port),
-		HostVpnIp: ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
+		Host:            stringValue(s.Config.WireGuard.ExternalHost),
+		PublicKey:       publicKey,
+		Port:            int32(s.Config.WireGuard.Port),
+		HostVpnIp:       network.ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
+		MetadataEnabled: !s.Config.DisableMetadata,
+		IsAdmin:         user.Claims.Contains("admin"),
 	}, nil
 }

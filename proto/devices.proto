@@ -9,6 +9,9 @@ service Devices {
   rpc AddDevice(AddDeviceReq) returns (Device) {}
   rpc ListDevices(ListDevicesReq) returns (ListDevicesRes) {}
   rpc DeleteDevice(DeleteDeviceReq) returns (google.protobuf.Empty) {}
+
+  // admin only
+  rpc ListAllDevices(ListAllDevicesReq) returns (ListAllDevicesRes) {}
 }
 
 message Device {
@@ -17,6 +20,11 @@ message Device {
   string public_key = 3;
   string address = 4;
   google.protobuf.Timestamp created_at = 5;
+  bool connected = 6;
+  google.protobuf.Timestamp last_handshake_time = 7;
+  int64 receive_bytes = 8;
+  int64 transmit_bytes = 9;
+  string endpoint = 10;
 }
 
 message AddDeviceReq {
@@ -34,4 +42,12 @@ message ListDevicesRes {
 
 message DeleteDeviceReq {
   string name = 1;
+}
+
+message ListAllDevicesReq {
+
+}
+
+message ListAllDevicesRes {
+  repeated Device items = 1;
 }

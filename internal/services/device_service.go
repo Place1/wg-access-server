@@ -2,8 +2,9 @@ package services
 
 import (
 	"context"
+	"time"
 
-	"github.com/place1/wg-access-server/internal/auth/authsession"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/place1/wg-access-server/internal/devices"
@@ -63,13 +64,46 @@ func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDevic
 	return &empty.Empty{}, nil
 }
 
+func (d *DeviceService) ListAllDevices(ctx context.Context, req *proto.ListAllDevicesReq) (*proto.ListAllDevicesRes, error) {
+	user, err := authsession.CurrentUser(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
+	}
+
+	if !user.Claims.Contains("admin") {
+		return nil, status.Errorf(codes.PermissionDenied, "must be an admin")
+	}
+
+	devices, err := d.DeviceManager.ListAllDevices()
+	if err != nil {
+		logrus.Error(err)
+		return nil, status.Errorf(codes.Internal, "failed to retrieve devices")
+	}
+
+	return &proto.ListAllDevicesRes{
+		Items: mapDevices(devices),
+	}, nil
+}
+
 func mapDevice(d *storage.Device) *proto.Device {
 	return &proto.Device{
-		Name:      d.Name,
-		Owner:     d.Owner,
-		PublicKey: d.PublicKey,
-		Address:   d.Address,
-		CreatedAt: TimeToTimestamp(d.CreatedAt),
+		Name:              d.Name,
+		Owner:             d.Owner,
+		PublicKey:         d.PublicKey,
+		Address:           d.Address,
+		CreatedAt:         TimeToTimestamp(&d.CreatedAt),
+		LastHandshakeTime: TimeToTimestamp(d.LastHandshakeTime),
+		ReceiveBytes:      d.ReceiveBytes,
+		TransmitBytes:     d.TransmitBytes,
+		Endpoint:          d.Endpoint,
+		/**
+		 * Wireguard is a connectionless UDP protocol - data is only
+		 * sent over the wire when the client is sending real traffic.
+		 * Wireguard has no keep alive packets by default to remain as
+		 * silent as possible.
+		 *
+		 */
+		Connected: isConnected(d.LastHandshakeTime),
 	}
 }
 
@@ -79,4 +113,11 @@ func mapDevices(devices []*storage.Device) []*proto.Device {
 		items = append(items, mapDevice(d))
 	}
 	return items
+}
+
+func isConnected(lastHandshake *time.Time) bool {
+	if lastHandshake == nil {
+		return false
+	}
+	return lastHandshake.After(time.Now().Add(-1 * time.Minute))
 }

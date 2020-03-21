@@ -49,6 +49,7 @@ website/coverage
 website/build
 
 # misc
+.env
 website/.DS_Store
 website/.env.local
 website/.env.development.local

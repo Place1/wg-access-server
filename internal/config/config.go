@@ -10,18 +10,23 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/place1/wg-access-server/internal/auth/authconfig"
+	"github.com/place1/wg-access-server/internal/network"
+	"github.com/place1/wg-access-server/pkg/authnz/authconfig"
 	"github.com/vishvananda/netlink"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type AppConfig struct {
-	LogLevel string `yaml:"loglevel"`
-	Storage  struct {
+	LogLevel        string `yaml:"loglevel"`
+	DisableMetadata bool   `yaml:"disableMetadata"`
+	AdminSubject    string `yaml:"adminSubject"`
+	AdminPassword   string `yaml:"adminPassword"`
+	Storage         struct {
 		// Directory that VPN devices (WireGuard peers)
 		// should be saved under.
 		// If this value is empty then an InMemory storage
@@ -60,6 +65,9 @@ type AppConfig struct {
 		// Most use-cases will want this interface to have access
 		// to the outside internet
 		GatewayInterface string `yaml:"gatewayInterface"`
+		// Rules allows you to configure what level
+		// of network isolation should be enfoced.
+		Rules *network.NetworkRules `yaml:"rules"`
 	}
 	DNS struct {
 		Upstream []string `yaml:"upstream"`
@@ -70,22 +78,51 @@ type AppConfig struct {
 	// auth backends are configured.
 	// If no authentication backends are configured then
 	// the server will not require any authentication.
-	Auth *authconfig.AuthConfig `yaml:"auth"`
+	Auth authconfig.AuthConfig `yaml:"auth"`
 }
 
 var (
-	app        = kingpin.New("wg-access-server", "An all-in-one WireGuard Access Server & VPN solution")
-	configPath = app.Flag("config", "Path to a config file").OverrideDefaultFromEnvar("CONFIG").String()
+	app             = kingpin.New("wg-access-server", "An all-in-one WireGuard Access Server & VPN solution")
+	configPath      = app.Flag("config", "Path to a config file").Envar("CONFIG").String()
+	logLevel        = app.Flag("log-level", "Log level (debug, info, error)").Envar("LOG_LEVEL").Default("info").String()
+	storagePath     = app.Flag("storage-directory", "Path to a storage directory").Envar("STORAGE_DIRECTORY").String()
+	privateKey      = app.Flag("wireguard-private-key", "Wireguard private key").Envar("WIREGUARD_PRIVATE_KEY").String()
+	disableMetadata = app.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").Envar("DISABLE_METADATA").Default("false").Bool()
+	adminUsername   = app.Flag("admin-username", "Admin username (defaults to admin)").Envar("ADMIN_USERNAME").String()
+	adminPassword   = app.Flag("admin-password", "Admin password (provide plaintext, stored in-memory only)").Envar("ADMIN_PASSWORD").String()
+	upstreamDNS     = app.Flag("upstream-dns", "An upstream DNS server to proxy DNS traffic to").Envar("UPSTREAM_DNS").String()
 )
 
 func Read() *AppConfig {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	config := AppConfig{}
-	config.LogLevel = "info"
+	config.LogLevel = *logLevel
 	config.WireGuard.InterfaceName = "wg0"
 	config.WireGuard.Port = 51820
 	config.VPN.CIDR = "10.44.0.0/24"
+	config.DisableMetadata = *disableMetadata
+	config.Storage.Directory = *storagePath
+	config.WireGuard.PrivateKey = *privateKey
+	if adminPassword != nil {
+		config.AdminPassword = *adminPassword
+		config.AdminSubject = *adminUsername
+		if config.AdminSubject == "" {
+			config.AdminSubject = "admin"
+		}
+	}
+
+	if upstreamDNS != nil {
+		config.DNS.Upstream = []string{*upstreamDNS}
+	}
+
+	if config.VPN.Rules == nil {
+		config.VPN.Rules = &network.NetworkRules{
+			AllowVPNLAN:    true,
+			AllowServerLAN: true,
+			AllowInternet:  true,
+		}
+	}
 
 	if *configPath != "" {
 		if b, err := ioutil.ReadFile(*configPath); err == nil {
@@ -93,18 +130,6 @@ func Read() *AppConfig {
 				logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
 			}
 		}
-	}
-
-	if v, ok := os.LookupEnv("LOG_LEVEL"); ok {
-		config.LogLevel = v
-	}
-
-	if v, ok := os.LookupEnv("STORAGE_DIRECTORY"); ok {
-		config.Storage.Directory = v
-	}
-
-	if v, ok := os.LookupEnv("WIREGUARD_PRIVATE_KEY"); ok {
-		config.WireGuard.PrivateKey = v
 	}
 
 	level, err := logrus.ParseLevel(config.LogLevel)
@@ -119,6 +144,10 @@ func Read() *AppConfig {
 			return "", fmt.Sprintf("%s:%d", filepath.Base(f.File), f.Line)
 		},
 	})
+
+	if config.DisableMetadata {
+		logrus.Info("Metadata collection has been disabled. No metrics or device connectivity information will be recorded or shown")
+	}
 
 	if config.VPN.GatewayInterface == "" {
 		iface, err := defaultInterface()
@@ -145,13 +174,22 @@ func Read() *AppConfig {
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err, "failed to get absolute path to storage directory"))
 		}
+		os.MkdirAll(config.Storage.Directory, 0700)
+	}
+
+	if config.AdminPassword != "" {
+		if config.Auth.Basic == nil {
+			config.Auth.Basic = &authconfig.BasicAuthConfig{}
+		}
+		// htpasswd.AcceptBcrypt(config.AdminPassword)
+		pw, err := bcrypt.GenerateFromPassword([]byte(config.AdminPassword), bcrypt.DefaultCost)
+		if err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to generate a bcrypt hash for the provided admin password"))
+		}
+		config.Auth.Basic.Users = append(config.Auth.Basic.Users, fmt.Sprintf("%s:%s", config.AdminSubject, string(pw)))
 	}
 
 	return &config
-}
-
-func (config *AppConfig) IsAuthEnabled() bool {
-	return config.Auth != nil
 }
 
 func defaultInterface() (string, error) {

@@ -15,10 +15,6 @@ type AuthSession struct {
 	Identity *Identity
 }
 
-type Identity struct {
-	Subject string
-}
-
 type authSessionKey string
 
 var sessionKey authSessionKey = "auth-session"

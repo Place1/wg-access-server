@@ -5,7 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"github.com/place1/wg-access-server/internal/auth/authsession"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 )
 
 type Provider struct {

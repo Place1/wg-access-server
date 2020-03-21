@@ -31,7 +31,8 @@ RUN go mod download
 
 COPY ./proto/ ./proto/
 COPY ./main.go ./main.go
-COPY ./internal/ ./internal
+COPY ./internal/ ./internal/
+COPY ./pkg/ ./pkg/
 
 RUN go build -o server
 
@@ -50,8 +51,6 @@ ENV STORAGE_DIRECTORY="/data"
 # Copy the final build for the frontend and backend
 COPY --from=server /code/server /server
 COPY --from=website /code/build /website/build
-
-HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://localhost:8000/ || exit 1
 
 # Command to start the server
 CMD /server

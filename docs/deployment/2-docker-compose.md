@@ -1,0 +1,11 @@
+# Docker Compose
+
+You can run wg-access-server using the following example
+docker Docker Compose file.
+
+Checkout the [configuration docs](../configuration.md) to learn how wg-access-server
+can be configured.
+
+```yaml
+{!../docker-compose.yml!}
+```
