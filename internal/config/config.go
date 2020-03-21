@@ -10,6 +10,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/pkg/authnz/authconfig"
 	"github.com/vishvananda/netlink"
 
@@ -64,6 +65,9 @@ type AppConfig struct {
 		// Most use-cases will want this interface to have access
 		// to the outside internet
 		GatewayInterface string `yaml:"gatewayInterface"`
+		// Rules allows you to configure what level
+		// of network isolation should be enfoced.
+		Rules *network.NetworkRules `yaml:"rules"`
 	}
 	DNS struct {
 		Upstream []string `yaml:"upstream"`
@@ -107,8 +111,17 @@ func Read() *AppConfig {
 			config.AdminSubject = "admin"
 		}
 	}
+
 	if upstreamDNS != nil {
 		config.DNS.Upstream = []string{*upstreamDNS}
+	}
+
+	if config.VPN.Rules == nil {
+		config.VPN.Rules = &network.NetworkRules{
+			AllowVPNLAN:    true,
+			AllowServerLAN: true,
+			AllowInternet:  true,
+		}
 	}
 
 	if *configPath != "" {

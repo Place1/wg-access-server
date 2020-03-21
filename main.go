@@ -55,13 +55,7 @@ func main() {
 		},
 	})
 
-	// Networking configuration
-	rules := network.NetworkRules{
-		AllowVPNLAN:    true,
-		AllowServerLAN: true,
-		AllowInternet:  true,
-	}
-	if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR, rules); err != nil {
+	if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR, *conf.VPN.Rules); err != nil {
 		logrus.Fatal(err)
 	}
 

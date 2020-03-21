@@ -128,11 +128,10 @@ func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, rules
 		if err := ipt.AppendUnique("nat", "WG_ACCESS_SERVER_POSTROUTING", "-s", cidr, "-o", gatewayIface, "-j", "MASQUERADE"); err != nil {
 			return errors.Wrap(err, "failed to set ip tables rule")
 		}
-	}
-
-	// By default (last rule) reject all traffic from VPN IP addresses
-	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-j", "REJECT"); err != nil {
-		return errors.Wrap(err, "failed to set ip tables rule")
+	} else {
+		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-j", "REJECT"); err != nil {
+			return errors.Wrap(err, "failed to set ip tables rule")
+		}
 	}
 
 	return nil
