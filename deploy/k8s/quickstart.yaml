@@ -1,32 +1,15 @@
 ---
-# Source: wg-access-server/templates/config.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: "quickstart-wg-access-server"
-  labels:
-    helm.sh/chart: wg-access-server-0.0.9
-    app: wg-access-server
-    app.kubernetes.io/name: wg-access-server
-    app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.0.9"
-    app.kubernetes.io/managed-by: Helm
-data:
-  'config.yaml': |
-    wireguard:
-      privateKey: ""
----
 # Source: wg-access-server/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: quickstart-wg-access-server-web
   labels:
-    helm.sh/chart: wg-access-server-0.0.9
+    helm.sh/chart: wg-access-server-0.1.0
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.0.9"
+    app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -46,11 +29,11 @@ kind: Service
 metadata:
   name: quickstart-wg-access-server-wireguard
   labels:
-    helm.sh/chart: wg-access-server-0.0.9
+    helm.sh/chart: wg-access-server-0.1.0
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.0.9"
+    app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -70,11 +53,11 @@ kind: Deployment
 metadata:
   name: quickstart-wg-access-server
   labels:
-    helm.sh/chart: wg-access-server-0.0.9
+    helm.sh/chart: wg-access-server-0.1.0
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.0.9"
+    app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -97,7 +80,7 @@ spec:
           securityContext:
             capabilities:
               add: ['NET_ADMIN']
-          image: "place1/wg-access-server:0.0.9"
+          image: "place1/wg-access-server:0.1.0"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -106,6 +89,7 @@ spec:
             - name: wireguard
               containerPort: 51820
               protocol: UDP
+          env:
           volumeMounts:
             - name: tun
               mountPath: /dev/net/tun

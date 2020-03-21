@@ -43,11 +43,12 @@ if not is_release_candidate(version):
 
 # commit changes
 if not is_release_candidate(version):
-    subprocess.run(['git', 'add', 'deploy'])
+    subprocess.run(['git', 'add', '.'])
+    subprocess.run(['git', 'commit', '-m', f'{version}'])
 
 # tag the current commit
 if not is_release_candidate(version):
-    subprocess.run(['git', 'tag', '-a', f'v{version}', '-m', f'v{version}'])
+    subprocess.run(['git', 'tag', '-a', f'{version}', '-m', f'{version}'])
 
 # push everything
 subprocess.run(['git', 'push'])
