@@ -37,6 +37,10 @@ if not is_release_candidate(version):
     subprocess.run(['helm', 'repo', 'index', 'docs/', '--url',
                     'https://place1.github.io/wg-access-server'])
 
+# update gh-pages (docs)
+if not is_release_candidate(version):
+    subprocess.run(['mkdocs', 'gh-deploy'])
+
 # commit changes
 if not is_release_candidate(version):
     subprocess.run(['git', 'add', 'deploy'])
