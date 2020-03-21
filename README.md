@@ -1,7 +1,5 @@
 # wg-access-server
 
-## What is this
-
 wg-access-server is a single binary that provides a WireGuard
 VPN server and device management web ui. We support user authentication,
 _1 click_ device registration that works with Mac, Linux, Windows, Ios and Android
@@ -12,6 +10,10 @@ This project aims to deliver a simple VPN solution for developers,
 homelab enthusiasts and anyone else feeling adventurous.
 
 wg-access-server is a functional but young project. Contributes are welcome!
+
+## Documentation
+
+[See our documentation website](https://place1.github.io/wg-access-server/)
 
 ## Running with Docker
 

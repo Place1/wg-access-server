@@ -1,3 +1,1 @@
-# Welcome
-
 {!../README.md!}
