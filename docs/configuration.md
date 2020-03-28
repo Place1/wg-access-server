@@ -51,7 +51,6 @@ wireguard:
   # The WireGuard ListenPort
   # Optional
   port: 51820
-} `yaml:"wireguard"`
 vpn:
   # CIDR configures a network address space
   # that client (WireGuard peers) will be allocated
@@ -66,8 +65,8 @@ vpn:
   # network interface e.g. eth0
   # Optional
   gatewayInterface: ""
-  // Rules allows you to configure what level
-  // of network isolation should be enfoced.
+  # Rules allows you to configure what level
+  # of network isolation should be enfoced.
   rules:
     # AllowVPNLAN enables routing between VPN clients
     # i.e. allows the VPN to work like a LAN.
