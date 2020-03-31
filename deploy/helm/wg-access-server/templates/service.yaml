@@ -9,7 +9,7 @@ spec:
   type: ClusterIP
   ports:
     - port: 80
-      targetPort: http
+      targetPort: 8000
       protocol: TCP
       name: http
   selector:
@@ -25,9 +25,12 @@ metadata:
     {{- include "wg-access-server.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.wireguard.service.type }}
+{{- if .Values.wireguard.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.wireguard.service.loadBalancerIP }}
+{{- end }}
   ports:
     - port: 51820
-      targetPort: wireguard
+      targetPort: 51820
       protocol: UDP
       name: wireguard
   selector:
