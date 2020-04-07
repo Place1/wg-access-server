@@ -25,3 +25,7 @@
   - [x] allowed networks (configure forwarding to specific CIDRs)
     - [x] also limit which CIDRs clients forward
     - [x] i.e. only forward to specific server-side LAN and not all internet traffic
+
+## Reading This?
+
+What do you want to see? Open an issue and let me know 😀
