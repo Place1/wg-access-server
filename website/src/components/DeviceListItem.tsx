@@ -66,11 +66,11 @@ export class DeviceListItem extends React.Component<Props> {
                     <td>{device.endpoint}</td>
                   </tr>
                   <tr>
-                    <td>Sent</td>
+                    <td>Download</td>
                     <td>{numeral(device.transmitBytes).format('0b')}</td>
                   </tr>
                   <tr>
-                    <td>Received</td>
+                    <td>Upload</td>
                     <td>{numeral(device.receiveBytes).format('0b')}</td>
                   </tr>
                 </>
