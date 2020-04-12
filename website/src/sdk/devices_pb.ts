@@ -136,6 +136,9 @@ export declare namespace Device {
 		receiveBytes: number,
 		transmitBytes: number,
 		endpoint: string,
+		ownerName: string,
+		ownerEmail: string,
+		ownerProvider: string,
 	}
 }
 
@@ -231,6 +234,30 @@ export class Device extends jspb.Message {
 		(jspb.Message as any).setProto3StringField(this, 10, value);
 	}
 
+	getOwnerName(): string {
+		return jspb.Message.getFieldWithDefault(this, 11, "");
+	}
+
+	setOwnerName(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 11, value);
+	}
+
+	getOwnerEmail(): string {
+		return jspb.Message.getFieldWithDefault(this, 12, "");
+	}
+
+	setOwnerEmail(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 12, value);
+	}
+
+	getOwnerProvider(): string {
+		return jspb.Message.getFieldWithDefault(this, 13, "");
+	}
+
+	setOwnerProvider(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 13, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		Device.serializeBinaryToWriter(this, writer);
@@ -249,6 +276,9 @@ export class Device extends jspb.Message {
 			receiveBytes: this.getReceiveBytes(),
 			transmitBytes: this.getTransmitBytes(),
 			endpoint: this.getEndpoint(),
+			ownerName: this.getOwnerName(),
+			ownerEmail: this.getOwnerEmail(),
+			ownerProvider: this.getOwnerProvider(),
 			
 		};
 	}
@@ -293,6 +323,18 @@ export class Device extends jspb.Message {
 		const field10 = message.getEndpoint();
 		if (field10.length > 0) {
 			writer.writeString(10, field10);
+		}
+		const field11 = message.getOwnerName();
+		if (field11.length > 0) {
+			writer.writeString(11, field11);
+		}
+		const field12 = message.getOwnerEmail();
+		if (field12.length > 0) {
+			writer.writeString(12, field12);
+		}
+		const field13 = message.getOwnerProvider();
+		if (field13.length > 0) {
+			writer.writeString(13, field13);
 		}
 	}
 
@@ -350,6 +392,18 @@ export class Device extends jspb.Message {
 			case 10:
 				const field10 = reader.readString()
 				message.setEndpoint(field10);
+				break;
+			case 11:
+				const field11 = reader.readString()
+				message.setOwnerName(field11);
+				break;
+			case 12:
+				const field12 = reader.readString()
+				message.setOwnerEmail(field12);
+				break;
+			case 13:
+				const field13 = reader.readString()
+				message.setOwnerProvider(field13);
 				break;
 			default:
 				reader.skipField();
@@ -801,6 +855,9 @@ function DeviceFromObject(obj: Device.AsObject | undefined): Device | undefined 
 	message.setReceiveBytes(obj.receiveBytes);
 	message.setTransmitBytes(obj.transmitBytes);
 	message.setEndpoint(obj.endpoint);
+	message.setOwnerName(obj.ownerName);
+	message.setOwnerEmail(obj.ownerEmail);
+	message.setOwnerProvider(obj.ownerProvider);
 	return message;
 }
 

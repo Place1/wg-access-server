@@ -25,6 +25,9 @@ message Device {
   int64 receive_bytes = 8;
   int64 transmit_bytes = 9;
   string endpoint = 10;
+  string owner_name = 11;
+  string owner_email = 12;
+  string owner_provider = 13;
 }
 
 message AddDeviceReq {

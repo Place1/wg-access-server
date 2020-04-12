@@ -12,11 +12,14 @@ type Storage interface {
 }
 
 type Device struct {
-	Owner     string    `json:"owner"`
-	Name      string    `json:"name"`
-	PublicKey string    `json:"publicKey"`
-	Address   string    `json:"address"`
-	CreatedAt time.Time `json:"createdAt"`
+	Owner         string    `json:"owner"`
+	OwnerName     string    `json:"ownerName"`
+	OwnerEmail    string    `json:"ownerEmail"`
+	OwnerProvider string    `json:"ownerProvider"`
+	Name          string    `json:"name"`
+	PublicKey     string    `json:"publicKey"`
+	Address       string    `json:"address"`
+	CreatedAt     time.Time `json:"createdAt"`
 
 	/**
 	 * Metadata fields below.

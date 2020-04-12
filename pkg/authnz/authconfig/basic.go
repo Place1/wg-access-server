@@ -40,7 +40,10 @@ func basicAuthLogin(c *BasicAuthConfig, runtime *authruntime.ProviderRuntime) ht
 		if ok := checkCreds(c.Users, u, p); ok {
 			runtime.SetSession(w, r, &authsession.AuthSession{
 				Identity: &authsession.Identity{
-					Subject: u,
+					Provider: "basic",
+					Subject:  u,
+					Name:     u,
+					Email:    "", // basic auth has no email
 				},
 			})
 			runtime.Done(w, r)

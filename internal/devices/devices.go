@@ -12,6 +12,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/place1/wg-access-server/internal/storage"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/sirupsen/logrus"
 )
 
@@ -45,7 +46,7 @@ func (d *DeviceManager) StartSync(disableMetadataCollection bool) error {
 	return nil
 }
 
-func (d *DeviceManager) AddDevice(user string, name string, publicKey string) (*storage.Device, error) {
+func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, publicKey string) (*storage.Device, error) {
 	if name == "" {
 		return nil, errors.New("device name must not be empty")
 	}
@@ -56,11 +57,14 @@ func (d *DeviceManager) AddDevice(user string, name string, publicKey string) (*
 	}
 
 	device := &storage.Device{
-		Owner:     user,
-		Name:      name,
-		PublicKey: publicKey,
-		Address:   clientAddr,
-		CreatedAt: time.Now(),
+		Owner:         identity.Subject,
+		OwnerName:     identity.Name,
+		OwnerEmail:    identity.Email,
+		OwnerProvider: identity.Provider,
+		Name:          name,
+		PublicKey:     publicKey,
+		Address:       clientAddr,
+		CreatedAt:     time.Now(),
 	}
 
 	if err := d.SaveDevice(device); err != nil {
