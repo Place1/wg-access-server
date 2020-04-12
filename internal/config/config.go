@@ -122,7 +122,7 @@ func Read() *AppConfig {
 		}
 	}
 
-	if upstreamDNS != nil {
+	if upstreamDNS != nil && *upstreamDNS != "" {
 		config.DNS.Upstream = []string{*upstreamDNS}
 	}
 
