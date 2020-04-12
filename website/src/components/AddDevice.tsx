@@ -65,11 +65,11 @@ export class AddDevice extends React.Component<Props> {
         [Interface]
         PrivateKey = ${privateKey}
         Address = ${device.address}
-        DNS = ${info.hostVpnIp}
+        ${info.dnsEnabled && `DNS = ${info.hostVpnIp}`}
 
         [Peer]
         PublicKey = ${info.publicKey}
-        AllowedIPs = 0.0.0.0/1, 128.0.0.0/1, ::/0
+        AllowedIPs = ${info.allowedIps}
         Endpoint = ${`${info.host?.value || window.location.hostname}:${info.port || '51820'}`}
       `;
 

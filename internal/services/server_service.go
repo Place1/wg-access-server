@@ -1,8 +1,10 @@
 package services
 
 import (
-	"github.com/place1/wg-access-server/internal/network"
 	"context"
+	"strings"
+
+	"github.com/place1/wg-access-server/internal/network"
 
 	"github.com/place1/wg-access-server/internal/config"
 	"github.com/place1/wg-access-server/pkg/authnz/authsession"
@@ -36,5 +38,31 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		HostVpnIp:       network.ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
 		MetadataEnabled: !s.Config.DisableMetadata,
 		IsAdmin:         user.Claims.Contains("admin"),
+		AllowedIps:      allowedIPs(s.Config),
+		DnsEnabled:      *s.Config.DNS.Enabled,
 	}, nil
+}
+
+func allowedIPs(config *config.AppConfig) string {
+	if config.VPN.Rules == nil {
+		return "0.0.0.0/1, 128.0.0.0/1, ::/0"
+	}
+
+	allowed := []string{}
+
+	if config.VPN.Rules.AllowVPNLAN {
+		allowed = append(allowed, config.VPN.CIDR)
+	}
+
+	if config.VPN.Rules.AllowServerLAN {
+		allowed = append(allowed, network.ServerLANSubnets...)
+	}
+
+	if config.VPN.Rules.AllowInternet {
+		allowed = append(allowed, network.PublicInternetSubnets...)
+	}
+
+	allowed = append(allowed, config.VPN.Rules.AllowedNetworks...)
+
+	return strings.Join(allowed, ", ")
 }
