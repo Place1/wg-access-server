@@ -1,10 +1,10 @@
 package authconfig
 
 import (
-	"strings"
 	"context"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/coreos/go-oidc"
@@ -102,9 +102,17 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 			return
 		}
 
+		var claims struct {
+			Name string `json:"name"`
+		}
+		info.Claims(&claims)
+
 		runtime.SetSession(w, r, &authsession.AuthSession{
 			Identity: &authsession.Identity{
-				Subject: info.Subject,
+				Provider: c.Name,
+				Subject:  info.Subject,
+				Email:    info.Email,
+				Name:     claims.Name,
 			},
 		})
 

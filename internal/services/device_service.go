@@ -25,7 +25,7 @@ func (d *DeviceService) AddDevice(ctx context.Context, req *proto.AddDeviceReq) 
 		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
 	}
 
-	device, err := d.DeviceManager.AddDevice(user.Subject, req.GetName(), req.GetPublicKey())
+	device, err := d.DeviceManager.AddDevice(user, req.GetName(), req.GetPublicKey())
 	if err != nil {
 		logrus.Error(err)
 		return nil, status.Errorf(codes.Internal, "failed to add device")
@@ -89,6 +89,9 @@ func mapDevice(d *storage.Device) *proto.Device {
 	return &proto.Device{
 		Name:              d.Name,
 		Owner:             d.Owner,
+		OwnerName:         d.OwnerName,
+		OwnerEmail:        d.OwnerEmail,
+		OwnerProvider:     d.OwnerProvider,
 		PublicKey:         d.PublicKey,
 		Address:           d.Address,
 		CreatedAt:         TimeToTimestamp(&d.CreatedAt),
