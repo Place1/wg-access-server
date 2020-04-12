@@ -60,11 +60,13 @@ func main() {
 	}
 
 	// DNS Server
-	dns, err := dnsproxy.New(conf.DNS.Upstream)
-	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to start dns server"))
+	if *conf.DNS.Enabled {
+		dns, err := dnsproxy.New(conf.DNS.Upstream)
+		if err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to start dns server"))
+		}
+		defer dns.Close()
 	}
-	defer dns.Close()
 
 	// Storage
 	var storageDriver storage.Storage
