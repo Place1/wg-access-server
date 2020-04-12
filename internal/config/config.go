@@ -70,6 +70,10 @@ type AppConfig struct {
 		Rules *network.NetworkRules `yaml:"rules"`
 	}
 	DNS struct {
+		// Enabled allows you to turn on/off
+		// the VPN DNS proxy feature.
+		// DNS Proxying is enabled by default.
+		Enabled  *bool    `yaml:"enabled"`
 		Upstream []string `yaml:"upstream"`
 	} `yaml:"dns"`
 	// Auth configures optional authentication backends
@@ -104,6 +108,12 @@ func Read() *AppConfig {
 	config.DisableMetadata = *disableMetadata
 	config.Storage.Directory = *storagePath
 	config.WireGuard.PrivateKey = *privateKey
+
+	if config.DNS.Enabled == nil {
+		on := true
+		config.DNS.Enabled = &on
+	}
+
 	if adminPassword != nil {
 		config.AdminPassword = *adminPassword
 		config.AdminSubject = *adminUsername
@@ -112,7 +122,7 @@ func Read() *AppConfig {
 		}
 	}
 
-	if upstreamDNS != nil {
+	if upstreamDNS != nil && *upstreamDNS != "" {
 		config.DNS.Upstream = []string{*upstreamDNS}
 	}
 

@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [master]
 
+### Added
+
+- The VPN DNS proxy feature can now be disabled using config: `dns.enabled = false`
+  - When disabled the `DNS` wireguard config value will be omitted from client wg config files
+  - When disabled the DNS proxy will not be started server-side (i.e. port 53 won't be used)
+
 ### Changes
 
 - The admin UI will now show the device owner's name or email if available.
 - The admin UI will now show the auth provider for a given device if more than 1 auth provider is in use.
+- Bug fix: upstream dns now correctly configured using resolvconf if not set in config file, flag or envvar.
 
 ## [0.1.1]
 
