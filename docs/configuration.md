@@ -25,17 +25,34 @@ For example you can configure `STORAGE_DIRECTORY` by passing `--storage-director
 Here's an annotated config file example:
 
 ```yaml
-loglevel: debug
+# The application's log level.
+# Can be debug, info, error
+# Optional, defaults to info
+loglevel: info
+# Disable device metadata storage.
+# Device metadata includes the last handshake time,
+# total sent/received bytes count, their endpoint IP.
+# This metadata is captured from wireguard itself.
+# Disabling this flag will not stop wireguard from capturing
+# this data.
+# See stored data here: https://github.com/Place1/wg-access-server/blob/master/internal/storage/contracts.go#L14
+# Optional, defaults to false.
+disableMetadata: false
+# The port that the web ui server (http) will listen on.
+# Optional, defaults to 8000
+port: 8000
 storage:
   # Directory that VPN devices (WireGuard peers)
   # should be saved under.
   # If this value is empty then an InMemory storage
   # backend will be used (not recommended).
-  # Defaults to "/data" inside the docker container
+  # Optional
+  # Defaults to in-memory
+  # The docker container sets this value to /data automatically
   directory: /data
 wireguard:
   # The network interface name for wireguard
-  # Optional
+  # Optional, defaults to wg0
   interfaceName: wg0
   # The WireGuard PrivateKey
   # You can generate this value using "$ wg genkey"
@@ -49,7 +66,7 @@ wireguard:
   # Optional
   externalHost: ""
   # The WireGuard ListenPort
-  # Optional
+  # Optional, defaults to 51820
   port: 51820
 vpn:
   # CIDR configures a network address space
@@ -93,6 +110,9 @@ vpn:
     # Optional
     allowedNetworks: []
 dns:
+  # Enable a DNS proxy for VPN clients.
+  # Optional, Defaults to true
+  enabled: true
   # upstream DNS servers.
   # that the server-side DNS proxy will forward requests to.
   # By default /etc/resolv.conf will be used to find upstream
@@ -100,6 +120,9 @@ dns:
   # Optional
   upstream:
     - "1.1.1.1"
+  # Port sets the port that the DNS proxy will listen on
+  # Optional, defaults to 53
+  port: 53
 # Auth configures optional authentication backends
 # to controll access to the web ui.
 # Devices will be managed on a per-user basis if any

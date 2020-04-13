@@ -112,6 +112,7 @@ export declare namespace InfoRes {
 		isAdmin: boolean,
 		allowedIps: string,
 		dnsEnabled: boolean,
+		dnsAddress: string,
 	}
 }
 
@@ -191,6 +192,14 @@ export class InfoRes extends jspb.Message {
 		(jspb.Message as any).setProto3BooleanField(this, 8, value);
 	}
 
+	getDnsAddress(): string {
+		return jspb.Message.getFieldWithDefault(this, 9, "");
+	}
+
+	setDnsAddress(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 9, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		InfoRes.serializeBinaryToWriter(this, writer);
@@ -207,6 +216,7 @@ export class InfoRes extends jspb.Message {
 			isAdmin: this.getIsAdmin(),
 			allowedIps: this.getAllowedIps(),
 			dnsEnabled: this.getDnsEnabled(),
+			dnsAddress: this.getDnsAddress(),
 			
 		};
 	}
@@ -243,6 +253,10 @@ export class InfoRes extends jspb.Message {
 		const field8 = message.getDnsEnabled();
 		if (field8 != false) {
 			writer.writeBool(8, field8);
+		}
+		const field9 = message.getDnsAddress();
+		if (field9.length > 0) {
+			writer.writeString(9, field9);
 		}
 	}
 
@@ -292,6 +306,10 @@ export class InfoRes extends jspb.Message {
 				const field8 = reader.readBool()
 				message.setDnsEnabled(field8);
 				break;
+			case 9:
+				const field9 = reader.readString()
+				message.setDnsAddress(field9);
+				break;
 			default:
 				reader.skipField();
 				break;
@@ -324,6 +342,7 @@ function InfoResFromObject(obj: InfoRes.AsObject | undefined): InfoRes | undefin
 	message.setIsAdmin(obj.isAdmin);
 	message.setAllowedIps(obj.allowedIps);
 	message.setDnsEnabled(obj.dnsEnabled);
+	message.setDnsAddress(obj.dnsAddress);
 	return message;
 }
 

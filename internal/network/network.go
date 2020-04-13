@@ -25,7 +25,6 @@ func ConfigureRouting(wgIface string, cidr string) error {
 		return errors.Wrap(err, "failed to find wireguard interface")
 	}
 	vpnip := ServerVPNIP(cidr)
-	logrus.Infof("server VPN subnet IP is %s", vpnip.String())
 	addr, err := netlink.ParseAddr(vpnip.String())
 	if err != nil {
 		return errors.Wrap(err, "failed to parse subnet address")
