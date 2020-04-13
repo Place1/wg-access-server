@@ -26,7 +26,10 @@ type AppConfig struct {
 	DisableMetadata bool   `yaml:"disableMetadata"`
 	AdminSubject    string `yaml:"adminSubject"`
 	AdminPassword   string `yaml:"adminPassword"`
-	Storage         struct {
+	// Port sets the port that the web UI will listen on.
+	// Defaults to 8000
+	Port    int `yaml:"port"`
+	Storage struct {
 		// Directory that VPN devices (WireGuard peers)
 		// should be saved under.
 		// If this value is empty then an InMemory storage
@@ -73,7 +76,15 @@ type AppConfig struct {
 		// Enabled allows you to turn on/off
 		// the VPN DNS proxy feature.
 		// DNS Proxying is enabled by default.
-		Enabled  *bool    `yaml:"enabled"`
+		Enabled *bool `yaml:"enabled"`
+		// Port sets the port for the DNS proxy server.
+		// Defaults to 53
+		Port int `yaml:"port"`
+		// Upstream configures the addresses of upstream
+		// DNS servers to which client DNS requests will be sent to.
+		// Defaults the host's upstream DNS servers (via resolveconf)
+		// or 1.1.1.1 if resolveconf cannot be used.
+		// NOTE: currently wg-access-server will only use the first upstream.
 		Upstream []string `yaml:"upstream"`
 	} `yaml:"dns"`
 	// Auth configures optional authentication backends
@@ -89,6 +100,9 @@ var (
 	app             = kingpin.New("wg-access-server", "An all-in-one WireGuard Access Server & VPN solution")
 	configPath      = app.Flag("config", "Path to a config file").Envar("CONFIG").String()
 	logLevel        = app.Flag("log-level", "Log level (debug, info, error)").Envar("LOG_LEVEL").Default("info").String()
+	webPort         = app.Flag("web-port", "The port that the web ui server will listen on").Envar("WEB_PORT").Default("8000").Int()
+	wireguardPort   = app.Flag("wireguard-port", "The port that the Wireguard server will listen on").Envar("WIREGUARD_PORT").Default("51820").Int()
+	dnsPort         = app.Flag("dns-port", "The port that the DNS proxy server will listen on").Envar("DNS_PORT").Default("53").Int()
 	storagePath     = app.Flag("storage-directory", "Path to a storage directory").Envar("STORAGE_DIRECTORY").String()
 	privateKey      = app.Flag("wireguard-private-key", "Wireguard private key").Envar("WIREGUARD_PRIVATE_KEY").String()
 	disableMetadata = app.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").Envar("DISABLE_METADATA").Default("false").Bool()
@@ -102,12 +116,14 @@ func Read() *AppConfig {
 
 	config := AppConfig{}
 	config.LogLevel = *logLevel
+	config.Port = *webPort
 	config.WireGuard.InterfaceName = "wg0"
-	config.WireGuard.Port = 51820
+	config.WireGuard.Port = *wireguardPort
 	config.VPN.CIDR = "10.44.0.0/24"
 	config.DisableMetadata = *disableMetadata
 	config.Storage.Directory = *storagePath
 	config.WireGuard.PrivateKey = *privateKey
+	config.DNS.Port = *dnsPort
 
 	if config.DNS.Enabled == nil {
 		on := true

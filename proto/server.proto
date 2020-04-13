@@ -21,4 +21,5 @@ message InfoRes {
   bool is_admin = 6;
   string allowed_ips = 7;
   bool dns_enabled = 8;
+  string dns_address = 9;
 }

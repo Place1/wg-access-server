@@ -47,6 +47,8 @@ func main() {
 	}
 	defer wg.Close()
 
+	logrus.Infof("starting wireguard server on 0.0.0.0:%d", conf.WireGuard.Port)
+
 	wg.LoadConfig(&wgembed.ConfigFile{
 		Interface: wgembed.IfaceConfig{
 			PrivateKey: conf.WireGuard.PrivateKey,
@@ -55,13 +57,18 @@ func main() {
 		},
 	})
 
+	logrus.Infof("wireguard VPN network is %s", conf.VPN.CIDR)
+
 	if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR, *conf.VPN.Rules); err != nil {
 		logrus.Fatal(err)
 	}
 
 	// DNS Server
 	if *conf.DNS.Enabled {
-		dns, err := dnsproxy.New(conf.DNS.Upstream)
+		dns, err := dnsproxy.New(dnsproxy.DNSServerOpts{
+			Port:     conf.DNS.Port,
+			Upstream: conf.DNS.Upstream,
+		})
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err, "failed to start dns server"))
 		}
@@ -154,14 +161,14 @@ func main() {
 	publicRouter.NotFoundHandler = handler
 
 	// Listen
-	address := "0.0.0.0:8000"
+	address := fmt.Sprintf("0.0.0.0:%d", conf.Port)
 	srv := &http.Server{
 		Addr:    address,
 		Handler: publicRouter,
 	}
 
 	// Start Web server
-	logrus.Infof("listening on %v", address)
+	logrus.Infof("web ui listening on %v", address)
 	if err := srv.ListenAndServe(); err != nil {
 		logrus.Fatal(errors.Wrap(err, "unable to start http server"))
 	}

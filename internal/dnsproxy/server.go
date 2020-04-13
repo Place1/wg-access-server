@@ -15,6 +15,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type DNSServerOpts struct {
+	Port     int
+	Upstream []string
+}
+
 type DNSServer struct {
 	server   *dns.Server
 	client   *dns.Client
@@ -22,7 +27,9 @@ type DNSServer struct {
 	upstream []string
 }
 
-func New(upstream []string) (*DNSServer, error) {
+func New(opts DNSServerOpts) (*DNSServer, error) {
+
+	upstream := opts.Upstream
 
 	if len(upstream) == 0 {
 		if r, err := resolvconf.Get(); err == nil {
@@ -35,11 +42,13 @@ func New(upstream []string) (*DNSServer, error) {
 		upstream = append(upstream, "1.1.1.1")
 	}
 
-	logrus.Infof("starting dns server with upstreams: %s", strings.Join(upstream, ", "))
+	addr := fmt.Sprintf("0.0.0.0:%d", opts.Port)
+
+	logrus.Infof("starting dns server on %s with upstreams: %s", addr, strings.Join(upstream, ", "))
 
 	dnsServer := &DNSServer{
 		server: &dns.Server{
-			Addr: "0.0.0.0:53",
+			Addr: addr,
 			Net:  "udp",
 		},
 		client: &dns.Client{

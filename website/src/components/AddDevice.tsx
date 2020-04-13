@@ -65,7 +65,7 @@ export class AddDevice extends React.Component<Props> {
         [Interface]
         PrivateKey = ${privateKey}
         Address = ${device.address}
-        ${info.dnsEnabled && `DNS = ${info.hostVpnIp}`}
+        ${info.dnsEnabled && `DNS = ${info.dnsAddress}`}
 
         [Peer]
         PublicKey = ${info.publicKey}
