@@ -26,7 +26,7 @@ The command removes all the Kubernetes components associated with the chart and 
 ```yaml
 config:
   wireguard:
-    externalHost: "<loadbalancer-ip>:51820"
+    externalHost: "<loadbalancer-ip>"
 wireguard:
   config:
     privateKey: "<wireguard-private-key>"

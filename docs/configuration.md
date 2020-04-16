@@ -59,8 +59,7 @@ wireguard:
   # If this value is empty then the server will use an in-memory
   # generated key
   privateKey: ""
-  # ExternalAddress is the address that clients
-  # use to connect to the wireguard interface
+  # ExternalAddress is the address (without port) that clients use to connect to the wireguard interface
   # By default, this will be empty and the web ui
   # will use the current page's origin i.e. window.location.origin
   # Optional
