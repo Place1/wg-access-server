@@ -6,6 +6,6 @@ metadata:
     {{- include "wg-access-server.labels" . | nindent 4 }}
 data:
   config.yaml: |-
-{{- if .Values.config.wireguard }}
-{{ toYaml .Values.config.wireguard | indent 4 }}
+{{- if .Values.config }}
+{{ toYaml .Values.config | indent 4 }}
 {{- end }}
