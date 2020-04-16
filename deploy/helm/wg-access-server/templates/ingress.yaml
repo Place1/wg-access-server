@@ -29,6 +29,6 @@ spec:
           - path: /
             backend:
               serviceName: {{ $fullName }}-web
-              servicePort: 80
+              servicePort: 8000
   {{- end }}
 {{- end }}
