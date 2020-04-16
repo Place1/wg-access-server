@@ -23,7 +23,14 @@ metadata:
   name: {{ $fullName }}-wireguard
   labels:
     {{- include "wg-access-server.labels" . | nindent 4 }}
+{{- if .Values.wireguard.service.annotations }}
+  annotations:
+{{ toYaml .Values.wireguard.service.annotations | indent 4 }}
+{{- end }}
 spec:
+{{- if .Values.wireguard.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.wireguard.service.externalTrafficPolicy }}
+{{- end }}
   type: {{ .Values.wireguard.service.type }}
 {{- if .Values.wireguard.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.wireguard.service.loadBalancerIP }}
