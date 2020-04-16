@@ -140,12 +140,12 @@ auth:
     # You can create a user using "htpasswd -nB <username>"
     users: []
   oidc:
-    name: ""
-    issuer: ""
+    name: "" # anything you want
+    issuer: "" # Should point to the oidc url without .well-known
     clientID: ""
     clientSecret: ""
-    scopes: ""
-    redirectURL: ""
+    scopes: null  # list of scopes, defaults to ["openid"]
+    redirectURL: "" # full url you want the oidc to redirect to, example: https://vpn-admin.example.com/finish-signin
     # Optionally restrict login to users with an allowed email domain
     # if empty or omitted, any email domain will be allowed.
     emailDomains:
