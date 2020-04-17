@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,16 +16,43 @@ import (
 	"github.com/place1/wg-access-server/pkg/authnz/authutil"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
+	"gopkg.in/Knetic/govaluate.v2"
+	"gopkg.in/yaml.v2"
 )
 
+type ruleExpression struct {
+	*govaluate.EvaluableExpression
+}
+
+// MarshalYAML will encode a RuleExpression/govalidate into yaml string
+func (r ruleExpression) MarshalYAML() (interface{}, error) {
+	return yaml.Marshal(r.String())
+}
+
+// UnmarshalYAML will decode a RuleExpression/govalidate into yaml string
+func (r *ruleExpression) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var ruleStr string
+	if err := unmarshal(&ruleStr); err != nil {
+		return err
+	}
+	parsedRule, err := govaluate.NewEvaluableExpression(ruleStr)
+	if err != nil {
+		return errors.Wrap(err, "Unable to process oidc rule")
+	}
+	ruleExpression := &ruleExpression{parsedRule}
+	*r = *ruleExpression
+	return nil
+}
+
 type OIDCConfig struct {
-	Name         string   `yaml:"name"`
-	Issuer       string   `yaml:"issuer"`
-	ClientID     string   `yaml:"clientID"`
-	ClientSecret string   `yaml:"clientSecret"`
-	Scopes       []string `yaml:"scopes"`
-	RedirectURL  string   `yaml:"redirectURL"`
-	EmailDomains []string `yaml:"emailDomains"`
+	Name            string                    `yaml:"name"`
+	Issuer          string                    `yaml:"issuer"`
+	ClientID        string                    `yaml:"clientID"`
+	ClientSecret    string                    `yaml:"clientSecret"`
+	Scopes          []string                  `yaml:"scopes"`
+	RedirectURL     string                    `yaml:"redirectURL"`
+	EmailDomains    []string                  `yaml:"emailDomains"`
+	UserClaimsRules map[string]ruleExpression `yaml:"userClaimsRules"`
 }
 
 func (c *OIDCConfig) Provider() *authruntime.Provider {
@@ -102,17 +130,31 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 			return
 		}
 
-		var claims struct {
-			Name string `json:"name"`
+		oidcProfileData := make(map[string]interface{})
+		info.Claims(&oidcProfileData)
+
+		claims := &authsession.Claims{}
+		for claimName, rule := range c.UserClaimsRules {
+			result, err := rule.Evaluate(oidcProfileData)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			if val, ok := result.(bool); ok {
+				claims.Add(claimName, strconv.FormatBool(val))
+			} else if val, ok := result.(string); ok {
+				claims.Add(claimName, val)
+			}
 		}
-		info.Claims(&claims)
 
 		runtime.SetSession(w, r, &authsession.AuthSession{
 			Identity: &authsession.Identity{
 				Provider: c.Name,
 				Subject:  info.Subject,
 				Email:    info.Email,
-				Name:     claims.Name,
+				Name:     oidcProfileData["name"].(string),
+				Claims:   *claims,
 			},
 		})
 
