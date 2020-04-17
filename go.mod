@@ -18,10 +18,8 @@ require (
 	github.com/improbable-eng/grpc-web v0.12.0
 	github.com/ishidawataru/sctp v0.0.0-20191218070446-00ab2ac2db07 // indirect
 	github.com/jinzhu/gorm v1.9.12
-	github.com/jmoiron/sqlx v1.2.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/lib/pq v1.3.0
 	github.com/miekg/dns v1.1.27
 	github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
