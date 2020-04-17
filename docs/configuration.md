@@ -42,6 +42,9 @@ disableMetadata: false
 # Optional, defaults to 8000
 port: 8000
 storage:
+  # What type of storage do you want? inmemory (default), directory, or postgresql
+  type: ""
+
   # Directory that VPN devices (WireGuard peers)
   # should be saved under.
   # If this value is empty then an InMemory storage

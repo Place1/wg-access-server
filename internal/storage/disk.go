@@ -26,7 +26,8 @@ func NewDiskStorage(directory string) *DiskStorage {
 	return &DiskStorage{directory}
 }
 
-func (s *DiskStorage) Save(key string, device *Device) error {
+func (s *DiskStorage) Save(device *Device) error {
+	key := key(device)
 	path := s.deviceFilePath(key)
 	logrus.Debugf("saving device %s", path)
 	bytes, err := json.Marshal(device)
@@ -40,7 +41,13 @@ func (s *DiskStorage) Save(key string, device *Device) error {
 	return nil
 }
 
-func (s *DiskStorage) List(prefix string) ([]*Device, error) {
+func (s *DiskStorage) List(username string) ([]*Device, error) {
+	prefix := func() string {
+		if username != "" {
+			return keyStr(username, "")
+		}
+		return ""
+	}()
 	files := []string{}
 	err := filepath.Walk(s.directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -80,7 +87,8 @@ func (s *DiskStorage) List(prefix string) ([]*Device, error) {
 	return devices, nil
 }
 
-func (s *DiskStorage) Get(key string) (*Device, error) {
+func (s *DiskStorage) Get(owner string, name string) (*Device, error) {
+	key := keyStr(owner, name)
 	path := s.deviceFilePath(key)
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -93,8 +101,8 @@ func (s *DiskStorage) Get(key string) (*Device, error) {
 	return device, nil
 }
 
-func (s *DiskStorage) Delete(key string) error {
-	if err := os.Remove(s.deviceFilePath(key)); err != nil {
+func (s *DiskStorage) Delete(device *Device) error {
+	if err := os.Remove(s.deviceFilePath(key(device))); err != nil {
 		return errors.Wrap(err, "failed to delete device file")
 	}
 	return nil

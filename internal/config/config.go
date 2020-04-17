@@ -34,7 +34,8 @@ type AppConfig struct {
 		// should be saved under.
 		// If this value is empty then an InMemory storage
 		// backend will be used (not recommended).
-		Directory string `yaml:"directory"`
+		Directory string `yaml:"directory"` // TODO - rename to location?
+		Type      string `yaml:"type"`
 	} `yaml:"storage"`
 	WireGuard struct {
 		// The network interface name of the WireGuard
@@ -193,14 +194,18 @@ func Read() *AppConfig {
 		config.WireGuard.PrivateKey = key.String()
 	}
 
-	if config.Storage.Directory == "" {
-		logrus.Warn("storage directory not configured - using in-memory storage backend! wireguard devices will be lost when the process exits!")
-	} else {
-		config.Storage.Directory, err = filepath.Abs(config.Storage.Directory)
-		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to get absolute path to storage directory"))
+	if config.Storage.Type == "" {
+		if config.Storage.Directory == "" {
+			logrus.Warn("storage directory not configured - using in-memory storage backend! wireguard devices will be lost when the process exits!")
+			config.Storage.Type = "inmemory"
+		} else {
+			config.Storage.Directory, err = filepath.Abs(config.Storage.Directory)
+			config.Storage.Type = "disk"
+			if err != nil {
+				logrus.Fatal(errors.Wrap(err, "failed to get absolute path to storage directory"))
+			}
+			os.MkdirAll(config.Storage.Directory, 0700)
 		}
-		os.MkdirAll(config.Storage.Directory, 0700)
 	}
 
 	if config.AdminPassword != "" {

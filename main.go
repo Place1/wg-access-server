@@ -34,6 +34,19 @@ import (
 	"google.golang.org/grpc"
 )
 
+func storageType(config *config.AppConfig) (int, error) {
+	if config.Storage.Type == "" || config.Storage.Type == "inmemory" {
+		return storage.STORAGE_TYPE_INMEMORY, nil
+	}
+	if config.Storage.Type == "disk" {
+		return storage.STORAGE_TYPE_DISK, nil
+	}
+	if config.Storage.Type == "postgresql" {
+		return storage.STORAGE_TYPE_POSTGRESQL, nil
+	}
+	return -1, fmt.Errorf("Invalid storage type of %s. Only options are inmemory, disk, or postgresql", config.Storage.Type)
+}
+
 func main() {
 	conf := config.Read()
 
@@ -77,11 +90,21 @@ func main() {
 
 	// Storage
 	var storageDriver storage.Storage
-	if conf.Storage.Directory != "" {
+	storageType, err := storageType(conf)
+	switch storageType {
+	case storage.STORAGE_TYPE_INMEMORY:
+		storageDriver = storage.NewMemoryStorage()
+		break
+	case storage.STORAGE_TYPE_DISK:
 		logrus.Infof("storing data in %s", conf.Storage.Directory)
 		storageDriver = storage.NewDiskStorage(conf.Storage.Directory)
-	} else {
-		storageDriver = storage.NewMemoryStorage()
+		break
+	case storage.STORAGE_TYPE_POSTGRESQL:
+		logrus.Infof("storing data in %s", conf.Storage.Directory)
+		storageDriver = storage.NewPostgresStorage(conf.Storage.Directory)
+		break
+	default:
+		logrus.Fatal(errors.Wrap(err, "Not a known storage type"))
 	}
 
 	// Services

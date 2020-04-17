@@ -14,13 +14,19 @@ func NewMemoryStorage() *InMemoryStorage {
 	return &InMemoryStorage{}
 }
 
-func (s *InMemoryStorage) Save(key string, device *Device) error {
-	memory[key] = device
+func (s *InMemoryStorage) Save(device *Device) error {
+	memory[key(device)] = device
 	return nil
 }
 
-func (s *InMemoryStorage) List(prefix string) ([]*Device, error) {
+func (s *InMemoryStorage) List(username string) ([]*Device, error) {
 	devices := []*Device{}
+	prefix := func() string {
+		if username != "" {
+			return keyStr(username, "")
+		}
+		return ""
+	}()
 	for key, device := range memory {
 		if strings.HasPrefix(key, prefix) {
 			devices = append(devices, device)
@@ -29,15 +35,15 @@ func (s *InMemoryStorage) List(prefix string) ([]*Device, error) {
 	return devices, nil
 }
 
-func (s *InMemoryStorage) Get(key string) (*Device, error) {
-	device, ok := memory[key]
+func (s *InMemoryStorage) Get(owner string, name string) (*Device, error) {
+	device, ok := memory[keyStr(owner, name)]
 	if !ok {
 		return nil, errors.New("device doesn't exist")
 	}
 	return device, nil
 }
 
-func (s *InMemoryStorage) Delete(key string) error {
-	delete(memory, key)
+func (s *InMemoryStorage) Delete(device *Device) error {
+	delete(memory, key(device))
 	return nil
 }
