@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - When disabled the `DNS` wireguard config value will be omitted from client wg config files
   - When disabled the DNS proxy will not be started server-side (i.e. port 53 won't be used)
 - Config options to change the web, wireguard and dns ports.
+- Better instructions for connecting a linux device ([@nfg](https://github.com/Place1/wg-access-server/pull/38))
+- More helm chart flexibility ([@halkeye](https://github.com/Place1/wg-access-server/pull/33))
 
 ### Changes
 
