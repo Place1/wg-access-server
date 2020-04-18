@@ -21,34 +21,30 @@ docker_tag = f"place1/wg-access-server:{version}"
 subprocess.run(['docker', 'build', '-t', docker_tag, '.'])
 
 # update the helm chart and quickstart manifest
-if not is_release_candidate(version):
-    with open('deploy/helm/wg-access-server/Chart.yaml', 'r+') as f:
-        chart = yaml.load(f)
-        chart['version'] = version
-        chart['appVersion'] = version
-        f.seek(0)
-        yaml.dump(chart, f, default_flow_style=False)
-        f.truncate()
-    with open('deploy/k8s/quickstart.yaml', 'w') as f:
-        subprocess.run(['helm', 'template', '--name-template',
-                        'quickstart', 'deploy/helm/wg-access-server/'], stdout=f)
-    subprocess.run(['helm', 'package', 'deploy/helm/wg-access-server/',
-                    '--destination', 'docs/charts/'])
-    subprocess.run(['helm', 'repo', 'index', 'docs/', '--url',
-                    'https://place1.github.io/wg-access-server'])
+with open('deploy/helm/wg-access-server/Chart.yaml', 'r+') as f:
+    chart = yaml.load(f)
+    chart['version'] = version
+    chart['appVersion'] = version
+    f.seek(0)
+    yaml.dump(chart, f, default_flow_style=False)
+    f.truncate()
+with open('deploy/k8s/quickstart.yaml', 'w') as f:
+    subprocess.run(['helm', 'template', '--name-template',
+                    'quickstart', 'deploy/helm/wg-access-server/'], stdout=f)
+subprocess.run(['helm', 'package', 'deploy/helm/wg-access-server/',
+                '--destination', 'docs/charts/'])
+subprocess.run(['helm', 'repo', 'index', 'docs/', '--url',
+                'https://place1.github.io/wg-access-server'])
 
 # update gh-pages (docs)
-if not is_release_candidate(version):
-    subprocess.run(['mkdocs', 'gh-deploy'])
+subprocess.run(['mkdocs', 'gh-deploy'])
 
 # commit changes
-if not is_release_candidate(version):
-    subprocess.run(['git', 'add', '.'])
-    subprocess.run(['git', 'commit', '-m', f'{version}'])
+subprocess.run(['git', 'add', '.'])
+subprocess.run(['git', 'commit', '-m', f'{version}'])
 
 # tag the current commit
-if not is_release_candidate(version):
-    subprocess.run(['git', 'tag', '-a', f'{version}', '-m', f'{version}'])
+subprocess.run(['git', 'tag', '-a', f'{version}', '-m', f'{version}'])
 
 # push everything
 subprocess.run(['git', 'push'])
