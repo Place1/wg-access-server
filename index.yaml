@@ -2,8 +2,17 @@ apiVersion: v1
 entries:
   wg-access-server:
   - apiVersion: v2
+    appVersion: 0.2.0-rc3
+    created: "2020-04-18T14:37:40.292441835+10:00"
+    description: A Wireguard VPN Access Server
+    digest: 08d15d89278086c8fa4b2e1a4762bd711008f847ba0c84a3e228f859d5c15756
+    name: wg-access-server
+    urls:
+    - https://place1.github.io/wg-access-server/charts/wg-access-server-0.2.0-rc3.tgz
+    version: 0.2.0-rc3
+  - apiVersion: v2
     appVersion: 0.1.1
-    created: "2020-03-31T13:53:26.656055+11:00"
+    created: "2020-04-18T14:37:40.291766163+10:00"
     description: A Wireguard VPN Access Server
     digest: 1326673b9cdbb886c6c8f922cecd63f7ef7bf9698ac3f0915d37d58497910987
     name: wg-access-server
@@ -12,7 +21,7 @@ entries:
     version: 0.1.1
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2020-03-31T13:53:26.655762+11:00"
+    created: "2020-04-18T14:37:40.288203139+10:00"
     description: A Wireguard VPN Access Server
     digest: ab366ab952e77e031e0c280b80ca0ade1960831fa87acc15a4b6232ab37ef6b3
     name: wg-access-server
@@ -21,11 +30,11 @@ entries:
     version: 0.1.0
   - apiVersion: v2
     appVersion: 0.0.9
-    created: "2020-03-31T13:53:26.655476+11:00"
+    created: "2020-04-18T14:37:40.287723382+10:00"
     description: A Wireguard VPN Access Server
     digest: e8d795290f577d5d5678619dac42e1a667407aa7128a682da30f26db9f383a1c
     name: wg-access-server
     urls:
     - https://place1.github.io/wg-access-server/charts/wg-access-server-0.0.9.tgz
     version: 0.0.9
-generated: "2020-03-31T13:53:26.654975+11:00"
+generated: "2020-04-18T14:37:40.28709738+10:00"

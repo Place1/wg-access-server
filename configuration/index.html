@@ -464,31 +464,47 @@ CLI flag as well.</p>
 <p>For example you can configure <code class="codehilite"><span class="err">STORAGE_DIRECTORY</span></code> by passing <code class="codehilite"><span class="err">--storage-directory=&quot;&lt;value&gt;&quot;</span></code>.</p>
 <h2 id="config-file-configyaml">Config File (config.yaml)<a class="headerlink" href="#config-file-configyaml" title="Permanent link"> ¶</a></h2>
 <p>Here's an annotated config file example:</p>
-<div class="codehilite"><pre><span></span><code><span class="nt">loglevel</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">debug</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># The application&#39;s log level.</span>
+<span class="c1"># Can be debug, info, error</span>
+<span class="c1"># Optional, defaults to info</span>
+<span class="nt">loglevel</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">info</span>
+<span class="c1"># Disable device metadata storage.</span>
+<span class="c1"># Device metadata includes the last handshake time,</span>
+<span class="c1"># total sent/received bytes count, their endpoint IP.</span>
+<span class="c1"># This metadata is captured from wireguard itself.</span>
+<span class="c1"># Disabling this flag will not stop wireguard from capturing</span>
+<span class="c1"># this data.</span>
+<span class="c1"># See stored data here: https://github.com/Place1/wg-access-server/blob/master/internal/storage/contracts.go#L14</span>
+<span class="c1"># Optional, defaults to false.</span>
+<span class="nt">disableMetadata</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="c1"># The port that the web ui server (http) will listen on.</span>
+<span class="c1"># Optional, defaults to 8000</span>
+<span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8000</span>
 <span class="nt">storage</span><span class="p">:</span>
   <span class="c1"># Directory that VPN devices (WireGuard peers)</span>
   <span class="c1"># should be saved under.</span>
   <span class="c1"># If this value is empty then an InMemory storage</span>
   <span class="c1"># backend will be used (not recommended).</span>
-  <span class="c1"># Defaults to &quot;/data&quot; inside the docker container</span>
+  <span class="c1"># Optional</span>
+  <span class="c1"># Defaults to in-memory</span>
+  <span class="c1"># The docker container sets this value to /data automatically</span>
   <span class="nt">directory</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data</span>
 <span class="nt">wireguard</span><span class="p">:</span>
   <span class="c1"># The network interface name for wireguard</span>
-  <span class="c1"># Optional</span>
+  <span class="c1"># Optional, defaults to wg0</span>
   <span class="nt">interfaceName</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">wg0</span>
   <span class="c1"># The WireGuard PrivateKey</span>
   <span class="c1"># You can generate this value using &quot;$ wg genkey&quot;</span>
   <span class="c1"># If this value is empty then the server will use an in-memory</span>
   <span class="c1"># generated key</span>
   <span class="nt">privateKey</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-  <span class="c1"># ExternalAddress is the address that clients</span>
-  <span class="c1"># use to connect to the wireguard interface</span>
+  <span class="c1"># ExternalAddress is the address (without port) that clients use to connect to the wireguard interface</span>
   <span class="c1"># By default, this will be empty and the web ui</span>
   <span class="c1"># will use the current page&#39;s origin i.e. window.location.origin</span>
   <span class="c1"># Optional</span>
   <span class="nt">externalHost</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
   <span class="c1"># The WireGuard ListenPort</span>
-  <span class="c1"># Optional</span>
+  <span class="c1"># Optional, defaults to 51820</span>
   <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">51820</span>
 <span class="nt">vpn</span><span class="p">:</span>
   <span class="c1"># CIDR configures a network address space</span>
@@ -532,6 +548,9 @@ CLI flag as well.</p>
     <span class="c1"># Optional</span>
     <span class="nt">allowedNetworks</span><span class="p">:</span> <span class="p p-Indicator">[]</span>
 <span class="nt">dns</span><span class="p">:</span>
+  <span class="c1"># Enable a DNS proxy for VPN clients.</span>
+  <span class="c1"># Optional, Defaults to true</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
   <span class="c1"># upstream DNS servers.</span>
   <span class="c1"># that the server-side DNS proxy will forward requests to.</span>
   <span class="c1"># By default /etc/resolv.conf will be used to find upstream</span>
@@ -539,6 +558,9 @@ CLI flag as well.</p>
   <span class="c1"># Optional</span>
   <span class="nt">upstream</span><span class="p">:</span>
     <span class="p p-Indicator">-</span> <span class="s">&quot;1.1.1.1&quot;</span>
+  <span class="c1"># Port sets the port that the DNS proxy will listen on</span>
+  <span class="c1"># Optional, defaults to 53</span>
+  <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">53</span>
 <span class="c1"># Auth configures optional authentication backends</span>
 <span class="c1"># to controll access to the web ui.</span>
 <span class="c1"># Devices will be managed on a per-user basis if any</span>
@@ -556,12 +578,12 @@ CLI flag as well.</p>
     <span class="c1"># You can create a user using &quot;htpasswd -nB &lt;username&gt;&quot;</span>
     <span class="nt">users</span><span class="p">:</span> <span class="p p-Indicator">[]</span>
   <span class="nt">oidc</span><span class="p">:</span>
-    <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-    <span class="nt">issuer</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
+    <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;&quot;</span> <span class="c1"># anything you want</span>
+    <span class="nt">issuer</span><span class="p">:</span> <span class="s">&quot;&quot;</span> <span class="c1"># Should point to the oidc url without .well-known</span>
     <span class="nt">clientID</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
     <span class="nt">clientSecret</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-    <span class="nt">scopes</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-    <span class="nt">redirectURL</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
+    <span class="nt">scopes</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>  <span class="c1"># list of scopes, defaults to [&quot;openid&quot;]</span>
+    <span class="nt">redirectURL</span><span class="p">:</span> <span class="s">&quot;&quot;</span> <span class="c1"># full url you want the oidc to redirect to, example: https://vpn-admin.example.com/finish-signin</span>
     <span class="c1"># Optionally restrict login to users with an allowed email domain</span>
     <span class="c1"># if empty or omitted, any email domain will be allowed.</span>
     <span class="nt">emailDomains</span><span class="p">:</span>
