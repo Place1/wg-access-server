@@ -4,30 +4,23 @@ import (
 	"time"
 )
 
-type StorageType int
-
-const (
-	STORAGE_TYPE_INMEMORY int = iota
-	STORAGE_TYPE_DISK
-	STORAGE_TYPE_POSTGRESQL
-)
-
 type Storage interface {
 	Save(device *Device) error
 	List(owner string) ([]*Device, error)
 	Get(owner string, name string) (*Device, error)
 	Delete(device *Device) error
+	Close() error
 }
 
 type Device struct {
-	Owner         string    `json:"owner",gorm:"type:varchar(100);unique_index:key"`
+	Owner         string    `json:"owner" gorm:"type:varchar(100);unique_index:key"`
 	OwnerName     string    `json:"ownerName"`
 	OwnerEmail    string    `json:"ownerEmail"`
 	OwnerProvider string    `json:"ownerProvider"`
-	Name          string    `json:"name",gorm:"type:varchar(100);unique_index:key"`
+	Name          string    `json:"name" gorm:"type:varchar(100);unique_index:key"`
 	PublicKey     string    `json:"publicKey"`
 	Address       string    `json:"address"`
-	CreatedAt     time.Time `json:"createdAt",column:created_at`
+	CreatedAt     time.Time `json:"createdAt" gorm:"column:created_at"`
 
 	/**
 	 * Metadata fields below.

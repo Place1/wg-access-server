@@ -26,6 +26,10 @@ func NewDiskStorage(directory string) *DiskStorage {
 	return &DiskStorage{directory}
 }
 
+func (s *DiskStorage) Close() error {
+	return nil
+}
+
 func (s *DiskStorage) Save(device *Device) error {
 	key := key(device)
 	path := s.deviceFilePath(key)

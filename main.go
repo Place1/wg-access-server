@@ -21,7 +21,6 @@ import (
 	"github.com/place1/wg-access-server/internal/dnsproxy"
 	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/internal/services"
-	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz"
 	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/sirupsen/logrus"
@@ -33,19 +32,6 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"google.golang.org/grpc"
 )
-
-func storageType(config *config.AppConfig) (int, error) {
-	if config.Storage.Type == "" || config.Storage.Type == "inmemory" {
-		return storage.STORAGE_TYPE_INMEMORY, nil
-	}
-	if config.Storage.Type == "disk" {
-		return storage.STORAGE_TYPE_DISK, nil
-	}
-	if config.Storage.Type == "postgresql" {
-		return storage.STORAGE_TYPE_POSTGRESQL, nil
-	}
-	return -1, fmt.Errorf("Invalid storage type of %s. Only options are inmemory, disk, or postgresql", config.Storage.Type)
-}
 
 func main() {
 	conf := config.Read()
@@ -88,27 +74,10 @@ func main() {
 		defer dns.Close()
 	}
 
-	// Storage
-	var storageDriver storage.Storage
-	storageType, err := storageType(conf)
-	switch storageType {
-	case storage.STORAGE_TYPE_INMEMORY:
-		storageDriver = storage.NewMemoryStorage()
-		break
-	case storage.STORAGE_TYPE_DISK:
-		logrus.Infof("storing data in %s", conf.Storage.Directory)
-		storageDriver = storage.NewDiskStorage(conf.Storage.Directory)
-		break
-	case storage.STORAGE_TYPE_POSTGRESQL:
-		logrus.Infof("storing data in %s", conf.Storage.Directory)
-		storageDriver = storage.NewPostgresStorage(conf.Storage.Directory)
-		break
-	default:
-		logrus.Fatal(errors.Wrap(err, "Not a known storage type"))
-	}
+	defer conf.Storage.Close()
 
 	// Services
-	deviceManager := devices.New(wg.Name(), storageDriver, conf.VPN.CIDR)
+	deviceManager := devices.New(wg.Name(), conf.Storage, conf.VPN.CIDR)
 	if err := deviceManager.StartSync(conf.DisableMetadata); err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}

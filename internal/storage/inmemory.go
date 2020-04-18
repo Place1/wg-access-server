@@ -14,6 +14,10 @@ func NewMemoryStorage() *InMemoryStorage {
 	return &InMemoryStorage{}
 }
 
+func (s *InMemoryStorage) Close() error {
+	return nil
+}
+
 func (s *InMemoryStorage) Save(device *Device) error {
 	memory[key(device)] = device
 	return nil
