@@ -10,6 +10,7 @@ type Storage interface {
 	Get(owner string, name string) (*Device, error)
 	Delete(device *Device) error
 	Close() error
+	Open() error
 }
 
 type Device struct {

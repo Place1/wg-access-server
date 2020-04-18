@@ -74,6 +74,9 @@ func main() {
 		defer dns.Close()
 	}
 
+	if err := conf.Storage.Open(); err != nil {
+		logrus.Fatal(errors.Wrap(err, "Connecting to db"))
+	}
 	defer conf.Storage.Close()
 
 	// Services

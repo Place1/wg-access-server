@@ -5,13 +5,20 @@ import (
 	"strings"
 )
 
-var memory = map[string]*Device{}
-
 // implements Storage interface
-type InMemoryStorage struct{}
+type InMemoryStorage struct {
+	db map[string]*Device
+}
 
 func NewMemoryStorage() *InMemoryStorage {
-	return &InMemoryStorage{}
+	db := make(map[string]*Device)
+	return &InMemoryStorage{
+		db: db,
+	}
+}
+
+func (s *InMemoryStorage) Open() error {
+	return nil
 }
 
 func (s *InMemoryStorage) Close() error {
@@ -19,7 +26,7 @@ func (s *InMemoryStorage) Close() error {
 }
 
 func (s *InMemoryStorage) Save(device *Device) error {
-	memory[key(device)] = device
+	s.db[key(device)] = device
 	return nil
 }
 
@@ -31,7 +38,7 @@ func (s *InMemoryStorage) List(username string) ([]*Device, error) {
 		}
 		return ""
 	}()
-	for key, device := range memory {
+	for key, device := range s.db {
 		if strings.HasPrefix(key, prefix) {
 			devices = append(devices, device)
 		}
@@ -40,7 +47,7 @@ func (s *InMemoryStorage) List(username string) ([]*Device, error) {
 }
 
 func (s *InMemoryStorage) Get(owner string, name string) (*Device, error) {
-	device, ok := memory[keyStr(owner, name)]
+	device, ok := s.db[keyStr(owner, name)]
 	if !ok {
 		return nil, errors.New("device doesn't exist")
 	}
@@ -48,6 +55,6 @@ func (s *InMemoryStorage) Get(owner string, name string) (*Device, error) {
 }
 
 func (s *InMemoryStorage) Delete(device *Device) error {
-	delete(memory, key(device))
+	delete(s.db, key(device))
 	return nil
 }

@@ -2,7 +2,6 @@ package storage
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 
@@ -20,7 +19,7 @@ func (storageDriver *StorageWrapper) UnmarshalYAML(unmarshal func(interface{}) e
 		return err
 	}
 
-	s, err := NewStorage(connectionStr)
+	s, err := NewStorageWrapper(connectionStr)
 	if err != nil {
 		return err
 	}
@@ -28,20 +27,24 @@ func (storageDriver *StorageWrapper) UnmarshalYAML(unmarshal func(interface{}) e
 	return nil
 }
 
-func NewStorage(connectionStr string) (*StorageWrapper, error) {
+func NewStorageWrapper(connectionStr string) (*StorageWrapper, error) {
+	if connectionStr == "" {
+		return &StorageWrapper{NewMemoryStorage()}, nil
+	}
+
 	parsedURL, err := url.Parse(connectionStr)
 	if err != nil {
-		log.Fatal(err)
+		return nil, errors.Wrap(err, "Error parsing storage url")
 	}
 
 	switch parsedURL.Scheme {
+	case "":
 	case "memory":
+		logrus.Infof("storing data in memory")
 		return &StorageWrapper{NewMemoryStorage()}, nil
-		break
 	case "disk":
 		logrus.Infof("storing data in %s", parsedURL.Path)
 		return &StorageWrapper{NewDiskStorage(parsedURL.Path)}, nil
-		break
 	case "postgres":
 		password, _ := parsedURL.User.Password()
 		decodedQuery, err := url.QueryUnescape(parsedURL.RawQuery)
@@ -49,7 +52,7 @@ func NewStorage(connectionStr string) (*StorageWrapper, error) {
 			return nil, errors.Wrap(err, "decoding extra flags")
 		}
 
-		storage, err := NewSqlStorage(
+		storage := NewSqlStorage(
 			"postgres",
 			fmt.Sprintf(
 				"host=%s port=%s user=%s password=%s dbname=%s %s",
@@ -61,13 +64,10 @@ func NewStorage(connectionStr string) (*StorageWrapper, error) {
 				decodedQuery,
 			),
 		)
-		if err != nil {
-			return nil, errors.Wrap(err, "Connecting to db")
-		}
 		return &StorageWrapper{storage}, nil
 	case "mysql":
 		password, _ := parsedURL.User.Password()
-		storage, err := NewSqlStorage(
+		storage := NewSqlStorage(
 			"mysql",
 			fmt.Sprintf(
 				"%s:%s@%s/%s?%s",
@@ -78,18 +78,12 @@ func NewStorage(connectionStr string) (*StorageWrapper, error) {
 				parsedURL.RawQuery,
 			),
 		)
-		if err != nil {
-			return nil, errors.Wrap(err, "Connecting to db")
-		}
 		return &StorageWrapper{storage}, nil
 	case "sqlite3":
-		storage, err := NewSqlStorage(
+		storage := NewSqlStorage(
 			"sqlite3",
 			parsedURL.Path,
 		)
-		if err != nil {
-			return nil, errors.Wrap(err, "Connecting to db")
-		}
 		return &StorageWrapper{storage}, nil
 	default:
 		return nil, fmt.Errorf("Not a known storage type: %s", parsedURL.Scheme)

@@ -2,7 +2,6 @@ package storage
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"path/filepath"
 	"testing"
@@ -13,6 +12,18 @@ import (
 
 type testYaml struct {
 	Storage StorageWrapper `yaml:"storage"`
+}
+
+func TestEmptyStorage(t *testing.T) {
+	var config testYaml
+
+	if err := yaml.Unmarshal([]byte("storage: \"\""), &config); err != nil {
+		t.Fatal(err, "failed to bind configuration file")
+	}
+
+	expected := "*storage.InMemoryStorage"
+	actual := fmt.Sprintf("%T", config.Storage.Storage)
+	assert.EqualValues(t, string(expected), string(actual))
 }
 
 func TestMemoryStorage(t *testing.T) {
@@ -42,47 +53,10 @@ func TestDiskStorage(t *testing.T) {
 	assert.EqualValues(t, string(expected), string(actual))
 }
 
-func initPostgres() net.Listener {
-	// Listen for incoming connections.
-	postgresServer, err := net.Listen("tcp", "localhost:0")
-	if err != nil {
-		fmt.Println("Error listening:", err.Error())
-		os.Exit(1)
-	}
-	go func() {
-		for {
-			// Listen for an incoming connection.
-			conn, err := postgresServer.Accept()
-			if err != nil {
-				fmt.Println("Error accepting: ", err.Error())
-				// os.Exit(1)
-				return
-			}
-			go func(conn net.Conn) {
-				// Make a buffer to hold incoming data.
-				buf := make([]byte, 1024)
-				// Read the incoming connection into the buffer.
-				_, err := conn.Read(buf)
-				if err != nil {
-					fmt.Println("Error reading:", err.Error())
-				}
-				// Send a response back to person contacting us.
-				conn.Write([]byte("Message received."))
-				// Close the connection when you're done with it.
-				conn.Close()
-			}(conn)
-		}
-	}()
-	return postgresServer
-}
-
 func TestPostgresqlStorage(t *testing.T) {
 	var config testYaml
 
-	postgresServer := initPostgres()
-	// defer postgresServer.Close()
-
-	yamlStr := fmt.Sprintf("storage: \"postgres://localhost:%d/dbname?sslmode=disable\"", postgresServer.Addr().(*net.TCPAddr).Port)
+	yamlStr := "storage: \"postgres://localhost:5432/dbname?sslmode=disable\""
 
 	if err := yaml.Unmarshal([]byte(yamlStr), &config); err != nil {
 		t.Fatal(err, "failed to bind configuration file")
@@ -97,7 +71,7 @@ func TestPostgresqlStorage(t *testing.T) {
 func TestMysqlStorage(t *testing.T) {
 	var config testYaml
 
-	yamlStr := fmt.Sprintf("storage: \"mysql://localhost:1234/dbname?sslmode=disable\"")
+	yamlStr := "storage: \"mysql://localhost:1234/dbname?sslmode=disable\""
 
 	if err := yaml.Unmarshal([]byte(yamlStr), &config); err != nil {
 		t.Fatal(err, "failed to bind configuration file")

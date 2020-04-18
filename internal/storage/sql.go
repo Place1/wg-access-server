@@ -13,24 +13,37 @@ import (
 
 // implements Storage interface
 type SQLStorage struct {
-	db *gorm.DB
+	db               *gorm.DB
+	sqlType          string
+	connectionString string
 }
 
-func NewSqlStorage(sqlType string, connectionString string) (*SQLStorage, error) {
-	db, err := gorm.Open(sqlType, connectionString)
-	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("failed to connect to %s", sqlType))
+func NewSqlStorage(sqlType string, connectionString string) *SQLStorage {
+	return &SQLStorage{
+		db:               nil,
+		sqlType:          sqlType,
+		connectionString: connectionString,
 	}
-	s := &SQLStorage{db}
-	// db.LogMode(true)
+}
+
+func (s *SQLStorage) Open() error {
+	db, err := gorm.Open(s.sqlType, s.connectionString)
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("failed to connect to %s", s.sqlType))
+	}
+	s.db = db
+	// s.db.LogMode(true)
 
 	// Migrate the schema
 	s.db.AutoMigrate(&Device{})
-	return s, nil
+	return nil
 }
 
 func (s *SQLStorage) Close() error {
-	return s.db.Close()
+	if s.db != nil {
+		return s.db.Close()
+	}
+	return nil
 }
 
 func (s *SQLStorage) Save(device *Device) error {

@@ -18,12 +18,16 @@ type DiskStorage struct {
 }
 
 func NewDiskStorage(directory string) *DiskStorage {
-	if _, err := os.Stat(directory); os.IsNotExist(err) {
-		if err := os.MkdirAll(directory, 0600); err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to create storage directory"))
+	return &DiskStorage{directory}
+}
+
+func (s *DiskStorage) Open() error {
+	if _, err := os.Stat(s.directory); os.IsNotExist(err) {
+		if err := os.MkdirAll(s.directory, 0600); err != nil {
+			return errors.Wrap(err, "failed to create storage directory")
 		}
 	}
-	return &DiskStorage{directory}
+	return nil
 }
 
 func (s *DiskStorage) Close() error {

@@ -116,13 +116,11 @@ func Read() *AppConfig {
 	config.WireGuard.Port = *wireguardPort
 	config.VPN.CIDR = "10.44.0.0/24"
 	config.DisableMetadata = *disableMetadata
-	if *storagePath != "" {
-		s, err := storage.NewStorage(*storagePath)
-		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
-		}
-		config.Storage = *s
+	s, err := storage.NewStorageWrapper(*storagePath)
+	if err != nil {
+		logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
 	}
+	config.Storage = *s
 	config.WireGuard.PrivateKey = *privateKey
 	config.DNS.Port = *dnsPort
 
