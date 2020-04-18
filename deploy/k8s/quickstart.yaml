@@ -5,15 +5,14 @@ kind: ConfigMap
 metadata:
   name: quickstart-wg-access-server
   labels:
-    helm.sh/chart: wg-access-server-0.1.1
+    helm.sh/chart: wg-access-server-0.2.0-rc3
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.1.1"
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/version: "0.2.0-rc3"
+    app.kubernetes.io/managed-by: Helm
 data:
   config.yaml: |-
-
 ---
 # Source: wg-access-server/templates/service.yaml
 apiVersion: v1
@@ -21,12 +20,12 @@ kind: Service
 metadata:
   name: quickstart-wg-access-server-web
   labels:
-    helm.sh/chart: wg-access-server-0.1.1
+    helm.sh/chart: wg-access-server-0.2.0-rc3
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.1.1"
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/version: "0.2.0-rc3"
+    app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
   ports:
@@ -38,20 +37,19 @@ spec:
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-
 ---
-
+# Source: wg-access-server/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: quickstart-wg-access-server-wireguard
   labels:
-    helm.sh/chart: wg-access-server-0.1.1
+    helm.sh/chart: wg-access-server-0.2.0-rc3
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.1.1"
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/version: "0.2.0-rc3"
+    app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
   ports:
@@ -63,7 +61,6 @@ spec:
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-
 ---
 # Source: wg-access-server/templates/deployment.yaml
 apiVersion: apps/v1
@@ -71,12 +68,12 @@ kind: Deployment
 metadata:
   name: quickstart-wg-access-server
   labels:
-    helm.sh/chart: wg-access-server-0.1.1
+    helm.sh/chart: wg-access-server-0.2.0-rc3
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.1.1"
-    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/version: "0.2.0-rc3"
+    app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
   strategy:
@@ -88,6 +85,8 @@ spec:
       app.kubernetes.io/instance: quickstart
   template:
     metadata:
+      annotations:
+        checksum/configmap: b16e3a6d857fc6f16817d2a638febf416e055d0e5230d30ac8ba7c0d7164573c
       labels:
         app: wg-access-server
         app.kubernetes.io/name: wg-access-server
@@ -98,7 +97,7 @@ spec:
           securityContext:
             capabilities:
               add: ['NET_ADMIN']
-          image: "place1/wg-access-server:0.1.1"
+          image: "place1/wg-access-server:0.2.0-rc3"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -122,7 +121,6 @@ spec:
               port: http
           resources:
             {}
-            
       volumes:
         - name: tun
           hostPath:
@@ -133,15 +131,3 @@ spec:
         - name: config
           configMap:
             name: "quickstart-wg-access-server"
-
----
-# Source: wg-access-server/templates/ingress.yaml
-
-
----
-# Source: wg-access-server/templates/pvc.yaml
-
----
-# Source: wg-access-server/templates/secret.yaml
-
-
