@@ -41,18 +41,9 @@ disableMetadata: false
 # The port that the web ui server (http) will listen on.
 # Optional, defaults to 8000
 port: 8000
-storage:
-  # What type of storage do you want? inmemory (default), directory, or postgresql
-  type: ""
-
-  # Directory that VPN devices (WireGuard peers)
-  # should be saved under.
-  # If this value is empty then an InMemory storage
-  # backend will be used (not recommended).
-  # Optional
-  # Defaults to in-memory
-  # The docker container sets this value to /data automatically
-  directory: /data
+# Directory that VPN devices (WireGuard peers)
+# What type of storage do you want? inmemory (default), disk:///path/to/thing, or postgresql, mysql, sqlite3
+storage: ""
 wireguard:
   # The network interface name for wireguard
   # Optional, defaults to wg0
