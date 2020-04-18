@@ -47,7 +47,16 @@ export class GetConnected extends React.Component<Props> {
             <Grid item xs={12} sm={6}>
               <List>
                 <ListItem>
-                  <ListItemText primary="1. hmmm todo" />
+                  <ListItemText primary="1. Install WireGuard for Linux" />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="2. Download your connection file" />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="3. Copy it to /etc/wireguard/wg0.conf"
+                    secondary="This will allow you to use wg-quick to bring the interface up and down easily."
+                  />
                 </ListItem>
               </List>
             </Grid>
