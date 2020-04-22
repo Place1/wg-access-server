@@ -52,6 +52,10 @@ func allowedIPs(config *config.AppConfig) string {
 
 	allowed := []string{}
 
+	if *config.DNS.Enabled {
+		allowed = append(allowed, network.ServerVPNIP(config.VPN.CIDR).IP.String())
+	}
+
 	if config.VPN.Rules.AllowVPNLAN {
 		allowed = append(allowed, config.VPN.CIDR)
 	}
