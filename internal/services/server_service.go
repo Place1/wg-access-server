@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/place1/wg-access-server/internal/network"
@@ -52,7 +53,7 @@ func allowedIPs(config *config.AppConfig) string {
 	allowed := []string{}
 
 	if *config.DNS.Enabled {
-		allowed = append(allowed, network.ServerVPNIP(config.VPN.CIDR).String())
+		allowed = append(allowed, fmt.Sprintf("%s/32", network.ServerVPNIP(config.VPN.CIDR).IP.String()))
 	}
 
 	if config.VPN.Rules.AllowVPNLAN {
