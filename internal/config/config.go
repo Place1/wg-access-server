@@ -77,9 +77,6 @@ type AppConfig struct {
 		// the VPN DNS proxy feature.
 		// DNS Proxying is enabled by default.
 		Enabled *bool `yaml:"enabled"`
-		// Port sets the port for the DNS proxy server.
-		// Defaults to 53
-		Port int `yaml:"port"`
 		// Upstream configures the addresses of upstream
 		// DNS servers to which client DNS requests will be sent to.
 		// Defaults the host's upstream DNS servers (via resolveconf)
@@ -102,7 +99,6 @@ var (
 	logLevel        = app.Flag("log-level", "Log level (debug, info, error)").Envar("LOG_LEVEL").Default("info").String()
 	webPort         = app.Flag("web-port", "The port that the web ui server will listen on").Envar("WEB_PORT").Default("8000").Int()
 	wireguardPort   = app.Flag("wireguard-port", "The port that the Wireguard server will listen on").Envar("WIREGUARD_PORT").Default("51820").Int()
-	dnsPort         = app.Flag("dns-port", "The port that the DNS proxy server will listen on").Envar("DNS_PORT").Default("53").Int()
 	storagePath     = app.Flag("storage-directory", "Path to a storage directory").Envar("STORAGE_DIRECTORY").String()
 	privateKey      = app.Flag("wireguard-private-key", "Wireguard private key").Envar("WIREGUARD_PRIVATE_KEY").String()
 	disableMetadata = app.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").Envar("DISABLE_METADATA").Default("false").Bool()
@@ -123,7 +119,6 @@ func Read() *AppConfig {
 	config.DisableMetadata = *disableMetadata
 	config.Storage.Directory = *storagePath
 	config.WireGuard.PrivateKey = *privateKey
-	config.DNS.Port = *dnsPort
 
 	if config.DNS.Enabled == nil {
 		on := true

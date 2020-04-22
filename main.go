@@ -66,7 +66,6 @@ func main() {
 	// DNS Server
 	if *conf.DNS.Enabled {
 		dns, err := dnsproxy.New(dnsproxy.DNSServerOpts{
-			Port:     conf.DNS.Port,
 			Upstream: conf.DNS.Upstream,
 		})
 		if err != nil {

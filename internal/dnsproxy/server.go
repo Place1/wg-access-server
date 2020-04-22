@@ -16,7 +16,6 @@ import (
 )
 
 type DNSServerOpts struct {
-	Port     int
 	Upstream []string
 }
 
@@ -42,7 +41,7 @@ func New(opts DNSServerOpts) (*DNSServer, error) {
 		upstream = append(upstream, "1.1.1.1")
 	}
 
-	addr := fmt.Sprintf("0.0.0.0:%d", opts.Port)
+	addr := "0.0.0.0:53"
 
 	logrus.Infof("starting dns server on %s with upstreams: %s", addr, strings.Join(upstream, ", "))
 

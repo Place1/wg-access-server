@@ -119,9 +119,6 @@ dns:
   # Optional
   upstream:
     - "1.1.1.1"
-  # Port sets the port that the DNS proxy will listen on
-  # Optional, defaults to 53
-  port: 53
 # Auth configures optional authentication backends
 # to controll access to the web ui.
 # Devices will be managed on a per-user basis if any
