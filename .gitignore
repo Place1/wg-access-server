@@ -45,6 +45,7 @@ website/.pnp.js
 
 # testing
 website/coverage
+internal/storage/sqlite.db
 
 # production
 website/build
@@ -61,5 +62,4 @@ website/npm-debug.log*
 website/yarn-debug.log*
 website/yarn-error.log*
 website/yarn.lock
-
 

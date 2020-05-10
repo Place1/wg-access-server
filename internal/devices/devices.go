@@ -3,8 +3,6 @@ package devices
 import (
 	"fmt"
 	"net"
-	"os"
-	"path/filepath"
 	"sync"
 	"time"
 
@@ -79,7 +77,7 @@ func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, p
 }
 
 func (d *DeviceManager) SaveDevice(device *storage.Device) error {
-	return d.storage.Save(key(device.Owner, device.Name), device)
+	return d.storage.Save(device)
 }
 
 func (d *DeviceManager) ListAllDevices() ([]*storage.Device, error) {
@@ -87,29 +85,21 @@ func (d *DeviceManager) ListAllDevices() ([]*storage.Device, error) {
 }
 
 func (d *DeviceManager) ListDevices(user string) ([]*storage.Device, error) {
-	prefix := ""
-	if user != "" {
-		prefix = user + string(os.PathSeparator)
-	}
-	return d.storage.List(prefix)
+	return d.storage.List(user)
 }
 
 func (d *DeviceManager) DeleteDevice(user string, name string) error {
-	device, err := d.storage.Get(key(user, name))
+	device, err := d.storage.Get(user, name)
 	if err != nil {
 		return errors.Wrap(err, "failed to retrieve device")
 	}
-	if err := d.storage.Delete(key(user, name)); err != nil {
+	if err := d.storage.Delete(device); err != nil {
 		return err
 	}
 	if err := wgembed.RemovePeer(d.iface, device.PublicKey); err != nil {
 		return errors.Wrap(err, "device was removed from storage but failed to be removed from the wireguard interface")
 	}
 	return nil
-}
-
-func key(user string, device string) string {
-	return filepath.Join(user, device)
 }
 
 var nextIPLock = sync.Mutex{}

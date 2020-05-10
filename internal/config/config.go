@@ -11,6 +11,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/place1/wg-access-server/internal/network"
+	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz/authconfig"
 	"github.com/vishvananda/netlink"
 
@@ -28,14 +29,8 @@ type AppConfig struct {
 	AdminPassword   string `yaml:"adminPassword"`
 	// Port sets the port that the web UI will listen on.
 	// Defaults to 8000
-	Port    int `yaml:"port"`
-	Storage struct {
-		// Directory that VPN devices (WireGuard peers)
-		// should be saved under.
-		// If this value is empty then an InMemory storage
-		// backend will be used (not recommended).
-		Directory string `yaml:"directory"`
-	} `yaml:"storage"`
+	Port      int                    `yaml:"port"`
+	Storage   storage.StorageWrapper `yaml:"storage"`
 	WireGuard struct {
 		// The network interface name of the WireGuard
 		// network device.
@@ -117,7 +112,11 @@ func Read() *AppConfig {
 	config.WireGuard.Port = *wireguardPort
 	config.VPN.CIDR = "10.44.0.0/24"
 	config.DisableMetadata = *disableMetadata
-	config.Storage.Directory = *storagePath
+	s, err := storage.NewStorageWrapper(*storagePath)
+	if err != nil {
+		logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
+	}
+	config.Storage = *s
 	config.WireGuard.PrivateKey = *privateKey
 
 	if config.DNS.Enabled == nil {
@@ -186,16 +185,6 @@ func Read() *AppConfig {
 			logrus.Fatal(errors.Wrap(err, "failed to generate a server private key"))
 		}
 		config.WireGuard.PrivateKey = key.String()
-	}
-
-	if config.Storage.Directory == "" {
-		logrus.Warn("storage directory not configured - using in-memory storage backend! wireguard devices will be lost when the process exits!")
-	} else {
-		config.Storage.Directory, err = filepath.Abs(config.Storage.Directory)
-		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to get absolute path to storage directory"))
-		}
-		os.MkdirAll(config.Storage.Directory, 0700)
 	}
 
 	if config.AdminPassword != "" {

@@ -21,7 +21,6 @@ import (
 	"github.com/place1/wg-access-server/internal/dnsproxy"
 	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/internal/services"
-	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz"
 	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/sirupsen/logrus"
@@ -74,17 +73,13 @@ func main() {
 		defer dns.Close()
 	}
 
-	// Storage
-	var storageDriver storage.Storage
-	if conf.Storage.Directory != "" {
-		logrus.Infof("storing data in %s", conf.Storage.Directory)
-		storageDriver = storage.NewDiskStorage(conf.Storage.Directory)
-	} else {
-		storageDriver = storage.NewMemoryStorage()
+	if err := conf.Storage.Open(); err != nil {
+		logrus.Fatal(errors.Wrap(err, "Connecting to db"))
 	}
+	defer conf.Storage.Close()
 
 	// Services
-	deviceManager := devices.New(wg.Name(), storageDriver, conf.VPN.CIDR)
+	deviceManager := devices.New(wg.Name(), conf.Storage, conf.VPN.CIDR)
 	if err := deviceManager.StartSync(conf.DisableMetadata); err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}
