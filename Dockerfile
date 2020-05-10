@@ -46,7 +46,7 @@ RUN apk add curl
 
 # Environment variable
 ENV CONFIG="/config.yaml"
-ENV STORAGE_DIRECTORY="/data"
+ENV STORAGE="file:///data"
 
 # Copy the final build for the frontend and backend
 COPY --from=server /code/server /server

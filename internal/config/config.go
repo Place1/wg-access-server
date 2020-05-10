@@ -28,14 +28,12 @@ type AppConfig struct {
 	AdminPassword   string `yaml:"adminPassword"`
 	// Port sets the port that the web UI will listen on.
 	// Defaults to 8000
-	Port    int `yaml:"port"`
-	Storage struct {
-		// Directory that VPN devices (WireGuard peers)
-		// should be saved under.
-		// If this value is empty then an InMemory storage
-		// backend will be used (not recommended).
-		Directory string `yaml:"directory"`
-	} `yaml:"storage"`
+	Port int `yaml:"port"`
+	// The storage backend where device configuration will
+	// be persisted.
+	// Supports memory:// file:// postgres:// mysql:// sqlite3://
+	// Defaults to memory://
+	Storage   string `yaml:"storage"`
 	WireGuard struct {
 		// The network interface name of the WireGuard
 		// network device.
@@ -77,9 +75,6 @@ type AppConfig struct {
 		// the VPN DNS proxy feature.
 		// DNS Proxying is enabled by default.
 		Enabled *bool `yaml:"enabled"`
-		// Port sets the port for the DNS proxy server.
-		// Defaults to 53
-		Port int `yaml:"port"`
 		// Upstream configures the addresses of upstream
 		// DNS servers to which client DNS requests will be sent to.
 		// Defaults the host's upstream DNS servers (via resolveconf)
@@ -102,8 +97,7 @@ var (
 	logLevel        = app.Flag("log-level", "Log level (debug, info, error)").Envar("LOG_LEVEL").Default("info").String()
 	webPort         = app.Flag("web-port", "The port that the web ui server will listen on").Envar("WEB_PORT").Default("8000").Int()
 	wireguardPort   = app.Flag("wireguard-port", "The port that the Wireguard server will listen on").Envar("WIREGUARD_PORT").Default("51820").Int()
-	dnsPort         = app.Flag("dns-port", "The port that the DNS proxy server will listen on").Envar("DNS_PORT").Default("53").Int()
-	storagePath     = app.Flag("storage-directory", "Path to a storage directory").Envar("STORAGE_DIRECTORY").String()
+	storage         = app.Flag("storage", "The storage backend connection string").Envar("STORAGE").Default("memory://").String()
 	privateKey      = app.Flag("wireguard-private-key", "Wireguard private key").Envar("WIREGUARD_PRIVATE_KEY").String()
 	disableMetadata = app.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").Envar("DISABLE_METADATA").Default("false").Bool()
 	adminUsername   = app.Flag("admin-username", "Admin username (defaults to admin)").Envar("ADMIN_USERNAME").String()
@@ -114,6 +108,8 @@ var (
 func Read() *AppConfig {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
+	// here we're filling out the config struct
+	// with values from our flags.
 	config := AppConfig{}
 	config.LogLevel = *logLevel
 	config.Port = *webPort
@@ -121,9 +117,8 @@ func Read() *AppConfig {
 	config.WireGuard.Port = *wireguardPort
 	config.VPN.CIDR = "10.44.0.0/24"
 	config.DisableMetadata = *disableMetadata
-	config.Storage.Directory = *storagePath
 	config.WireGuard.PrivateKey = *privateKey
-	config.DNS.Port = *dnsPort
+	config.Storage = *storage
 
 	if config.DNS.Enabled == nil {
 		on := true
@@ -191,16 +186,6 @@ func Read() *AppConfig {
 			logrus.Fatal(errors.Wrap(err, "failed to generate a server private key"))
 		}
 		config.WireGuard.PrivateKey = key.String()
-	}
-
-	if config.Storage.Directory == "" {
-		logrus.Warn("storage directory not configured - using in-memory storage backend! wireguard devices will be lost when the process exits!")
-	} else {
-		config.Storage.Directory, err = filepath.Abs(config.Storage.Directory)
-		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to get absolute path to storage directory"))
-		}
-		os.MkdirAll(config.Storage.Directory, 0700)
 	}
 
 	if config.AdminPassword != "" {

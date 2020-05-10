@@ -13,20 +13,29 @@ import (
 )
 
 // implements Storage interface
-type DiskStorage struct {
+type FileStorage struct {
 	directory string
 }
 
-func NewDiskStorage(directory string) *DiskStorage {
-	if _, err := os.Stat(directory); os.IsNotExist(err) {
-		if err := os.MkdirAll(directory, 0600); err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to create storage directory"))
-		}
-	}
-	return &DiskStorage{directory}
+func NewFileStorage(directory string) *FileStorage {
+	return &FileStorage{directory}
 }
 
-func (s *DiskStorage) Save(key string, device *Device) error {
+func (s *FileStorage) Open() error {
+	if _, err := os.Stat(s.directory); os.IsNotExist(err) {
+		if err := os.MkdirAll(s.directory, 0600); err != nil {
+			return errors.Wrap(err, "failed to create storage directory")
+		}
+	}
+	return nil
+}
+
+func (s *FileStorage) Close() error {
+	return nil
+}
+
+func (s *FileStorage) Save(device *Device) error {
+	key := key(device)
 	path := s.deviceFilePath(key)
 	logrus.Debugf("saving device %s", path)
 	bytes, err := json.Marshal(device)
@@ -40,7 +49,13 @@ func (s *DiskStorage) Save(key string, device *Device) error {
 	return nil
 }
 
-func (s *DiskStorage) List(prefix string) ([]*Device, error) {
+func (s *FileStorage) List(username string) ([]*Device, error) {
+	prefix := func() string {
+		if username != "" {
+			return keyStr(username, "")
+		}
+		return ""
+	}()
 	files := []string{}
 	err := filepath.Walk(s.directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -80,7 +95,8 @@ func (s *DiskStorage) List(prefix string) ([]*Device, error) {
 	return devices, nil
 }
 
-func (s *DiskStorage) Get(key string) (*Device, error) {
+func (s *FileStorage) Get(owner string, name string) (*Device, error) {
+	key := keyStr(owner, name)
 	path := s.deviceFilePath(key)
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -93,14 +109,14 @@ func (s *DiskStorage) Get(key string) (*Device, error) {
 	return device, nil
 }
 
-func (s *DiskStorage) Delete(key string) error {
-	if err := os.Remove(s.deviceFilePath(key)); err != nil {
+func (s *FileStorage) Delete(device *Device) error {
+	if err := os.Remove(s.deviceFilePath(key(device))); err != nil {
 		return errors.Wrap(err, "failed to delete device file")
 	}
 	return nil
 }
 
-func (s *DiskStorage) deviceFilePath(key string) string {
+func (s *FileStorage) deviceFilePath(key string) string {
 	// TODO: protect against path traversal
 	// and make sure names are reasonably sane
 	return filepath.Join(s.directory, fmt.Sprintf("%s.json", key))

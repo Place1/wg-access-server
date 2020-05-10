@@ -1,13 +1,14 @@
 package main
 
 import (
-	"crypto/rand"
 	"fmt"
 	"math"
 	"net/http"
 	"net/url"
 	"os"
 	"runtime/debug"
+
+	"github.com/place1/wg-access-server/internal/storage"
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/place1/wg-access-server/proto/proto"
@@ -21,7 +22,6 @@ import (
 	"github.com/place1/wg-access-server/internal/dnsproxy"
 	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/internal/services"
-	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz"
 	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/sirupsen/logrus"
@@ -66,7 +66,6 @@ func main() {
 	// DNS Server
 	if *conf.DNS.Enabled {
 		dns, err := dnsproxy.New(dnsproxy.DNSServerOpts{
-			Port:     conf.DNS.Port,
 			Upstream: conf.DNS.Upstream,
 		})
 		if err != nil {
@@ -76,16 +75,17 @@ func main() {
 	}
 
 	// Storage
-	var storageDriver storage.Storage
-	if conf.Storage.Directory != "" {
-		logrus.Infof("storing data in %s", conf.Storage.Directory)
-		storageDriver = storage.NewDiskStorage(conf.Storage.Directory)
-	} else {
-		storageDriver = storage.NewMemoryStorage()
+	storageBackend, err := storage.NewStorage(conf.Storage)
+	if err != nil {
+		logrus.Fatal(errors.Wrap(err, "failed to create storage backend"))
 	}
+	if err := storageBackend.Open(); err != nil {
+		logrus.Fatal(errors.Wrap(err, "failed to connect/open storage backend"))
+	}
+	defer storageBackend.Close()
 
 	// Services
-	deviceManager := devices.New(wg.Name(), storageDriver, conf.VPN.CIDR)
+	deviceManager := devices.New(wg.Name(), storageBackend, conf.VPN.CIDR)
 	if err := deviceManager.StartSync(conf.DisableMetadata); err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}
@@ -172,13 +172,4 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		logrus.Fatal(errors.Wrap(err, "unable to start http server"))
 	}
-}
-
-func randomBytes(size int) []byte {
-	blk := make([]byte, size)
-	_, err := rand.Read(blk)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	return blk
 }

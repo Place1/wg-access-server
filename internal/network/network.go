@@ -152,10 +152,13 @@ func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, rules
 	}
 
 	// Internet
-	if rules.AllowInternet && gatewayIface != "" {
-		// TODO: do we actually need to specify a gateway interface?
-		// I suppose i neet to refresh my knowledge of nat.
-		// if you're reading this please open a Github issue and help teach me nat and iptables :P
+	if !rules.AllowInternet {
+		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-j", "REJECT"); err != nil {
+			return errors.Wrap(err, "failed to set ip tables rule")
+		}
+	}
+
+	if gatewayIface != "" {
 		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-i", gatewayIface, "-o", wgIface, "-j", "ACCEPT"); err != nil {
 			return errors.Wrap(err, "failed to set ip tables rule")
 		}
@@ -163,10 +166,6 @@ func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, rules
 			return errors.Wrap(err, "failed to set ip tables rule")
 		}
 		if err := ipt.AppendUnique("nat", "WG_ACCESS_SERVER_POSTROUTING", "-s", cidr, "-o", gatewayIface, "-j", "MASQUERADE"); err != nil {
-			return errors.Wrap(err, "failed to set ip tables rule")
-		}
-	} else {
-		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-j", "REJECT"); err != nil {
 			return errors.Wrap(err, "failed to set ip tables rule")
 		}
 	}

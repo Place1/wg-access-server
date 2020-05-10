@@ -41,7 +41,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		IsAdmin:         user.Claims.Contains("admin"),
 		AllowedIps:      allowedIPs(s.Config),
 		DnsEnabled:      *s.Config.DNS.Enabled,
-		DnsAddress:      fmt.Sprintf("%s:%d", network.ServerVPNIP(s.Config.VPN.CIDR).IP.String(), s.Config.DNS.Port),
+		DnsAddress:      network.ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
 	}, nil
 }
 
@@ -51,6 +51,10 @@ func allowedIPs(config *config.AppConfig) string {
 	}
 
 	allowed := []string{}
+
+	if *config.DNS.Enabled {
+		allowed = append(allowed, fmt.Sprintf("%s/32", network.ServerVPNIP(config.VPN.CIDR).IP.String()))
+	}
 
 	if config.VPN.Rules.AllowVPNLAN {
 		allowed = append(allowed, config.VPN.CIDR)

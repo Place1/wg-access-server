@@ -6,7 +6,7 @@
 |-----------------------|-------------|
 | CONFIG                | Set the config file path |
 | WIREGUARD_PRIVATE_KEY | Set the wireguard private key |
-| STORAGE_DIRECTORY     | Set the directory where device config will be persisted |
+| STORAGE               | Set the directory where device config will be persisted |
 | ADMIN_USERNAME        | Set the username (subject) for the admin account |
 | ADMIN_PASSWORD        | Set the admin account's password. The admin account will be a basic-auth user. Leave blank if your admin username authenticates via a configured authentication backend. |
 | UPSTREAM_DNS          | Set the upstream DNS server to proxy client DNS requests to. If empty, resolv.conf will be respected. |
@@ -18,7 +18,7 @@
 All environment variables can be configured via a
 CLI flag as well.
 
-For example you can configure `STORAGE_DIRECTORY` by passing `--storage-directory="<value>"`.
+For example you can configure `STORAGE` by passing `--storage="<value>"`.
 
 ## Config File (config.yaml)
 
@@ -41,15 +41,9 @@ disableMetadata: false
 # The port that the web ui server (http) will listen on.
 # Optional, defaults to 8000
 port: 8000
-storage:
-  # Directory that VPN devices (WireGuard peers)
-  # should be saved under.
-  # If this value is empty then an InMemory storage
-  # backend will be used (not recommended).
-  # Optional
-  # Defaults to in-memory
-  # The docker container sets this value to /data automatically
-  directory: /data
+# Directory that VPN devices (WireGuard peers)
+# What type of storage do you want? inmemory (default), file:///some/directory, or postgresql, mysql, sqlite3
+storage: "memory://"
 wireguard:
   # The network interface name for wireguard
   # Optional, defaults to wg0
@@ -119,9 +113,6 @@ dns:
   # Optional
   upstream:
     - "1.1.1.1"
-  # Port sets the port that the DNS proxy will listen on
-  # Optional, defaults to 53
-  port: 53
 # Auth configures optional authentication backends
 # to controll access to the web ui.
 # Devices will be managed on a per-user basis if any
