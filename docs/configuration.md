@@ -136,6 +136,9 @@ auth:
     clientSecret: ""
     scopes: null  # list of scopes, defaults to ["openid"]
     redirectURL: "" # full url you want the oidc to redirect to, example: https://vpn-admin.example.com/finish-signin
+    # See https://github.com/Knetic/govaluate/blob/9aa49832a739dcd78a5542ff189fb82c3e423116/MANUAL.md for how to write rules
+    userClaimsRules:
+      admin: "'WireguardAdmins' in group_membership"
     # Optionally restrict login to users with an allowed email domain
     # if empty or omitted, any email domain will be allowed.
     emailDomains:
