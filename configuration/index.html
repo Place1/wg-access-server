@@ -575,6 +575,9 @@ CLI flag as well.</p>
     <span class="nt">clientSecret</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
     <span class="nt">scopes</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>  <span class="c1"># list of scopes, defaults to [&quot;openid&quot;]</span>
     <span class="nt">redirectURL</span><span class="p">:</span> <span class="s">&quot;&quot;</span> <span class="c1"># full url you want the oidc to redirect to, example: https://vpn-admin.example.com/finish-signin</span>
+    <span class="c1"># See https://github.com/Knetic/govaluate/blob/9aa49832a739dcd78a5542ff189fb82c3e423116/MANUAL.md for how to write rules</span>
+    <span class="nt">userClaimsRules</span><span class="p">:</span>
+      <span class="nt">admin</span><span class="p">:</span> <span class="s">&quot;&#39;WireguardAdmins&#39;</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">group_membership&quot;</span>
     <span class="c1"># Optionally restrict login to users with an allowed email domain</span>
     <span class="c1"># if empty or omitted, any email domain will be allowed.</span>
     <span class="nt">emailDomains</span><span class="p">:</span>
