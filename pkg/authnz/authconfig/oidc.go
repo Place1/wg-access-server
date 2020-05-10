@@ -20,39 +20,15 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type ruleExpression struct {
-	*govaluate.EvaluableExpression
-}
-
-// MarshalYAML will encode a RuleExpression/govalidate into yaml string
-func (r ruleExpression) MarshalYAML() (interface{}, error) {
-	return yaml.Marshal(r.String())
-}
-
-// UnmarshalYAML will decode a RuleExpression/govalidate into yaml string
-func (r *ruleExpression) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var ruleStr string
-	if err := unmarshal(&ruleStr); err != nil {
-		return err
-	}
-	parsedRule, err := govaluate.NewEvaluableExpression(ruleStr)
-	if err != nil {
-		return errors.Wrap(err, "Unable to process oidc rule")
-	}
-	ruleExpression := &ruleExpression{parsedRule}
-	*r = *ruleExpression
-	return nil
-}
-
 type OIDCConfig struct {
-	Name            string                    `yaml:"name"`
-	Issuer          string                    `yaml:"issuer"`
-	ClientID        string                    `yaml:"clientID"`
-	ClientSecret    string                    `yaml:"clientSecret"`
-	Scopes          []string                  `yaml:"scopes"`
-	RedirectURL     string                    `yaml:"redirectURL"`
-	EmailDomains    []string                  `yaml:"emailDomains"`
-	UserClaimsRules map[string]ruleExpression `yaml:"userClaimsRules"`
+	Name         string                    `yaml:"name"`
+	Issuer       string                    `yaml:"issuer"`
+	ClientID     string                    `yaml:"clientID"`
+	ClientSecret string                    `yaml:"clientSecret"`
+	Scopes       []string                  `yaml:"scopes"`
+	RedirectURL  string                    `yaml:"redirectURL"`
+	EmailDomains []string                  `yaml:"emailDomains"`
+	ClaimMapping map[string]ruleExpression `yaml:"claimMapping"`
 }
 
 func (c *OIDCConfig) Provider() *authruntime.Provider {
@@ -134,7 +110,7 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 		info.Claims(&oidcProfileData)
 
 		claims := &authsession.Claims{}
-		for claimName, rule := range c.UserClaimsRules {
+		for claimName, rule := range c.ClaimMapping {
 			result, err := rule.Evaluate(oidcProfileData)
 
 			if err != nil {
@@ -176,4 +152,28 @@ func verifyEmailDomain(allowedDomains []string, email string) bool {
 	}
 
 	return false
+}
+
+type ruleExpression struct {
+	*govaluate.EvaluableExpression
+}
+
+// MarshalYAML will encode a RuleExpression/govalidate into yaml string
+func (r ruleExpression) MarshalYAML() (interface{}, error) {
+	return yaml.Marshal(r.String())
+}
+
+// UnmarshalYAML will decode a RuleExpression/govalidate into yaml string
+func (r *ruleExpression) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var ruleStr string
+	if err := unmarshal(&ruleStr); err != nil {
+		return err
+	}
+	parsedRule, err := govaluate.NewEvaluableExpression(ruleStr)
+	if err != nil {
+		return errors.Wrap(err, "Unable to process oidc rule")
+	}
+	ruleExpression := &ruleExpression{parsedRule}
+	*r = *ruleExpression
+	return nil
 }
