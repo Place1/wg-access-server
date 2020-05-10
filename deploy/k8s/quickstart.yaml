@@ -5,11 +5,11 @@ kind: ConfigMap
 metadata:
   name: quickstart-wg-access-server
   labels:
-    helm.sh/chart: wg-access-server-0.2.0-rc6
+    helm.sh/chart: wg-access-server-0.2.0-rc7
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.2.0-rc6"
+    app.kubernetes.io/version: "0.2.0-rc7"
     app.kubernetes.io/managed-by: Helm
 data:
   config.yaml: |-
@@ -20,11 +20,11 @@ kind: Service
 metadata:
   name: quickstart-wg-access-server-web
   labels:
-    helm.sh/chart: wg-access-server-0.2.0-rc6
+    helm.sh/chart: wg-access-server-0.2.0-rc7
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.2.0-rc6"
+    app.kubernetes.io/version: "0.2.0-rc7"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -44,11 +44,11 @@ kind: Service
 metadata:
   name: quickstart-wg-access-server-wireguard
   labels:
-    helm.sh/chart: wg-access-server-0.2.0-rc6
+    helm.sh/chart: wg-access-server-0.2.0-rc7
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.2.0-rc6"
+    app.kubernetes.io/version: "0.2.0-rc7"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -68,11 +68,11 @@ kind: Deployment
 metadata:
   name: quickstart-wg-access-server
   labels:
-    helm.sh/chart: wg-access-server-0.2.0-rc6
+    helm.sh/chart: wg-access-server-0.2.0-rc7
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "0.2.0-rc6"
+    app.kubernetes.io/version: "0.2.0-rc7"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -86,7 +86,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap: 87dcf08b85b02c4bb043492fecda0836d4bac3198462b480a44dd3409ff46143
+        checksum/configmap: e4c38555219dd2ff12c7235c7792533c4ed558d16f0a94165805afe33e9c4d61
       labels:
         app: wg-access-server
         app.kubernetes.io/name: wg-access-server
@@ -97,7 +97,7 @@ spec:
           securityContext:
             capabilities:
               add: ['NET_ADMIN']
-          image: "place1/wg-access-server:0.2.0-rc6"
+          image: "place1/wg-access-server:0.2.0-rc7"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
