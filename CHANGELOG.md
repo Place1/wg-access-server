@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - New SQL storage backend supporting SQLite, MySQL and PostgreSQL ([@halkeye](https://github.com/Place1/wg-access-server/pull/37))
+- Support for mapping claims from an OIDC auth backend to wg-access-server claims using a simple rule
+  syntax ([@halkeye](https://github.com/Place1/wg-access-server/pull/39)). You can use this feature
+  to decide which user has the 'admin' claim based on your own OIDC claims.
 - The VPN DNS proxy feature can now be disabled using config: `dns.enabled = false`
   - When disabled the `DNS` wireguard config value will be omitted from client wg config files
   - When disabled the DNSasd proxy will not be started server-side (i.e. port 53 won't be used)
