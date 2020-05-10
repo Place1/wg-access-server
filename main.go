@@ -1,13 +1,14 @@
 package main
 
 import (
-	"crypto/rand"
 	"fmt"
 	"math"
 	"net/http"
 	"net/url"
 	"os"
 	"runtime/debug"
+
+	"github.com/place1/wg-access-server/internal/storage"
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/place1/wg-access-server/proto/proto"
@@ -73,13 +74,18 @@ func main() {
 		defer dns.Close()
 	}
 
-	if err := conf.Storage.Open(); err != nil {
-		logrus.Fatal(errors.Wrap(err, "Connecting to db"))
+	// Storage
+	storageBackend, err := storage.NewStorage(conf.Storage)
+	if err != nil {
+		logrus.Fatal(errors.Wrap(err, "failed to create storage backend"))
 	}
-	defer conf.Storage.Close()
+	if err := storageBackend.Open(); err != nil {
+		logrus.Fatal(errors.Wrap(err, "failed to connect/open storage backend"))
+	}
+	defer storageBackend.Close()
 
 	// Services
-	deviceManager := devices.New(wg.Name(), conf.Storage, conf.VPN.CIDR)
+	deviceManager := devices.New(wg.Name(), storageBackend, conf.VPN.CIDR)
 	if err := deviceManager.StartSync(conf.DisableMetadata); err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}
@@ -166,13 +172,4 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		logrus.Fatal(errors.Wrap(err, "unable to start http server"))
 	}
-}
-
-func randomBytes(size int) []byte {
-	blk := make([]byte, size)
-	_, err := rand.Read(blk)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	return blk
 }

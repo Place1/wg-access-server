@@ -1,7 +1,12 @@
 package storage
 
 import (
+	"fmt"
+	"net/url"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 type Storage interface {
@@ -34,4 +39,29 @@ type Device struct {
 	ReceiveBytes      int64      `json:"receivedBytes"`
 	TransmitBytes     int64      `json:"transmitBytes"`
 	Endpoint          string     `json:"endpoint"`
+}
+
+func NewStorage(uri string) (Storage, error) {
+	u, err := url.Parse(uri)
+	if err != nil {
+		return nil, errors.Wrap(err, "error parsing storage uri")
+	}
+
+	switch u.Scheme {
+	case "memory":
+		logrus.Warn("storing data in memory - devices will not persist between restarts")
+		return NewMemoryStorage(), nil
+	case "file":
+		logrus.Infof("storing data in %s", u.Path)
+		return NewDiskStorage(u.Path), nil
+	case "postgres":
+		fallthrough
+	case "mysql":
+		fallthrough
+	case "sqlite3":
+		logrus.Infof("storing data in SQL backend %s", u.Scheme)
+		return NewSqlStorage(u), nil
+	}
+
+	return nil, fmt.Errorf("unknown storage backend %s", u.Scheme)
 }

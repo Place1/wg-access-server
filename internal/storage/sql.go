@@ -2,6 +2,8 @@ package storage
 
 import (
 	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -18,12 +20,60 @@ type SQLStorage struct {
 	connectionString string
 }
 
-func NewSqlStorage(sqlType string, connectionString string) *SQLStorage {
+func NewSqlStorage(u *url.URL) *SQLStorage {
+	connectionString := ""
+
+	switch u.Scheme {
+	case "postgres":
+		connectionString = pgconn(u)
+	case "mysql":
+		connectionString = mysqlconn(u)
+	case "sqlite3":
+		connectionString = sqlite3conn(u)
+	default:
+		// unreachable because our storage backend factory
+		// function (contracts.go) already checks the url scheme.
+		logrus.Panicf("unknown sql storage backend %s", u.Scheme)
+	}
+
 	return &SQLStorage{
 		db:               nil,
-		sqlType:          sqlType,
+		sqlType:          u.Scheme,
 		connectionString: connectionString,
 	}
+}
+
+func pgconn(u *url.URL) string {
+	password, _ := u.User.Password()
+	decodedQuery, err := url.QueryUnescape(u.RawQuery)
+	if err != nil {
+		logrus.Warnf("failed to unescape connection string query parameters - they will be ignored")
+		decodedQuery = ""
+	}
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s %s",
+		u.Hostname(),
+		u.Port(),
+		u.User.Username(),
+		password,
+		strings.TrimLeft(u.Path, "/"),
+		decodedQuery,
+	)
+}
+
+func mysqlconn(u *url.URL) string {
+	password, _ := u.User.Password()
+	return fmt.Sprintf(
+		"%s:%s@%s/%s?%s",
+		u.User.Username(),
+		password,
+		u.Host,
+		strings.TrimLeft(u.Path, "/"),
+		u.RawQuery,
+	)
+}
+
+func sqlite3conn(u *url.URL) string {
+	return u.Path
 }
 
 func (s *SQLStorage) Open() error {

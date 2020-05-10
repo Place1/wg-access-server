@@ -11,7 +11,6 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/place1/wg-access-server/internal/network"
-	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz/authconfig"
 	"github.com/vishvananda/netlink"
 
@@ -29,8 +28,12 @@ type AppConfig struct {
 	AdminPassword   string `yaml:"adminPassword"`
 	// Port sets the port that the web UI will listen on.
 	// Defaults to 8000
-	Port      int                    `yaml:"port"`
-	Storage   storage.StorageWrapper `yaml:"storage"`
+	Port int `yaml:"port"`
+	// The storage backend where device configuration will
+	// be persisted.
+	// Supports memory:// file:// postgres:// mysql:// sqlite3://
+	// Defaults to memory://
+	Storage   string `yaml:"storage"`
 	WireGuard struct {
 		// The network interface name of the WireGuard
 		// network device.
@@ -94,7 +97,7 @@ var (
 	logLevel        = app.Flag("log-level", "Log level (debug, info, error)").Envar("LOG_LEVEL").Default("info").String()
 	webPort         = app.Flag("web-port", "The port that the web ui server will listen on").Envar("WEB_PORT").Default("8000").Int()
 	wireguardPort   = app.Flag("wireguard-port", "The port that the Wireguard server will listen on").Envar("WIREGUARD_PORT").Default("51820").Int()
-	storagePath     = app.Flag("storage-directory", "Path to a storage directory").Envar("STORAGE_DIRECTORY").String()
+	storage         = app.Flag("storage", "The storage backend connection string").Envar("STORAGE").Default("memory://").String()
 	privateKey      = app.Flag("wireguard-private-key", "Wireguard private key").Envar("WIREGUARD_PRIVATE_KEY").String()
 	disableMetadata = app.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").Envar("DISABLE_METADATA").Default("false").Bool()
 	adminUsername   = app.Flag("admin-username", "Admin username (defaults to admin)").Envar("ADMIN_USERNAME").String()
@@ -105,6 +108,8 @@ var (
 func Read() *AppConfig {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
+	// here we're filling out the config struct
+	// with values from our flags.
 	config := AppConfig{}
 	config.LogLevel = *logLevel
 	config.Port = *webPort
@@ -112,12 +117,8 @@ func Read() *AppConfig {
 	config.WireGuard.Port = *wireguardPort
 	config.VPN.CIDR = "10.44.0.0/24"
 	config.DisableMetadata = *disableMetadata
-	s, err := storage.NewStorageWrapper(*storagePath)
-	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
-	}
-	config.Storage = *s
 	config.WireGuard.PrivateKey = *privateKey
+	config.Storage = *storage
 
 	if config.DNS.Enabled == nil {
 		on := true
