@@ -53,7 +53,7 @@ func NewStorage(uri string) (Storage, error) {
 		return NewMemoryStorage(), nil
 	case "file":
 		logrus.Infof("storing data in %s", u.Path)
-		return NewDiskStorage(u.Path), nil
+		return NewFileStorage(u.Path), nil
 	case "postgres":
 		fallthrough
 	case "mysql":

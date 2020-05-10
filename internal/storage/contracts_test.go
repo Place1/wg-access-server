@@ -21,7 +21,7 @@ func TestFileStorage(t *testing.T) {
 	s, err := NewStorage("file:///some/path")
 	require.NoError(err)
 
-	require.IsType(&DiskStorage{}, s)
+	require.IsType(&FileStorage{}, s)
 }
 
 func TestPostgresqlStorage(t *testing.T) {
