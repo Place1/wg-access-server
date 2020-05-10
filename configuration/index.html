@@ -433,7 +433,7 @@
 <td>Set the wireguard private key</td>
 </tr>
 <tr>
-<td>STORAGE_DIRECTORY</td>
+<td>STORAGE</td>
 <td>Set the directory where device config will be persisted</td>
 </tr>
 <tr>
@@ -461,7 +461,7 @@
 <h2 id="cli-flags">CLI Flags<a class="headerlink" href="#cli-flags" title="Permanent link"> ¶</a></h2>
 <p>All environment variables can be configured via a
 CLI flag as well.</p>
-<p>For example you can configure <code class="codehilite"><span class="err">STORAGE_DIRECTORY</span></code> by passing <code class="codehilite"><span class="err">--storage-directory=&quot;&lt;value&gt;&quot;</span></code>.</p>
+<p>For example you can configure <code class="codehilite"><span class="err">STORAGE</span></code> by passing <code class="codehilite"><span class="err">--storage=&quot;&lt;value&gt;&quot;</span></code>.</p>
 <h2 id="config-file-configyaml">Config File (config.yaml)<a class="headerlink" href="#config-file-configyaml" title="Permanent link"> ¶</a></h2>
 <p>Here's an annotated config file example:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># The application&#39;s log level.</span>
@@ -480,15 +480,9 @@ CLI flag as well.</p>
 <span class="c1"># The port that the web ui server (http) will listen on.</span>
 <span class="c1"># Optional, defaults to 8000</span>
 <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8000</span>
-<span class="nt">storage</span><span class="p">:</span>
-  <span class="c1"># Directory that VPN devices (WireGuard peers)</span>
-  <span class="c1"># should be saved under.</span>
-  <span class="c1"># If this value is empty then an InMemory storage</span>
-  <span class="c1"># backend will be used (not recommended).</span>
-  <span class="c1"># Optional</span>
-  <span class="c1"># Defaults to in-memory</span>
-  <span class="c1"># The docker container sets this value to /data automatically</span>
-  <span class="nt">directory</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data</span>
+<span class="c1"># Directory that VPN devices (WireGuard peers)</span>
+<span class="c1"># What type of storage do you want? inmemory (default), file:///some/directory, or postgresql, mysql, sqlite3</span>
+<span class="nt">storage</span><span class="p">:</span> <span class="s">&quot;memory://&quot;</span>
 <span class="nt">wireguard</span><span class="p">:</span>
   <span class="c1"># The network interface name for wireguard</span>
   <span class="c1"># Optional, defaults to wg0</span>
