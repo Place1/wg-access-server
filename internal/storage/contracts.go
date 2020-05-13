@@ -19,11 +19,11 @@ type Storage interface {
 }
 
 type Device struct {
-	Owner         string    `json:"owner" gorm:"type:varchar(100);unique_index:key"`
+	Owner         string    `json:"owner" gorm:"type:varchar(100);unique_index:key;primary_key"`
 	OwnerName     string    `json:"ownerName"`
 	OwnerEmail    string    `json:"ownerEmail"`
 	OwnerProvider string    `json:"ownerProvider"`
-	Name          string    `json:"name" gorm:"type:varchar(100);unique_index:key"`
+	Name          string    `json:"name" gorm:"type:varchar(100);unique_index:key;primary_key"`
 	PublicKey     string    `json:"publicKey"`
 	Address       string    `json:"address"`
 	CreatedAt     time.Time `json:"createdAt" gorm:"column:created_at"`
