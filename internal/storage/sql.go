@@ -13,6 +13,27 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// GormLogger is a custom logger for Gorm, making it use logrus.
+type GormLogger struct{}
+
+// Print handles log events from Gorm for the custom logger.
+func (*GormLogger) Print(v ...interface{}) {
+	switch v[0] {
+	case "sql":
+		logrus.WithFields(
+			logrus.Fields{
+				"module":  "gorm",
+				"type":    "sql",
+				"rows":    v[5],
+				"src_ref": v[1],
+				"values":  v[4],
+			},
+		).Debug(v[3])
+	case "logrus":
+		logrus.WithFields(logrus.Fields{"module": "gorm", "type": "logrus"}).Print(v[2])
+	}
+}
+
 // implements Storage interface
 type SQLStorage struct {
 	db               *gorm.DB
@@ -82,7 +103,8 @@ func (s *SQLStorage) Open() error {
 		return errors.Wrap(err, fmt.Sprintf("failed to connect to %s", s.sqlType))
 	}
 	s.db = db
-	// s.db.LogMode(true)
+	db.SetLogger(&GormLogger{})
+	db.LogMode(true)
 
 	// Migrate the schema
 	s.db.AutoMigrate(&Device{})
