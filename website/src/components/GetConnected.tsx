@@ -182,7 +182,10 @@ export class GetConnected extends React.Component<Props> {
           <Typography variant="body1" component="pre" style={{maxWidth: '100%', overflow: 'auto'}}>
             {this.props.configFile}
           </Typography>
-          <Button onClick={() => setClipboard(this.props.configFile)}>
+          <Button
+            color="primary"
+            onClick={() => setClipboard(this.props.configFile)}
+          >
             Copy To Clipboard
           </Button>
           </Grid>

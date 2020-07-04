@@ -59,7 +59,7 @@ func main() {
 
 	logrus.Infof("wireguard VPN network is %s", conf.VPN.CIDR)
 
-	if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR, *conf.VPN.Rules); err != nil {
+	if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR, conf.VPN.AllowedIPs); err != nil {
 		logrus.Fatal(err)
 	}
 

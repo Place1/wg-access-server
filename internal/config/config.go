@@ -60,15 +60,19 @@ type AppConfig struct {
 		// CIDR configures a network address space
 		// that client (WireGuard peers) will be allocated
 		// an IP address from
+		// defaults to 10.44.0.0/24
 		CIDR string `yaml:"cidr"`
 		// GatewayInterface will be used in iptable forwarding
 		// rules that send VPN traffic from clients to this interface
 		// Most use-cases will want this interface to have access
 		// to the outside internet
 		GatewayInterface string `yaml:"gatewayInterface"`
-		// Rules allows you to configure what level
-		// of network isolation should be enfoced.
-		Rules *network.NetworkRules `yaml:"rules"`
+		// The "AllowedIPs" for VPN clients.
+		// This value will be included in client config
+		// files and in server-side iptable rules
+		// to enforce network access.
+		// defaults to ["0.0.0.0/1", "128.0.0.0/1"]
+		AllowedIPs []string `yaml:"AllowedIPs"`
 	}
 	DNS struct {
 		// Enabled allows you to turn on/off
@@ -137,11 +141,12 @@ func Read() *AppConfig {
 		config.DNS.Upstream = []string{*upstreamDNS}
 	}
 
-	if config.VPN.Rules == nil {
-		config.VPN.Rules = &network.NetworkRules{
-			AllowVPNLAN:    true,
-			AllowServerLAN: true,
-			AllowInternet:  true,
+	if config.VPN.AllowedIPs == nil || len(config.VPN.AllowedIPs) == 0 {
+		config.VPN.AllowedIPs = []string{
+			"0.0.0.0/1",
+			"128.0.0.0/1",
+			config.VPN.CIDR,
+			fmt.Sprintf("%s/32", network.ServerVPNIP(config.VPN.CIDR).IP.String()),
 		}
 	}
 

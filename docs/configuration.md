@@ -75,33 +75,16 @@ vpn:
   # network interface e.g. eth0
   # Optional
   gatewayInterface: ""
-  # Rules allows you to configure what level
-  # of network isolation should be enfoced.
-  rules:
-    # AllowVPNLAN enables routing between VPN clients
-    # i.e. allows the VPN to work like a LAN.
-    # true by default
-    # Optional
-    allowVPNLAN: true
-    # AllowServerLAN enables routing to private IPv4
-    # address ranges. Enabling this will allow VPN clients
-    # to access networks on the server's LAN.
-    # true by default
-    # Optional
-    allowServerLAN: true
-    # AllowInternet enables routing of all traffic
-    # to the public internet.
-    # true by default
-    # Optional
-    allowInternet: true
-    # AllowedNetworks allows you to whitelist a partcular
-    # network CIDR. This is useful if you want to block
-    # access to the Server's LAN but allow access to a few
-    # specific IPs or a small range.
-    # e.g. "192.0.2.0/24" or "192.0.2.10/32".
-    # no networks are whitelisted by default (empty array)
-    # Optional
-    allowedNetworks: []
+  # The "AllowedIPs" for VPN clients.
+  # This value will be included in client config
+  # files and in server-side iptable rules
+  # to enforce network access.
+  # Optional
+  allowedIPs:
+    - "0.0.0.0/1"
+    - "127.0.0.0/1"
+    - "10.44.0.0/24"
+    - "10.44.0.1/32"
 dns:
   # Enable a DNS proxy for VPN clients.
   # Optional, Defaults to true
