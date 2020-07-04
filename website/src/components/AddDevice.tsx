@@ -44,6 +44,9 @@ export class AddDevice extends React.Component<Props> {
   qrCode?: string;
 
   @observable
+  configFile?: string;
+
+  @observable
   configFileUri?: string;
 
   submit = async (event: React.FormEvent) => {
@@ -73,6 +76,7 @@ export class AddDevice extends React.Component<Props> {
         Endpoint = ${`${info.host?.value || window.location.hostname}:${info.port || '51820'}`}
       `;
 
+      this.configFile = configFile;
       this.qrCode = await qrcode.toDataURL(configFile);
       this.configFileUri = URL.createObjectURL(new Blob([configFile]));
       this.dialogOpen = true;
@@ -138,6 +142,7 @@ export class AddDevice extends React.Component<Props> {
           <DialogContent>
             <GetConnected
               qrCodeUri={this.qrCode!}
+              configFile={this.configFile!}
               configFileUri={this.configFileUri!}
             />
           </DialogContent>

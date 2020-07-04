@@ -6,25 +6,23 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { observer } from 'mobx-react';
-import { lazyObservable } from 'mobx-utils';
 import { grpc } from '../../Api';
-import { Device } from '../../sdk/devices_pb';
-import { lastSeen } from '../../Util';
+import { lastSeen, lazy } from '../../Util';
 
 @observer
 export class AllDevices extends React.Component {
 
-  devices = lazyObservable<Device.AsObject[]>(async sink => {
+  devices = lazy(async () => {
     const res = await grpc.devices.listAllDevices({});
-    sink(res.items);
+    return res.items;
   });
 
   render() {
-    if (!this.devices.current()) {
+    if (!this.devices.current) {
       return <p>loading...</p>
     }
 
-    const rows = this.devices.current();
+    const rows = this.devices.current;
 
     // show the provider column
     // when there is more than 1 provider in use
