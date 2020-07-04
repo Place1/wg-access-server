@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/place1/wg-access-server/internal/network"
@@ -46,29 +45,5 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 }
 
 func allowedIPs(config *config.AppConfig) string {
-	if config.VPN.Rules == nil {
-		return "0.0.0.0/1, 128.0.0.0/1, ::/0"
-	}
-
-	allowed := []string{}
-
-	if *config.DNS.Enabled {
-		allowed = append(allowed, fmt.Sprintf("%s/32", network.ServerVPNIP(config.VPN.CIDR).IP.String()))
-	}
-
-	if config.VPN.Rules.AllowVPNLAN {
-		allowed = append(allowed, config.VPN.CIDR)
-	}
-
-	if config.VPN.Rules.AllowServerLAN {
-		allowed = append(allowed, network.ServerLANSubnets...)
-	}
-
-	if config.VPN.Rules.AllowInternet {
-		allowed = append(allowed, network.PublicInternetSubnets...)
-	}
-
-	allowed = append(allowed, config.VPN.Rules.AllowedNetworks...)
-
-	return strings.Join(allowed, ", ")
+	return strings.Join(config.VPN.AllowedIPs, ", ")
 }

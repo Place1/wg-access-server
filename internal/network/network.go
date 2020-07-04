@@ -38,67 +38,7 @@ func ConfigureRouting(wgIface string, cidr string) error {
 	return nil
 }
 
-type NetworkRules struct {
-	// AllowVPNLAN enables routing between VPN clients
-	// i.e. allows the VPN to work like a LAN.
-	// true by default
-	AllowVPNLAN bool `yaml:"allowVPNLAN"`
-	// AllowServerLAN enables routing to private IPv4
-	// address ranges. Enabling this will allow VPN clients
-	// to access networks on the server's LAN.
-	// true by default
-	AllowServerLAN bool `yaml:"allowServerLAN"`
-	// AllowInternet enables routing of all traffic
-	// to the public internet.
-	// true by default
-	AllowInternet bool `yaml:"allowInternet"`
-	// AllowedNetworks allows you to whitelist a partcular
-	// network CIDR. This is useful if you want to block
-	// access to the Server's LAN but allow access to a few
-	// specific IPs or a small range.
-	// e.g. "192.0.2.0/24" or "192.0.2.10/32".
-	// no networks are whitelisted by default (empty array)
-	AllowedNetworks []string `yaml:"allowedNetworks"`
-}
-
-// https://simple.wikipedia.org/wiki/Private_network
-var ServerLANSubnets = []string{"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"}
-
-// Public IPv4 blocks
-var PublicInternetSubnets = []string{
-	"200.0.0.0/5",
-	"172.64.0.0/10",
-	"172.128.0.0/9",
-	"12.0.0.0/6",
-	"16.0.0.0/4",
-	"11.0.0.0/8",
-	"32.0.0.0/3",
-	"128.0.0.0/3",
-	"196.0.0.0/6",
-	"64.0.0.0/2",
-	"172.0.0.0/12",
-	"194.0.0.0/7",
-	"192.160.0.0/13",
-	"192.0.0.0/9",
-	"192.170.0.0/15",
-	"160.0.0.0/5",
-	"192.128.0.0/11",
-	"193.0.0.0/8",
-	"208.0.0.0/4",
-	"192.172.0.0/14",
-	"176.0.0.0/4",
-	"192.169.0.0/16",
-	"0.0.0.0/5",
-	"174.0.0.0/7",
-	"192.176.0.0/12",
-	"192.192.0.0/10",
-	"8.0.0.0/7",
-	"172.32.0.0/11",
-	"173.0.0.0/8",
-	"168.0.0.0/6",
-}
-
-func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, rules NetworkRules) error {
+func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, allowedIPs []string) error {
 	// Networking configuration (iptables) configuration
 	// to ensure that traffic from clients the wireguard interface
 	// is sent to the provided network interface
@@ -124,36 +64,9 @@ func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, rules
 		logrus.Error(errors.Wrap(err, "failed to configure interface"))
 	}
 
-	// White listed networks
-	if len(rules.AllowedNetworks) != 0 {
-		for _, subnet := range rules.AllowedNetworks {
-			if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-d", subnet, "-j", "ACCEPT"); err != nil {
-				return errors.Wrap(err, "failed to set ip tables rule")
-			}
-		}
-	}
-
-	// VPN LAN
-	if rules.AllowVPNLAN {
-		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-d", cidr, "-j", "ACCEPT"); err != nil {
-			return errors.Wrap(err, "failed to set ip tables rule")
-		}
-	} else {
-		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-d", cidr, "-j", "REJECT"); err != nil {
-			return errors.Wrap(err, "failed to set ip tables rule")
-		}
-	}
-
-	// Server LAN
-	for _, privateCIDR := range ServerLANSubnets {
-		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-d", privateCIDR, "-j", boolToRule(rules.AllowServerLAN)); err != nil {
-			return errors.Wrap(err, "failed to set ip tables rule")
-		}
-	}
-
-	// Internet
-	if !rules.AllowInternet {
-		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-j", "REJECT"); err != nil {
+	// Accept client traffic for given allowed ips
+	for _, allowedCIDR := range allowedIPs {
+		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-d", allowedCIDR, "-j", "ACCEPT"); err != nil {
 			return errors.Wrap(err, "failed to set ip tables rule")
 		}
 	}
@@ -168,6 +81,10 @@ func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, rules
 		if err := ipt.AppendUnique("nat", "WG_ACCESS_SERVER_POSTROUTING", "-s", cidr, "-o", gatewayIface, "-j", "MASQUERADE"); err != nil {
 			return errors.Wrap(err, "failed to set ip tables rule")
 		}
+	}
+
+	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-j", "REJECT"); err != nil {
+		return errors.Wrap(err, "failed to set ip tables rule")
 	}
 
 	return nil
