@@ -10,7 +10,6 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/pkg/authnz/authconfig"
 	"github.com/vishvananda/netlink"
 
@@ -143,10 +142,7 @@ func Read() *AppConfig {
 
 	if config.VPN.AllowedIPs == nil || len(config.VPN.AllowedIPs) == 0 {
 		config.VPN.AllowedIPs = []string{
-			"0.0.0.0/1",
-			"128.0.0.0/1",
-			config.VPN.CIDR,
-			fmt.Sprintf("%s/32", network.ServerVPNIP(config.VPN.CIDR).IP.String()),
+			"0.0.0.0/0",
 		}
 	}
 
