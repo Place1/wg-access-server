@@ -36,7 +36,7 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 	defer cancel()
 	provider, err := oidc.NewProvider(ctx, c.Issuer)
 	if err != nil {
-		logrus.Fatal(err)
+		logrus.Fatal(errors.Wrap(err, "failed to create oidc provider"))
 	}
 
 	if c.Scopes == nil {
@@ -101,8 +101,8 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 			return
 		}
 
-		if !verifyEmailDomain(c.EmailDomains, info.Email) {
-			http.Error(w, "email domain not authorized", http.StatusForbidden)
+		if msg, valid := verifyEmailDomain(c.EmailDomains, info.Email); !valid {
+			http.Error(w, msg, http.StatusForbidden)
 			return
 		}
 
@@ -138,20 +138,26 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 	}
 }
 
-func verifyEmailDomain(allowedDomains []string, email string) bool {
+func verifyEmailDomain(allowedDomains []string, email string) (string, bool) {
 	if len(allowedDomains) == 0 {
-		return true
+		return "", true
 	}
 
 	parsed := strings.Split(email, "@")
 
+	// check we have 2 parts i.e. <user>@<domain>
+	if len(parsed) != 2 {
+		return "missing or invalid email address", false
+	}
+
+	// match the domain against the list of allowed domains
 	for _, domain := range allowedDomains {
 		if domain == parsed[1] {
-			return true
+			return "", true
 		}
 	}
 
-	return false
+	return "email domain not authorized", false
 }
 
 type ruleExpression struct {
