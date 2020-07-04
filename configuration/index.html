@@ -514,33 +514,16 @@ CLI flag as well.</p>
   <span class="c1"># network interface e.g. eth0</span>
   <span class="c1"># Optional</span>
   <span class="nt">gatewayInterface</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-  <span class="c1"># Rules allows you to configure what level</span>
-  <span class="c1"># of network isolation should be enfoced.</span>
-  <span class="nt">rules</span><span class="p">:</span>
-    <span class="c1"># AllowVPNLAN enables routing between VPN clients</span>
-    <span class="c1"># i.e. allows the VPN to work like a LAN.</span>
-    <span class="c1"># true by default</span>
-    <span class="c1"># Optional</span>
-    <span class="nt">allowVPNLAN</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-    <span class="c1"># AllowServerLAN enables routing to private IPv4</span>
-    <span class="c1"># address ranges. Enabling this will allow VPN clients</span>
-    <span class="c1"># to access networks on the server&#39;s LAN.</span>
-    <span class="c1"># true by default</span>
-    <span class="c1"># Optional</span>
-    <span class="nt">allowServerLAN</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-    <span class="c1"># AllowInternet enables routing of all traffic</span>
-    <span class="c1"># to the public internet.</span>
-    <span class="c1"># true by default</span>
-    <span class="c1"># Optional</span>
-    <span class="nt">allowInternet</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-    <span class="c1"># AllowedNetworks allows you to whitelist a partcular</span>
-    <span class="c1"># network CIDR. This is useful if you want to block</span>
-    <span class="c1"># access to the Server&#39;s LAN but allow access to a few</span>
-    <span class="c1"># specific IPs or a small range.</span>
-    <span class="c1"># e.g. &quot;192.0.2.0/24&quot; or &quot;192.0.2.10/32&quot;.</span>
-    <span class="c1"># no networks are whitelisted by default (empty array)</span>
-    <span class="c1"># Optional</span>
-    <span class="nt">allowedNetworks</span><span class="p">:</span> <span class="p p-Indicator">[]</span>
+  <span class="c1"># The &quot;AllowedIPs&quot; for VPN clients.</span>
+  <span class="c1"># This value will be included in client config</span>
+  <span class="c1"># files and in server-side iptable rules</span>
+  <span class="c1"># to enforce network access.</span>
+  <span class="c1"># Optional</span>
+  <span class="nt">allowedIPs</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;0.0.0.0/1&quot;</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;127.0.0.0/1&quot;</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;10.44.0.0/24&quot;</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;10.44.0.1/32&quot;</span>
 <span class="nt">dns</span><span class="p">:</span>
   <span class="c1"># Enable a DNS proxy for VPN clients.</span>
   <span class="c1"># Optional, Defaults to true</span>
