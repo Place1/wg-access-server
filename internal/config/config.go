@@ -141,7 +141,7 @@ func Read() *AppConfig {
 		config.DNS.Upstream = []string{*upstreamDNS}
 	}
 
-	if config.VPN.AllowedIPs == nil {
+	if config.VPN.AllowedIPs == nil || len(config.VPN.AllowedIPs) == 0 {
 		config.VPN.AllowedIPs = []string{
 			"0.0.0.0/1",
 			"128.0.0.0/1",
