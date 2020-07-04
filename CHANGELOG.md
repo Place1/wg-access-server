@@ -51,8 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added support for an admin account. An admin can see all devices registered
   with the server.
-- Added support for networking isolation modes. You can now allow/deny VPN LAN,
-  Server LAN and internet traffic. Selective network CIDRs can be white listed.
+- Added support for configuring "AllowedIPs"
 - New docker compose example ([@antoniebou13](https://github.com/Place1/wg-access-server/pull/13))
 - Added a helm chart
 - Added a basic kubernetes quickstart.yaml manifest (based on helm template)
