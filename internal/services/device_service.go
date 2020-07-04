@@ -122,5 +122,5 @@ func isConnected(lastHandshake *time.Time) bool {
 	if lastHandshake == nil {
 		return false
 	}
-	return lastHandshake.After(time.Now().Add(-1 * time.Minute))
+	return lastHandshake.After(time.Now().Add(-3 * time.Minute))
 }
