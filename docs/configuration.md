@@ -81,10 +81,7 @@ vpn:
   # to enforce network access.
   # Optional
   allowedIPs:
-    - "0.0.0.0/1"
-    - "127.0.0.0/1"
-    - "10.44.0.0/24"
-    - "10.44.0.1/32"
+    - "0.0.0.0/0"
 dns:
   # Enable a DNS proxy for VPN clients.
   # Optional, Defaults to true
