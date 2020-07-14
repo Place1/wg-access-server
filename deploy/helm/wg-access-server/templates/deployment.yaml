@@ -81,7 +81,7 @@ spec:
         - name: data
         {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: "{{ $fullName }}"
+            claimName: {{ if .Values.persistence.existingClaim }}{{ .Values.persistence.existingClaim }}{{- else }}{{ $fullName }}{{- end }}
         {{- end }}
         {{- if not .Values.persistence.enabled }}
           emptyDir: {}
