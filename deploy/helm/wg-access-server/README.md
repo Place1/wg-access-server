@@ -28,10 +28,13 @@ config:
   wireguard:
     externalHost: "<loadbalancer-ip>"
 
-web:
-  service:
-    type: "LoadBalancer"
-    loadBalancerIP: "<loadbalancer-ip>"
+# wg access server is an http server without TLS. Exposing it via a loadbalancer is NOT secure!
+# Uncomment the following section only if you are running on private network or simple testing.
+# A much better option would be TLS terminating ingress controller or reverse-proxy.
+# web:
+#   service:
+#     type: "LoadBalancer"
+#     loadBalancerIP: "<loadbalancer-ip>"
 
 wireguard:
   config:
@@ -50,6 +53,8 @@ ingress:
     - hosts: ["vpn.example.com"]
       secretName: "tls-wg-access-server"
 ```
+
+
 
 ## All Configuration
 
