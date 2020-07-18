@@ -27,13 +27,25 @@ The command removes all the Kubernetes components associated with the chart and 
 config:
   wireguard:
     externalHost: "<loadbalancer-ip>"
+
+# wg access server is an http server without TLS. Exposing it via a loadbalancer is NOT secure!
+# Uncomment the following section only if you are running on private network or simple testing.
+# A much better option would be TLS terminating ingress controller or reverse-proxy.
+# web:
+#   service:
+#     type: "LoadBalancer"
+#     loadBalancerIP: "<loadbalancer-ip>"
+
 wireguard:
   config:
     privateKey: "<wireguard-private-key>"
   service:
     type: "LoadBalancer"
+    loadBalancerIP: "<loadbalancer-ip>"
+
 persistence:
   enabled: true
+
 ingress:
   enabled: true
   hosts: ["vpn.example.com"]
@@ -42,11 +54,14 @@ ingress:
       secretName: "tls-wg-access-server"
 ```
 
+
+
 ## All Configuration
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | config | object | `{}` | inline wg-access-server config (config.yaml) |
+| web.service.type | string | `"ClusterIP"` |  |
 | wireguard.config.privateKey | string | "" | A wireguard private key. You can generate one using `$ wg genkey` |
 | wireguard.service.type | string | `"ClusterIP"` |  |
 | ingress.enabled | bool | `false` |  |
@@ -54,6 +69,7 @@ ingress:
 | ingress.tls | list | `[]` |  |
 | ingress.annotations | object | `{}` |  |
 | persistence.enabled | bool | `false` |  |
+| persistence.existingClaim | string | `""` | Use existing PVC claim for persistence instead |
 | persistence.size | string | `"100Mi"` |  |
 | persistence.subPath | string | `""` |  |
 | persistence.annotations | object | `{}` |  |

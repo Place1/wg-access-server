@@ -5,8 +5,18 @@ metadata:
   name: {{ $fullName }}-web
   labels:
     {{- include "wg-access-server.labels" . | nindent 4 }}
+{{- if .Values.web.service.annotations }}
+  annotations:
+    {{ toYaml .Values.web.service.annotations | indent 4 }}
+{{- end }}
 spec:
-  type: ClusterIP
+{{- if .Values.web.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.web.service.externalTrafficPolicy }}
+{{- end }}
+  type: {{  .Values.web.service.type }}
+{{- if .Values.web.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.web.service.loadBalancerIP }}
+{{- end }}
   ports:
     - port: 80
       targetPort: 8000

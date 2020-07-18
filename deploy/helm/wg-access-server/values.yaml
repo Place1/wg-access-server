@@ -5,6 +5,8 @@ web:
   config:
     adminUsername: ""
     adminPassword: ""
+  service:
+    type: ClusterIP
 
 wireguard:
   config:
