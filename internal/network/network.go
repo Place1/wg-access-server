@@ -6,36 +6,12 @@ import (
 
 	"github.com/coreos/go-iptables/iptables"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-	"github.com/vishvananda/netlink"
 )
 
 func ServerVPNIP(cidr string) *net.IPNet {
 	vpnip, vpnsubnet := MustParseCIDR(cidr)
 	vpnsubnet.IP = nextIP(vpnip.Mask(vpnsubnet.Mask))
 	return vpnsubnet
-}
-
-func ConfigureRouting(wgIface string, cidr string) error {
-	// Networking configuration (ip links and route tables)
-	// to ensure that network traffic in the VPN subnet
-	// moves through the wireguard interface
-	link, err := netlink.LinkByName(wgIface)
-	if err != nil {
-		return errors.Wrap(err, "failed to find wireguard interface")
-	}
-	vpnip := ServerVPNIP(cidr)
-	addr, err := netlink.ParseAddr(vpnip.String())
-	if err != nil {
-		return errors.Wrap(err, "failed to parse subnet address")
-	}
-	if err := netlink.AddrAdd(link, addr); err != nil {
-		logrus.Warn(errors.Wrap(err, "failed to add subnet to wireguard interface"))
-	}
-	if err := netlink.LinkSetUp(link); err != nil {
-		logrus.Warn(errors.Wrap(err, "failed to bring wireguard interface up"))
-	}
-	return nil
 }
 
 func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, allowedIPs []string) error {
@@ -59,10 +35,6 @@ func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, allow
 	// Create our own chain for postrouting rules
 	ipt.NewChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
 	ipt.AppendUnique("nat", "POSTROUTING", "-j", "WG_ACCESS_SERVER_POSTROUTING")
-
-	if err := ConfigureRouting(wgIface, cidr); err != nil {
-		logrus.Error(errors.Wrap(err, "failed to configure interface"))
-	}
 
 	// Accept client traffic for given allowed ips
 	for _, allowedCIDR := range allowedIPs {

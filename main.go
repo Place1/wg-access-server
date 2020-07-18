@@ -49,13 +49,17 @@ func main() {
 
 	logrus.Infof("starting wireguard server on 0.0.0.0:%d", conf.WireGuard.Port)
 
-	wg.LoadConfig(&wgembed.ConfigFile{
+	wgconfig := &wgembed.ConfigFile{
 		Interface: wgembed.IfaceConfig{
 			PrivateKey: conf.WireGuard.PrivateKey,
-			Address:    vpnip.IP.String(),
+			Address:    vpnip.String(),
 			ListenPort: &conf.WireGuard.Port,
 		},
-	})
+	}
+
+	if err := wg.LoadConfig(wgconfig); err != nil {
+		logrus.Fatal(errors.Wrap(err, "failed to load wireguard config"))
+	}
 
 	logrus.Infof("wireguard VPN network is %s", conf.VPN.CIDR)
 
