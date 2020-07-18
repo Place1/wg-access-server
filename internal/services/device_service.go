@@ -4,13 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/place1/wg-access-server/internal/devices"
 	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/proto/proto"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -27,7 +27,7 @@ func (d *DeviceService) AddDevice(ctx context.Context, req *proto.AddDeviceReq) 
 
 	device, err := d.DeviceManager.AddDevice(user, req.GetName(), req.GetPublicKey())
 	if err != nil {
-		logrus.Error(err)
+		ctxlogrus.Extract(ctx).Error(err)
 		return nil, status.Errorf(codes.Internal, "failed to add device")
 	}
 
@@ -42,7 +42,7 @@ func (d *DeviceService) ListDevices(ctx context.Context, req *proto.ListDevicesR
 
 	devices, err := d.DeviceManager.ListDevices(user.Subject)
 	if err != nil {
-		logrus.Error(err)
+		ctxlogrus.Extract(ctx).Error(err)
 		return nil, status.Errorf(codes.Internal, "failed to retrieve devices")
 	}
 	return &proto.ListDevicesRes{
@@ -57,7 +57,7 @@ func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDevic
 	}
 
 	if err := d.DeviceManager.DeleteDevice(user.Subject, req.GetName()); err != nil {
-		logrus.Error(err)
+		ctxlogrus.Extract(ctx).Error(err)
 		return nil, status.Errorf(codes.Internal, "failed to delete device")
 	}
 
@@ -76,7 +76,7 @@ func (d *DeviceService) ListAllDevices(ctx context.Context, req *proto.ListAllDe
 
 	devices, err := d.DeviceManager.ListAllDevices()
 	if err != nil {
-		logrus.Error(err)
+		ctxlogrus.Extract(ctx).Error(err)
 		return nil, status.Errorf(codes.Internal, "failed to retrieve devices")
 	}
 

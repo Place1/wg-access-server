@@ -4,13 +4,13 @@ import (
 	"context"
 	"strings"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/place1/wg-access-server/internal/network"
 
 	"github.com/place1/wg-access-server/internal/config"
 	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/place1/wg-access-server/proto/proto"
 	"github.com/place1/wg-embed/pkg/wgembed"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -27,7 +27,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 
 	publicKey, err := wgembed.PublicKey(s.Config.WireGuard.InterfaceName)
 	if err != nil {
-		logrus.Error(err)
+		ctxlogrus.Extract(ctx).Error(err)
 		return nil, status.Errorf(codes.Internal, "failed to get public key")
 	}
 

@@ -2,16 +2,12 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"net/http"
-	"net/url"
-	"os"
-	"runtime/debug"
 
+	"github.com/place1/wg-access-server/internal/services"
 	"github.com/place1/wg-access-server/internal/storage"
-
-	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"github.com/place1/wg-access-server/proto/proto"
+	"github.com/place1/wg-access-server/pkg/authnz"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 
 	"github.com/gorilla/mux"
 	"github.com/place1/wg-embed/pkg/wgembed"
@@ -21,17 +17,7 @@ import (
 	"github.com/place1/wg-access-server/internal/devices"
 	"github.com/place1/wg-access-server/internal/dnsproxy"
 	"github.com/place1/wg-access-server/internal/network"
-	"github.com/place1/wg-access-server/internal/services"
-	"github.com/place1/wg-access-server/pkg/authnz"
-	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/sirupsen/logrus"
-
-	"net/http/httputil"
-
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
-	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -94,75 +80,50 @@ func main() {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}
 
-	// Router
 	router := mux.NewRouter()
+	router.Use(services.TracesMiddleware)
+	router.Use(services.RecoveryMiddleware)
 
-	// if the built website exists, serve that
-	// otherwise proxy to a local webpack development server
-	if _, err := os.Stat("website/build"); os.IsNotExist(err) {
-		u, _ := url.Parse("http://localhost:3000")
-		router.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
-	} else {
-		router.PathPrefix("/").Handler(http.FileServer(http.Dir("website/build")))
-	}
+	// Health check endpoint
+	router.PathPrefix("/health").Handler(services.HealthEndpoint())
 
-	// GRPC Server
-	server := grpc.NewServer([]grpc.ServerOption{
-		grpc.MaxRecvMsgSize(int(1 * math.Pow(2, 20))), // 1MB
-		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logrus.StandardLogger())),
-			grpc_recovery.UnaryServerInterceptor(),
-		)),
-	}...)
-	proto.RegisterServerServer(server, &services.ServerService{
-		Config: conf,
-	})
-	proto.RegisterDevicesServer(server, &services.DeviceService{
-		DeviceManager: deviceManager,
-	})
-	grpcServer := grpcweb.WrapServer(server)
-
-	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if err := recover(); err != nil {
-				logrus.WithField("stack", string(debug.Stack())).Error(err)
-			}
-		}()
-		if grpcServer.IsGrpcWebRequest(r) {
-			grpcServer.ServeHTTP(w, r)
-		} else {
-			if authsession.Authenticated(r.Context()) {
-				router.ServeHTTP(w, r)
-			} else {
-				http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
-			}
-		}
-	})
-
+	// Authentication middleware
 	if conf.Auth.IsEnabled() {
-		handler = authnz.New(conf.Auth, func(user *authsession.Identity) error {
-			if user.Subject == conf.AdminSubject {
-				user.Claims.Add("admin", "true")
-			}
-			return nil
-		}).Wrap(handler)
+		router.Use(authnz.NewMiddleware(conf.Auth, claimsMiddleware(conf)))
 	} else {
-		base := handler
-		handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			base.ServeHTTP(w, r.WithContext(authsession.SetIdentityCtx(r.Context(), &authsession.AuthSession{
-				Identity: &authsession.Identity{
-					Subject: "",
-				},
-			})))
+		logrus.Warn("[DEPRECATION NOTICE] using wg-access-server without an admin user is deprecated and will be removed in an upcoming minior release.")
+		router.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next.ServeHTTP(w, r.WithContext(authsession.SetIdentityCtx(r.Context(), &authsession.AuthSession{
+					Identity: &authsession.Identity{
+						Subject: "",
+					},
+				})))
+			})
 		})
 	}
 
-	publicRouter := mux.NewRouter()
-	publicRouter.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
-		fmt.Fprintf(w, "ok")
-	})).Methods("GET")
-	publicRouter.NotFoundHandler = handler
+	// Subrouter for our site (web + api)
+	site := router.PathPrefix("/").Subrouter()
+	site.Use(authnz.RequireAuthentication)
+
+	// Grpc api
+	site.PathPrefix("/api").Handler(services.ApiRouter(&services.ApiServices{
+		Config:        conf,
+		DeviceManager: deviceManager,
+	}))
+
+	// Static website
+	site.PathPrefix("/").Handler(services.WebsiteRouter())
+
+	// publicRouter.NotFoundHandler = authMiddleware.Wrap(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// 	if authsession.Authenticated(r.Context()) {
+	// 		router.ServeHTTP(w, r)
+	// 	} else {
+	// 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
+	// 	}
+	// }))
+	publicRouter := router
 
 	// Listen
 	address := fmt.Sprintf("0.0.0.0:%d", conf.Port)
@@ -175,5 +136,14 @@ func main() {
 	logrus.Infof("web ui listening on %v", address)
 	if err := srv.ListenAndServe(); err != nil {
 		logrus.Fatal(errors.Wrap(err, "unable to start http server"))
+	}
+}
+
+func claimsMiddleware(conf *config.AppConfig) authsession.ClaimsMiddleware {
+	return func(user *authsession.Identity) error {
+		if user.Subject == conf.AdminSubject {
+			user.Claims.Add("admin", "true")
+		}
+		return nil
 	}
 }

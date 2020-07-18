@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
-	"net"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -223,19 +222,14 @@ func defaultInterface() (string, error) {
 	return "", errors.New("could not determine the default network interface name")
 }
 
-func linkIPAddr(name string) (net.IP, error) {
-	link, err := netlink.LinkByName(name)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to find network interface %s", name)
-	}
-	routes, err := netlink.RouteList(link, 4)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to list routes for interface %s", link.Attrs().Name)
-	}
-	for _, route := range routes {
-		if route.Src != nil {
-			return route.Src, nil
-		}
-	}
-	return nil, fmt.Errorf("no source IP found for interface %s", link.Attrs().Name)
-}
+// func randomPassword() string {
+// 	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+// 	length := 12
+
+// 	b := make([]rune, length)
+// 	for i := range b {
+// 		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+// 	}
+
+// 	return string(b)
+// }

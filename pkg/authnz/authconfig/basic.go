@@ -47,6 +47,7 @@ func basicAuthLogin(c *BasicAuthConfig, runtime *authruntime.ProviderRuntime) ht
 				},
 			})
 			runtime.Done(w, r)
+			return
 		}
 
 		w.Header().Set("WWW-Authenticate", `Basic realm="site"`)

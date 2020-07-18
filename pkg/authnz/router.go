@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 
 	"github.com/place1/wg-access-server/pkg/authnz/authconfig"
 	"github.com/place1/wg-access-server/pkg/authnz/authruntime"
@@ -21,18 +21,15 @@ import (
 type AuthMiddleware struct {
 	config           authconfig.AuthConfig
 	claimsMiddleware authsession.ClaimsMiddleware
+	router           *mux.Router
+	runtime          *authruntime.ProviderRuntime
 }
 
 func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddleware) *AuthMiddleware {
-	return &AuthMiddleware{config, claimsMiddleware}
-}
-
-func (m *AuthMiddleware) Wrap(next http.Handler) http.Handler {
-
-	runtime := authruntime.NewProviderRuntime(sessions.NewCookieStore([]byte(authutil.RandomString(32))))
 	router := mux.NewRouter()
-
-	providers := m.config.Providers()
+	store := sessions.NewCookieStore([]byte(authutil.RandomString(32)))
+	runtime := authruntime.NewProviderRuntime(store)
+	providers := config.Providers()
 
 	for _, p := range providers {
 		if p.RegisterRoutes != nil {
@@ -49,9 +46,9 @@ func (m *AuthMiddleware) Wrap(next http.Handler) http.Handler {
 
 	router.HandleFunc("/signin/{index}", func(w http.ResponseWriter, r *http.Request) {
 		index, err := strconv.Atoi(mux.Vars(r)["index"])
-		if err != nil || (index < 0 || index >= len(providers)) {
-			fmt.Fprintf(w, "unknown provider")
+		if err != nil || index < 0 || len(providers) <= index {
 			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, "unknown provider")
 			return
 		}
 		provider := providers[index]
@@ -63,11 +60,35 @@ func (m *AuthMiddleware) Wrap(next http.Handler) http.Handler {
 		runtime.Restart(w, r)
 	})
 
-	router.PathPrefix("/").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if s, err := runtime.GetSession(r); err == nil {
+	return &AuthMiddleware{
+		config,
+		claimsMiddleware,
+		router,
+		runtime,
+	}
+}
+
+func NewMiddleware(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddleware) mux.MiddlewareFunc {
+	return New(config, claimsMiddleware).Middleware
+}
+
+func (m *AuthMiddleware) Middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// check if the request is for an auth
+		// related page i.e. /signin
+		// to be handled by our own router
+		if ok := m.router.Match(r, &mux.RouteMatch{}); ok {
+			m.router.ServeHTTP(w, r)
+			return
+		}
+
+		// otherwise we apply the standard middleware
+		// functionality i.e. annotate the request context
+		// with the request user (identity)
+		if s, err := m.runtime.GetSession(r); err == nil {
 			if m.claimsMiddleware != nil {
 				if err := m.claimsMiddleware(s.Identity); err != nil {
-					logrus.Error(errors.Wrap(err, "authz middleware failure"))
+					ctxlogrus.Extract(r.Context()).Error(errors.Wrap(err, "authz middleware failure"))
 					http.Error(w, "internal server error", http.StatusInternalServerError)
 					return
 				}
@@ -76,11 +97,15 @@ func (m *AuthMiddleware) Wrap(next http.Handler) http.Handler {
 		} else {
 			next.ServeHTTP(w, r)
 		}
-	}))
-
-	return router
+	})
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Index")
+func RequireAuthentication(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if authsession.Authenticated(r.Context()) {
+			next.ServeHTTP(w, r)
+		} else {
+			http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
+		}
+	})
 }
