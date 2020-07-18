@@ -449,13 +449,25 @@ between pod restarts.</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">config</span><span class="p">:</span>
   <span class="nt">wireguard</span><span class="p">:</span>
     <span class="nt">externalHost</span><span class="p">:</span> <span class="s">&quot;&lt;loadbalancer-ip&gt;&quot;</span>
+
+<span class="c1"># wg access server is an http server without TLS. Exposing it via a loadbalancer is NOT secure!</span>
+<span class="c1"># Uncomment the following section only if you are running on private network or simple testing.</span>
+<span class="c1"># A much better option would be TLS terminating ingress controller or reverse-proxy.</span>
+<span class="c1"># web:</span>
+<span class="c1">#   service:</span>
+<span class="c1">#     type: &quot;LoadBalancer&quot;</span>
+<span class="c1">#     loadBalancerIP: &quot;&lt;loadbalancer-ip&gt;&quot;</span>
+
 <span class="nt">wireguard</span><span class="p">:</span>
   <span class="nt">config</span><span class="p">:</span>
     <span class="nt">privateKey</span><span class="p">:</span> <span class="s">&quot;&lt;wireguard-private-key&gt;&quot;</span>
   <span class="nt">service</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="s">&quot;LoadBalancer&quot;</span>
+    <span class="nt">loadBalancerIP</span><span class="p">:</span> <span class="s">&quot;&lt;loadbalancer-ip&gt;&quot;</span>
+
 <span class="nt">persistence</span><span class="p">:</span>
   <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
 <span class="nt">ingress</span><span class="p">:</span>
   <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
   <span class="nt">hosts</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;vpn.example.com&quot;</span><span class="p p-Indicator">]</span>
@@ -480,6 +492,12 @@ between pod restarts.</p>
 <td>object</td>
 <td><code class="codehilite"><span class="err">{}</span></code></td>
 <td>inline wg-access-server config (config.yaml)</td>
+</tr>
+<tr>
+<td>web.service.type</td>
+<td>string</td>
+<td><code class="codehilite"><span class="err">&quot;ClusterIP&quot;</span></code></td>
+<td></td>
 </tr>
 <tr>
 <td>wireguard.config.privateKey</td>
@@ -522,6 +540,12 @@ between pod restarts.</p>
 <td>bool</td>
 <td><code class="codehilite"><span class="err">false</span></code></td>
 <td></td>
+</tr>
+<tr>
+<td>persistence.existingClaim</td>
+<td>string</td>
+<td><code class="codehilite"><span class="err">&quot;&quot;</span></code></td>
+<td>Use existing PVC claim for persistence instead</td>
 </tr>
 <tr>
 <td>persistence.size</td>
