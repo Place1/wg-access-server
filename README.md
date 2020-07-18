@@ -9,11 +9,18 @@ better control and more.
 This project aims to deliver a simple VPN solution for developers,
 homelab enthusiasts and anyone else feeling adventurous.
 
-wg-access-server is a functional but young project. Contributes are welcome!
+wg-access-server is a functional but young project. Contributions are welcome!
 
 ## Documentation
 
 [See our documentation website](https://place1.github.io/wg-access-server/)
+
+Quick Links:
+
+- [Configuration Overview](https://place1.github.io/wg-access-server/configuration/)
+- [Deploy With Docker](https://place1.github.io/wg-access-server/deployment/1-docker/)
+- [Deploy With Helm](https://place1.github.io/wg-access-server/deployment/2-docker-compose/)
+- [Deploy With Docker-Compose](https://place1.github.io/wg-access-server/deployment/2-docker-compose/)
 
 ## Running with Docker
 
@@ -37,6 +44,21 @@ phone to try it out: for example, i'll open my browser at http://192.168.0.XX:80
 using the local LAN IP address.
 
 You can connect to the web server on the local machine browser at http://localhost:8000
+
+## Running on Kubernetes via Helm
+
+wg-access-server ships a Helm chart to make it easy to get started on
+Kubernetes.
+
+Here's a quick start, but you can read more at the [Helm Chart Deployment Docs](https://place1.github.io/wg-access-server/deployment/3-kubernetes/)
+
+```bash
+# deploy
+helm install my-release --repo https://place1.github.io/wg-access-server wg-access-server
+
+# cleanup
+helm delete my-release
+```
 
 ## Running with Docker-Compose
 
