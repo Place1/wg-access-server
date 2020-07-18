@@ -265,6 +265,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#running-on-kubernetes-via-helm" class="md-nav__link">
+    Running on Kubernetes via Helm
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#running-with-docker-compose" class="md-nav__link">
     Running with Docker-Compose
   </a>
@@ -410,6 +417,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#running-on-kubernetes-via-helm" class="md-nav__link">
+    Running on Kubernetes via Helm
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#running-with-docker-compose" class="md-nav__link">
     Running with Docker-Compose
   </a>
@@ -464,9 +478,16 @@ including QR codes. You can configure different network isolation modes for
 better control and more.</p>
 <p>This project aims to deliver a simple VPN solution for developers,
 homelab enthusiasts and anyone else feeling adventurous.</p>
-<p>wg-access-server is a functional but young project. Contributes are welcome!</p>
+<p>wg-access-server is a functional but young project. Contributions are welcome!</p>
 <h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link"> ¶</a></h2>
 <p><a href="https://place1.github.io/wg-access-server/">See our documentation website</a></p>
+<p>Quick Links:</p>
+<ul>
+<li><a href="https://place1.github.io/wg-access-server/configuration/">Configuration Overview</a></li>
+<li><a href="https://place1.github.io/wg-access-server/deployment/1-docker/">Deploy With Docker</a></li>
+<li><a href="https://place1.github.io/wg-access-server/deployment/2-docker-compose/">Deploy With Helm</a></li>
+<li><a href="https://place1.github.io/wg-access-server/deployment/2-docker-compose/">Deploy With Docker-Compose</a></li>
+</ul>
 <h2 id="running-with-docker">Running with Docker<a class="headerlink" href="#running-with-docker" title="Permanent link"> ¶</a></h2>
 <p>Here's a quick command to run the server to try it out.</p>
 <div class="codehilite"><pre><span></span><code>docker run <span class="se">\</span>
@@ -485,6 +506,17 @@ homelab enthusiasts and anyone else feeling adventurous.</p>
 phone to try it out: for example, i'll open my browser at http://192.168.0.XX:8000
 using the local LAN IP address.</p>
 <p>You can connect to the web server on the local machine browser at http://localhost:8000</p>
+<h2 id="running-on-kubernetes-via-helm">Running on Kubernetes via Helm<a class="headerlink" href="#running-on-kubernetes-via-helm" title="Permanent link"> ¶</a></h2>
+<p>wg-access-server ships a Helm chart to make it easy to get started on
+Kubernetes.</p>
+<p>Here's a quick start, but you can read more at the <a href="https://place1.github.io/wg-access-server/deployment/3-kubernetes/">Helm Chart Deployment Docs</a></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># deploy</span>
+helm install my-release --repo https://place1.github.io/wg-access-server wg-access-server
+
+<span class="c1"># cleanup</span>
+helm delete my-release
+</code></pre></div>
+
 <h2 id="running-with-docker-compose">Running with Docker-Compose<a class="headerlink" href="#running-with-docker-compose" title="Permanent link"> ¶</a></h2>
 <p>You modify the docker-compose.yml file for you need then run this following command.</p>
 <div class="codehilite"><pre><span></span><code>docker-compose up
