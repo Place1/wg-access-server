@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [next]
+
+### Bug Fixes
+
+- Fixes website routing to solve 404s (issue [#56](https://github.com/Place1/wg-access-server/issues/56))
+
+## [0.2.4]
+
+### Bug Fixes
+
+- Improved config validation and error reporting (issue [#58](https://github.com/Place1/wg-access-server/issues/58) [#61](https://github.com/Place1/wg-access-server/issues/61))
+
+## [0.2.3]
+
+### Added
+
+- Helm chart now supports configuring a LoadBalancer service for the web ui ([@nqngo](https://github.com/Place1/wg-access-server/pull/60))
+
 ## [0.2.2]
 
 ### Changed
