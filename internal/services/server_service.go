@@ -39,7 +39,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		MetadataEnabled: !s.Config.DisableMetadata,
 		IsAdmin:         user.Claims.Contains("admin"),
 		AllowedIps:      allowedIPs(s.Config),
-		DnsEnabled:      *s.Config.DNS.Enabled,
+		DnsEnabled:      s.Config.DNS.Enabled,
 		DnsAddress:      network.ServerVPNIP(s.Config.VPN.CIDR).IP.String(),
 	}, nil
 }
