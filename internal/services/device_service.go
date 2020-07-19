@@ -56,7 +56,17 @@ func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDevic
 		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
 	}
 
-	if err := d.DeviceManager.DeleteDevice(user.Subject, req.GetName()); err != nil {
+	deviceOwner := user.Subject
+
+	if req.Owner != nil {
+		if user.Claims.Contains("admin") {
+			deviceOwner = req.Owner.Value
+		} else {
+			return nil, status.Errorf(codes.PermissionDenied, "must be an admin")
+		}
+	}
+
+	if err := d.DeviceManager.DeleteDevice(deviceOwner, req.GetName()); err != nil {
 		ctxlogrus.Extract(ctx).Error(err)
 		return nil, status.Errorf(codes.Internal, "failed to delete device")
 	}

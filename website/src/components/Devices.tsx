@@ -9,7 +9,6 @@ import { AddDevice } from './AddDevice';
 
 @observer
 export class Devices extends React.Component {
-
   @observable
   devices = autorefresh(5, async () => {
     return (await grpc.devices.listDevices({})).items;
@@ -21,7 +20,7 @@ export class Devices extends React.Component {
 
   render() {
     if (!this.devices.current) {
-      return <p>loading...</p>
+      return <p>loading...</p>;
     }
     return (
       <Grid container spacing={3} justify="center">

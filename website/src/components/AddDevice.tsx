@@ -28,7 +28,6 @@ interface Props {
 
 @observer
 export class AddDevice extends React.Component<Props> {
-
   @observable
   dialogOpen = false;
 
@@ -81,25 +80,22 @@ export class AddDevice extends React.Component<Props> {
       this.configFileUri = URL.createObjectURL(new Blob([configFile]));
       this.dialogOpen = true;
       this.reset();
-
     } catch (error) {
       console.log(error);
       // TODO: unwrap grpc error message
       this.error = 'failed';
     }
-  }
+  };
 
   reset = () => {
     this.formState.name = '';
-  }
+  };
 
   render() {
     return (
       <>
         <Card>
-          <CardHeader
-            title="Add A Device"
-          />
+          <CardHeader title="Add A Device" />
           <CardContent>
             <form onSubmit={this.submit}>
               <FormControl error={!!this.error} fullWidth>
@@ -107,47 +103,29 @@ export class AddDevice extends React.Component<Props> {
                 <Input
                   id="device-name"
                   value={this.formState.name}
-                  onChange={(event) => this.formState.name = event.currentTarget.value}
+                  onChange={(event) => (this.formState.name = event.currentTarget.value)}
                   aria-describedby="device-name-text"
                 />
                 <FormHelperText id="device-name-text">{this.error}</FormHelperText>
               </FormControl>
               <Typography component="div" align="right">
-                <Button
-                  color="secondary"
-                  type="button"
-                  onClick={this.reset}
-                >
+                <Button color="secondary" type="button" onClick={this.reset}>
                   Cancel
                 </Button>
-                <Button
-                  color="primary"
-                  variant="contained"
-                  endIcon={<AddIcon />}
-                  type="submit"
-                >
+                <Button color="primary" variant="contained" endIcon={<AddIcon />} type="submit">
                   Add
                 </Button>
               </Typography>
             </form>
           </CardContent>
         </Card>
-        <Dialog
-          disableBackdropClick
-          disableEscapeKeyDown
-          maxWidth="xl"
-          open={this.dialogOpen}
-        >
+        <Dialog disableBackdropClick disableEscapeKeyDown maxWidth="xl" open={this.dialogOpen}>
           <DialogTitle>Get Connected</DialogTitle>
           <DialogContent>
-            <GetConnected
-              qrCodeUri={this.qrCode!}
-              configFile={this.configFile!}
-              configFileUri={this.configFileUri!}
-            />
+            <GetConnected qrCodeUri={this.qrCode!} configFile={this.configFile!} configFileUri={this.configFileUri!} />
           </DialogContent>
           <DialogActions>
-            <Button color="secondary" variant="outlined" onClick={() => this.dialogOpen = false}>
+            <Button color="secondary" variant="outlined" onClick={() => (this.dialogOpen = false)}>
               Done
             </Button>
           </DialogActions>

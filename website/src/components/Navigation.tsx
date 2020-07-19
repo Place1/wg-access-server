@@ -10,7 +10,7 @@ import Link from '@material-ui/core/Link';
 import Button from '@material-ui/core/Button';
 import Chip from '@material-ui/core/Chip';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
   },
@@ -23,27 +23,31 @@ export default function Navigation() {
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" className={classes.title}>
-          <span>Welcome</span>
-          {AppState.info?.isAdmin &&
-            <Chip label="admin" color="secondary" variant="outlined" size="small" style={{ marginLeft: 20, background: 'white' }} />
-          }
+          <Link to="/" color="inherit" component={NavLink}>
+            Welcome
+          </Link>
+          {AppState.info?.isAdmin && (
+            <Chip
+              label="admin"
+              color="secondary"
+              variant="outlined"
+              size="small"
+              style={{ marginLeft: 20, background: 'white' }}
+            />
+          )}
         </Typography>
 
-        {AppState.info?.isAdmin &&
+        {AppState.info?.isAdmin && (
           <Link to="/admin/all-devices" color="inherit" component={NavLink}>
-            <Button color="inherit">
-              All Devices
-            </Button>
+            <Button color="inherit">All Devices</Button>
           </Link>
-        }
+        )}
 
-        {hasAuthCookie &&
+        {hasAuthCookie && (
           <Link href="/signout" color="inherit">
-            <Button color="inherit">
-              Logout
-            </Button>
+            <Button color="inherit">Logout</Button>
           </Link>
-        }
+        )}
       </Toolbar>
     </AppBar>
   );

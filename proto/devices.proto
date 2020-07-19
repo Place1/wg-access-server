@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package proto;
 
+import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
@@ -45,6 +46,11 @@ message ListDevicesRes {
 
 message DeleteDeviceReq {
   string name = 1;
+
+  // admin's may delete a device owned
+  // by someone other than the current user
+  // if empty, defaults to the current user
+  google.protobuf.StringValue owner = 2;
 }
 
 message ListAllDevicesReq {

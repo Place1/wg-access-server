@@ -7,7 +7,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
-import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined'
+import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined';
 import { MacOSIcon, IosIcon, WindowsIcon, LinuxIcon, AndroidIcon } from './Icons';
 import { TabPanel } from './TabPanel';
 import { Platform, getPlatform } from '../Platform';
@@ -179,15 +179,12 @@ export class GetConnected extends React.Component<Props> {
         </TabPanel>
         <TabPanel for={Platform.Unknown} value={this.state.platform}>
           <Grid container direction="row" justify="space-around" alignItems="center">
-          <Typography variant="body1" component="pre" style={{maxWidth: '100%', overflow: 'auto'}}>
-            {this.props.configFile}
-          </Typography>
-          <Button
-            color="primary"
-            onClick={() => setClipboard(this.props.configFile)}
-          >
-            Copy To Clipboard
-          </Button>
+            <Typography variant="body1" component="pre" style={{ maxWidth: '100%', overflow: 'auto' }}>
+              {this.props.configFile}
+            </Typography>
+            <Button color="primary" onClick={() => setClipboard(this.props.configFile)}>
+              Copy To Clipboard
+            </Button>
           </Grid>
         </TabPanel>
         <Grid container justify="center">

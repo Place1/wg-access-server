@@ -1,8 +1,8 @@
-import formatDistance from "date-fns/formatDistance";
+import formatDistance from 'date-fns/formatDistance';
 import timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
-import { toDate } from "./Api";
-import { fromResource, lazyObservable } from "mobx-utils";
-import { toast } from "./components/Toast";
+import { toDate } from './Api';
+import { fromResource, lazyObservable } from 'mobx-utils';
+import { toast } from './components/Toast';
 
 export function sleep(seconds: number) {
   return new Promise((resolve) => {
@@ -22,7 +22,7 @@ export function lastSeen(timestamp: timestamp_pb.Timestamp.AsObject | undefined)
 }
 
 export function lazy<T>(cb: () => Promise<T>) {
-  const resource = lazyObservable<T>(async sink => {
+  const resource = lazyObservable<T>(async (sink) => {
     sink(await cb());
   });
 
@@ -41,7 +41,7 @@ export function autorefresh<T>(seconds: number, cb: () => Promise<T>) {
   let sink: ((next: T) => void) | undefined;
 
   const resource = fromResource<T>(
-    async s => {
+    async (s) => {
       sink = s;
       running = true;
       while (running) {
@@ -51,7 +51,7 @@ export function autorefresh<T>(seconds: number, cb: () => Promise<T>) {
     },
     () => {
       running = false;
-    }
+    },
   );
 
   return {

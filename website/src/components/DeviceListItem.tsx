@@ -11,7 +11,7 @@ import { lastSeen } from '../Util';
 import { AppState } from '../AppState';
 import { IconMenu } from './IconMenu';
 import { PopoverDisplay } from './PopoverDisplay';
-import { Device } from '../sdk/devices_pb'
+import { Device } from '../sdk/devices_pb';
 import { grpc } from '../Api';
 import { observer } from 'mobx-react';
 
@@ -42,10 +42,7 @@ export class DeviceListItem extends React.Component<Props> {
           avatar={
             <Avatar style={{ backgroundColor: device.connected ? '#76de8a' : '#bdbdbd' }}>
               {/* <DonutSmallIcon /> */}
-              {device.connected
-                ? <WifiIcon />
-                : <WifiOffIcon />
-              }
+              {device.connected ? <WifiIcon /> : <WifiOffIcon />}
             </Avatar>
           }
           action={
@@ -59,7 +56,7 @@ export class DeviceListItem extends React.Component<Props> {
         <CardContent>
           <table cellPadding="5">
             <tbody>
-              {AppState.info?.metadataEnabled && device.connected &&
+              {AppState.info?.metadataEnabled && device.connected && (
                 <>
                   <tr>
                     <td>Endpoint</td>
@@ -74,8 +71,8 @@ export class DeviceListItem extends React.Component<Props> {
                     <td>{numeral(device.receiveBytes).format('0b')}</td>
                   </tr>
                 </>
-              }
-              {AppState.info?.metadataEnabled && !device.connected &&
+              )}
+              {AppState.info?.metadataEnabled && !device.connected && (
                 <>
                   <tr>
                     <td>Disconnected</td>
@@ -85,10 +82,12 @@ export class DeviceListItem extends React.Component<Props> {
                     <td>{lastSeen(device.lastHandshakeTime)}</td>
                   </tr>
                 </>
-              }
+              )}
               <tr>
                 <td>Public key</td>
-                <td><PopoverDisplay label="show">{device.publicKey}</PopoverDisplay></td>
+                <td>
+                  <PopoverDisplay label="show">{device.publicKey}</PopoverDisplay>
+                </td>
               </tr>
             </tbody>
           </table>

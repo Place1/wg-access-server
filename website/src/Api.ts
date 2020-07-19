@@ -7,7 +7,7 @@ const backend = window.location.origin + '/api';
 export const grpc = {
   server: new Server(backend),
   devices: new Devices(backend),
-}
+};
 
 // https://github.com/SafetyCulture/grpc-web-devtools
 const devtools = (window as any).__GRPCWEB_DEVTOOLS__;

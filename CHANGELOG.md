@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [next]
 
+### Added
+
+- Admin users can now delete devices from the "all devices" page (issue [#57](https://github.com/Place1/wg-access-server/issues/57))
+
 ### Bug Fixes
 
 - Fixes website routing to solve 404s (issue [#56](https://github.com/Place1/wg-access-server/issues/56))
