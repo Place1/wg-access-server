@@ -54,7 +54,7 @@ func main() {
 	}
 
 	// DNS Server
-	if *conf.DNS.Enabled {
+	if conf.DNS.Enabled {
 		dns, err := dnsproxy.New(dnsproxy.DNSServerOpts{
 			Upstream: conf.DNS.Upstream,
 		})
