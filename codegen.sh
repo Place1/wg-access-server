@@ -10,6 +10,3 @@ protoc \
   -I proto/ \
   proto/*.proto \
   --go_out="plugins=grpc:$OUT_DIR"
-
-cd website || exit
-npm run codegen

@@ -1,0 +1,29 @@
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src:
+    local('Roboto'),
+    local('Roboto-Regular'),
+    url('/roboto/roboto-latin-400.woff2') format('woff2'),
+    url('/roboto/roboto-latin-400.woff') format('woff');;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src:
+    local('Roboto Medium '),
+    local('Roboto-Medium'),
+    url('/roboto/roboto-latin-500.woff2') format('woff2'),
+    url('/roboto/roboto-latin-500.woff') format('woff');
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

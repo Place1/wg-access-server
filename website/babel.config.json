@@ -1,0 +1,7 @@
+{
+  "extends": "@snowpack/app-scripts-react/babel.config.json",
+  "plugins": [
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+    ["@babel/plugin-proposal-class-properties", { "loose": true }]
+  ]
+}

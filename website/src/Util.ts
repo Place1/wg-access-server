@@ -1,5 +1,5 @@
 import formatDistance from "date-fns/formatDistance";
-import { Timestamp } from 'google-protobuf/google/protobuf/timestamp_pb';
+import timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
 import { toDate } from "./Api";
 import { fromResource, lazyObservable } from "mobx-utils";
 import { toast } from "./components/Toast";
@@ -12,7 +12,7 @@ export function sleep(seconds: number) {
   });
 }
 
-export function lastSeen(timestamp: Timestamp.AsObject | undefined): string {
+export function lastSeen(timestamp: timestamp_pb.Timestamp.AsObject | undefined): string {
   if (timestamp === undefined) {
     return 'Never';
   }
