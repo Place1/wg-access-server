@@ -123,8 +123,10 @@ func Read() *AppConfig {
 	config.Storage = *storage
 	config.VPN.AllowedIPs = []string{"0.0.0.0/0"}
 	config.DNS.Enabled = true
+	config.AdminPassword = *adminPassword
+	config.AdminSubject = *adminUsername
 
-	if upstreamDNS != nil && *upstreamDNS != "" {
+	if *upstreamDNS != "" {
 		config.DNS.Upstream = []string{*upstreamDNS}
 	}
 
@@ -149,14 +151,6 @@ func Read() *AppConfig {
 		},
 	})
 
-	if adminPassword != nil {
-		config.AdminPassword = *adminPassword
-		config.AdminSubject = *adminUsername
-		if config.AdminSubject == "" {
-			config.AdminSubject = "admin"
-		}
-	}
-
 	if config.DisableMetadata {
 		logrus.Info("Metadata collection has been disabled. No metrics or device connectivity information will be recorded or shown")
 	}
@@ -179,7 +173,7 @@ func Read() *AppConfig {
 		config.WireGuard.PrivateKey = key.String()
 	}
 
-	if config.AdminPassword != "" {
+	if config.AdminPassword != "" && config.AdminSubject != "" {
 		if config.Auth.Basic == nil {
 			config.Auth.Basic = &authconfig.BasicAuthConfig{}
 		}
