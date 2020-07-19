@@ -1,30 +1,44 @@
-import React from 'react';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Paper from '@material-ui/core/Paper';
+import { ButtonGroup } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import Typography from '@material-ui/core/Typography';
-import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined';
-import { MacOSIcon, IosIcon, WindowsIcon, LinuxIcon, AndroidIcon } from './Icons';
+import Paper from '@material-ui/core/Paper';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
+import { GetApp } from '@material-ui/icons';
+import Laptop from '@material-ui/icons/Laptop';
+import PhoneIphone from '@material-ui/icons/PhoneIphone';
+import React from 'react';
+import { isMobile } from '../Platform';
+import { download } from '../Util';
+import { LinuxIcon, MacOSIcon, WindowsIcon } from './Icons';
+import { QRCode } from './QRCode';
 import { TabPanel } from './TabPanel';
-import { Platform, getPlatform } from '../Platform';
-import { DownloadConfig } from './DownloadConfig';
-import { DownloadLink } from './DownloadLink';
-import Button from '@material-ui/core/Button';
-import { setClipboard } from '../Util';
 
 interface Props {
-  qrCodeUri: string;
   configFile: string;
-  configFileUri: string;
 }
 
 export class GetConnected extends React.Component<Props> {
   state = {
-    platform: getPlatform(),
+    currentTab: isMobile() ? 'mobile' : 'desktop',
+  };
+
+  go = (href: string) => {
+    window.open(href, '__blank', 'noopener noreferrer');
+  };
+
+  download = () => {
+    download({
+      filename: 'WireGuard.conf',
+      content: this.props.configFile,
+    });
+  };
+
+  getqr = async () => {
+    return;
   };
 
   render() {
@@ -32,83 +46,50 @@ export class GetConnected extends React.Component<Props> {
       <React.Fragment>
         <Paper>
           <Tabs
-            value={this.state.platform}
-            onChange={(_, platform) => this.setState({ platform })}
+            value={this.state.currentTab}
+            onChange={(_, currentTab) => this.setState({ currentTab })}
             indicatorColor="primary"
             textColor="primary"
-            variant="scrollable"
-            scrollButtons="auto"
+            variant="fullWidth"
           >
-            <Tab icon={<LinuxIcon />} value={Platform.Linux} />
-            <Tab icon={<MacOSIcon />} value={Platform.Mac} />
-            <Tab icon={<WindowsIcon />} value={Platform.Windows} />
-            <Tab icon={<IosIcon />} value={Platform.Ios} />
-            <Tab icon={<AndroidIcon />} value={Platform.Android} />
-            <Tab icon={<DescriptionOutlined />} value={Platform.Unknown} />
+            <Tab icon={<Laptop />} value="desktop" />
+            <Tab icon={<PhoneIphone />} value="mobile" />
           </Tabs>
         </Paper>
-        <TabPanel for={Platform.Linux} value={this.state.platform}>
+
+        <TabPanel for="desktop" value={this.state.currentTab}>
           <Grid container direction="row" justify="space-around" alignItems="center">
-            <Grid item xs={12} sm={6}>
-              <List>
-                <ListItem>
-                  <ListItemText primary="1. Install WireGuard for Linux" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="2. Download your connection file" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText
-                    primary="3. Copy it to /etc/wireguard/wg0.conf"
-                    secondary="This will allow you to use wg-quick to bring the interface up and down easily."
-                  />
-                </ListItem>
-              </List>
-            </Grid>
-            <Grid item direction="column" container spacing={3} xs={12} sm={6}>
-              <Grid item>
-                <DownloadConfig configFileUri={this.props.configFileUri} />
-              </Grid>
-              <Grid item>
-                <DownloadLink
-                  label="Download WireGuard"
-                  href="https://www.wireguard.com/install/"
-                  icon={<LinuxIcon />}
-                />
-              </Grid>
-            </Grid>
+            <List>
+              <ListItem>
+                <ListItemText style={{ width: 300 }} primary="1. Install the WireGuard App" />
+                <ButtonGroup size="large" color="primary" aria-label="large outlined primary button group">
+                  <Button onClick={() => this.go('https://www.WireGuard.com/install/')}>
+                    <LinuxIcon />
+                  </Button>
+                  <Button
+                    onClick={() => this.go('https://download.WireGuard.com/windows-client/WireGuard-amd64-0.1.1.msi')}
+                  >
+                    <WindowsIcon />
+                  </Button>
+                  <Button onClick={() => this.go('https://itunes.apple.com/us/app/WireGuard/id1451685025?ls=1&mt=12')}>
+                    <MacOSIcon />
+                  </Button>
+                </ButtonGroup>
+              </ListItem>
+              <ListItem>
+                <ListItemText style={{ width: 300 }} primary="2. Download your connection file" />
+                <Button variant="outlined" color="primary" onClick={this.download}>
+                  <GetApp /> Connection File
+                </Button>
+              </ListItem>
+              <ListItem>
+                <ListItemText style={{ width: 300 }} primary="3. Import your connection file in the App" />
+              </ListItem>
+            </List>
           </Grid>
         </TabPanel>
-        <TabPanel for={Platform.Mac} value={this.state.platform}>
-          <Grid container direction="row" justify="space-around" alignItems="center">
-            <Grid item xs={12} sm={6}>
-              <List>
-                <ListItem>
-                  <ListItemText primary="1. Install WireGuard for MacOS" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="2. Download your connection file" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="3. Add tunnel from file" />
-                </ListItem>
-              </List>
-            </Grid>
-            <Grid item direction="column" container spacing={3} xs={12} sm={6}>
-              <Grid item>
-                <DownloadConfig configFileUri={this.props.configFileUri} />
-              </Grid>
-              <Grid item>
-                <DownloadLink
-                  label="Download WireGuard"
-                  href="https://itunes.apple.com/us/app/wireguard/id1451685025?ls=1&mt=12"
-                  icon={<MacOSIcon />}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-        </TabPanel>
-        <TabPanel for={Platform.Ios} value={this.state.platform}>
+
+        <TabPanel for="mobile" value={this.state.currentTab}>
           <Grid container direction="row" justify="space-around" alignItems="center">
             <Grid item>
               <List>
@@ -124,79 +105,10 @@ export class GetConnected extends React.Component<Props> {
               </List>
             </Grid>
             <Grid item>
-              <img alt="wireguard qr code" src={this.props.qrCodeUri} />
+              <QRCode content={this.props.configFile} />
             </Grid>
           </Grid>
         </TabPanel>
-        <TabPanel for={Platform.Android} value={this.state.platform}>
-          <Grid container direction="row" justify="space-around" alignItems="center">
-            <Grid item>
-              <List>
-                <ListItem>
-                  <ListItemText primary="1. Install the WireGuard app" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="2. Add a tunnel" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="3. Create from QR code" />
-                </ListItem>
-              </List>
-            </Grid>
-            <Grid item>
-              <img alt="wireguard qr code" src={this.props.qrCodeUri} />
-            </Grid>
-          </Grid>
-        </TabPanel>
-        <TabPanel for={Platform.Windows} value={this.state.platform}>
-          <Grid container direction="row" justify="space-around" alignItems="center">
-            <Grid item xs={12} sm={6}>
-              <List>
-                <ListItem>
-                  <ListItemText primary="1. Install WireGuard for Windows" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="2. Download your connection file" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="3. Add tunnel from file" />
-                </ListItem>
-              </List>
-            </Grid>
-            <Grid item direction="column" container spacing={3} xs={12} sm={6}>
-              <Grid item>
-                <DownloadConfig configFileUri={this.props.configFileUri} />
-              </Grid>
-              <Grid item>
-                <DownloadLink
-                  label="Download WireGuard"
-                  href="https://download.wireguard.com/windows-client/wireguard-amd64-0.0.32.msi"
-                  icon={<WindowsIcon />}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-        </TabPanel>
-        <TabPanel for={Platform.Unknown} value={this.state.platform}>
-          <Grid container direction="row" justify="space-around" alignItems="center">
-            <Typography variant="body1" component="pre" style={{ maxWidth: '100%', overflow: 'auto' }}>
-              {this.props.configFile}
-            </Typography>
-            <Button color="primary" onClick={() => setClipboard(this.props.configFile)}>
-              Copy To Clipboard
-            </Button>
-          </Grid>
-        </TabPanel>
-        <Grid container justify="center">
-          <Typography style={{ fontStyle: 'italic', maxWidth: 600 }}>
-            The VPN configuration file or QR code will not be available again.
-            <br />
-            If you lose your connection settings or reset your device, you can remove and re-add it to generate a new
-            connection file or QR code.
-            <br />
-            They contain your WireGuard Private Key and should never be shared.
-          </Typography>
-        </Grid>
       </React.Fragment>
     );
   }

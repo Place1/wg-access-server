@@ -81,3 +81,18 @@ export function setClipboard(text: string) {
     text: 'Added to clipboard',
   });
 }
+
+export interface DownloadOpts {
+  filename: string,
+  content: string,
+}
+
+export function download(opts: DownloadOpts) {
+  const anchor = document.createElement('a');
+  anchor.href = URL.createObjectURL(new File([opts.content], opts.filename));
+  anchor.download = opts.filename;
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+}

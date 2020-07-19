@@ -76,7 +76,7 @@ type AppConfig struct {
 		// Enabled allows you to turn on/off
 		// the VPN DNS proxy feature.
 		// DNS Proxying is enabled by default.
-		Enabled *bool `yaml:"enabled"`
+		Enabled bool `yaml:"enabled"`
 		// Upstream configures the addresses of upstream
 		// DNS servers to which client DNS requests will be sent to.
 		// Defaults the host's upstream DNS servers (via resolveconf)
@@ -111,7 +111,7 @@ func Read() *AppConfig {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	// here we're filling out the config struct
-	// with values from our flags.
+	// with values from our flags/defaults.
 	config := AppConfig{}
 	config.LogLevel = *logLevel
 	config.Port = *webPort
@@ -121,28 +121,11 @@ func Read() *AppConfig {
 	config.DisableMetadata = *disableMetadata
 	config.WireGuard.PrivateKey = *privateKey
 	config.Storage = *storage
-
-	if config.DNS.Enabled == nil {
-		on := true
-		config.DNS.Enabled = &on
-	}
-
-	if adminPassword != nil {
-		config.AdminPassword = *adminPassword
-		config.AdminSubject = *adminUsername
-		if config.AdminSubject == "" {
-			config.AdminSubject = "admin"
-		}
-	}
+	config.VPN.AllowedIPs = []string{"0.0.0.0/0"}
+	config.DNS.Enabled = true
 
 	if upstreamDNS != nil && *upstreamDNS != "" {
 		config.DNS.Upstream = []string{*upstreamDNS}
-	}
-
-	if config.VPN.AllowedIPs == nil || len(config.VPN.AllowedIPs) == 0 {
-		config.VPN.AllowedIPs = []string{
-			"0.0.0.0/0",
-		}
 	}
 
 	if *configPath != "" {
@@ -165,6 +148,14 @@ func Read() *AppConfig {
 			return "", fmt.Sprintf("%s:%d", filepath.Base(f.File), f.Line)
 		},
 	})
+
+	if adminPassword != nil {
+		config.AdminPassword = *adminPassword
+		config.AdminSubject = *adminUsername
+		if config.AdminSubject == "" {
+			config.AdminSubject = "admin"
+		}
+	}
 
 	if config.DisableMetadata {
 		logrus.Info("Metadata collection has been disabled. No metrics or device connectivity information will be recorded or shown")

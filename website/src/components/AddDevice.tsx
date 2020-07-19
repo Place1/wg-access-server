@@ -1,5 +1,7 @@
-import React from 'react';
 import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import CardHeader from '@material-ui/core/CardHeader';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -8,19 +10,17 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import AddIcon from '@material-ui/icons/Add';
 import Typography from '@material-ui/core/Typography';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import CardContent from '@material-ui/core/CardContent';
-import qrcode from 'qrcode';
+import AddIcon from '@material-ui/icons/Add';
 import { codeBlock } from 'common-tags';
-import { box_keyPair } from 'tweetnacl-ts';
-import { AppState } from '../AppState';
-import { GetConnected } from './GetConnected';
-import { grpc } from '../Api';
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
+import React from 'react';
+import { box_keyPair } from 'tweetnacl-ts';
+import { grpc } from '../Api';
+import { AppState } from '../AppState';
+import { GetConnected } from './GetConnected';
+import { Info } from './Info';
 
 interface Props {
   onAdd: () => void;
@@ -40,13 +40,7 @@ export class AddDevice extends React.Component<Props> {
   };
 
   @observable
-  qrCode?: string;
-
-  @observable
   configFile?: string;
-
-  @observable
-  configFileUri?: string;
 
   submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -76,8 +70,6 @@ export class AddDevice extends React.Component<Props> {
       `;
 
       this.configFile = configFile;
-      this.qrCode = await qrcode.toDataURL(configFile);
-      this.configFileUri = URL.createObjectURL(new Blob([configFile]));
       this.dialogOpen = true;
       this.reset();
     } catch (error) {
@@ -120,9 +112,24 @@ export class AddDevice extends React.Component<Props> {
           </CardContent>
         </Card>
         <Dialog disableBackdropClick disableEscapeKeyDown maxWidth="xl" open={this.dialogOpen}>
-          <DialogTitle>Get Connected</DialogTitle>
+          <DialogTitle>
+            Get Connected
+            <Info>
+              <Typography component="p" style={{ paddingBottom: 8 }}>
+                Your VPN connection file is not stored by this portal.
+              </Typography>
+              <Typography component="p" style={{ paddingBottom: 8 }}>
+                If you lose this file you can simply create a new device on this portal to generate a new connection
+                file.
+              </Typography>
+              <Typography component="p">
+                The connection file contains your WireGuard Private Key (i.e. password) and should{' '}
+                <strong>never</strong> be shared.
+              </Typography>
+            </Info>
+          </DialogTitle>
           <DialogContent>
-            <GetConnected qrCodeUri={this.qrCode!} configFile={this.configFile!} configFileUri={this.configFileUri!} />
+            <GetConnected configFile={this.configFile!} />
           </DialogContent>
           <DialogActions>
             <Button color="secondary" variant="outlined" onClick={() => (this.dialogOpen = false)}>

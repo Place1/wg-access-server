@@ -28,3 +28,7 @@ export function getPlatform() {
   }
   return Platform.Unknown;
 }
+
+export function isMobile() {
+  return [Platform.Ios, Platform.Android].includes(getPlatform());
+}

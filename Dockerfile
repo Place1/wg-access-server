@@ -1,19 +1,20 @@
 ### Build stage for the website frontend
 FROM node:10 as website
 RUN apt-get update
-RUN apt-get install -y protobuf-compiler
+RUN apt-get install -y protobuf-compiler libprotobuf-dev
 WORKDIR /code
 COPY ./website/package.json ./
 COPY ./website/package-lock.json ./
 RUN npm ci --no-audit --prefer-offline
-COPY ./proto/ ./proto/
+COPY ./proto/ ../proto/
 COPY ./website/ ./
+RUN npm run codegen
 RUN npm run build
 
 ### Build stage for the website backend server
 FROM golang:1.13.8 as server
 RUN apt-get update
-RUN apt-get install -y protobuf-compiler
+RUN apt-get install -y protobuf-compiler libprotobuf-dev
 WORKDIR /code
 ENV GOOS=linux
 ENV GARCH=amd64
