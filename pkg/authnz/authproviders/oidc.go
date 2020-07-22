@@ -34,6 +34,7 @@ type OIDCConfig struct {
 func (c *OIDCConfig) Provider() *authruntime.Provider {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
+
 	provider, err := oidc.NewProvider(ctx, c.Issuer)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to create oidc provider"))

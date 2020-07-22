@@ -108,7 +108,6 @@ const loginPage string = `
 		top: 50%;
 		transform: translateY(-50%);
 		height: 18px;
-		width: 18px;
 	}
 
 	.form button:hover {
@@ -201,7 +200,7 @@ const loginPage string = `
 							{{end}}
 						"
 					>
-						Sign in with {{$p.Name}}
+						{{$p.Name}}
 					</span>
 				</button>
 			</a>

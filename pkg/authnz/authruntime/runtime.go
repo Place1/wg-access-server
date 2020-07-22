@@ -24,9 +24,9 @@ type Provider struct {
 }
 
 type ProviderBranding struct {
-	Background string
-	Color      string
-	Icon       string
+	Background string `yaml:"background"`
+	Color      string `yaml:"color"`
+	Icon       string `yaml:"icon"`
 }
 
 type ProviderRuntime struct {
