@@ -1,13 +1,14 @@
 package authconfig
 
 import (
+	"github.com/place1/wg-access-server/pkg/authnz/authproviders"
 	"github.com/place1/wg-access-server/pkg/authnz/authruntime"
 )
 
 type AuthConfig struct {
-	OIDC   *OIDCConfig      `yaml:"oidc"`
-	Gitlab *GitlabConfig    `yaml:"gitlab"`
-	Basic  *BasicAuthConfig `yaml:"basic"`
+	OIDC   *authproviders.OIDCConfig      `yaml:"oidc"`
+	Gitlab *authproviders.GitlabConfig    `yaml:"gitlab"`
+	Basic  *authproviders.BasicAuthConfig `yaml:"basic"`
 }
 
 func (c *AuthConfig) IsEnabled() bool {
@@ -17,16 +18,18 @@ func (c *AuthConfig) IsEnabled() bool {
 func (c *AuthConfig) Providers() []*authruntime.Provider {
 	providers := []*authruntime.Provider{}
 
+	// must be first because the login page looks nicer
+	// with basic auth appearing first.
+	if c.Basic != nil {
+		providers = append(providers, c.Basic.Provider())
+	}
+
 	if c.OIDC != nil {
 		providers = append(providers, c.OIDC.Provider())
 	}
 
 	if c.Gitlab != nil {
 		providers = append(providers, c.Gitlab.Provider())
-	}
-
-	if c.Basic != nil {
-		providers = append(providers, c.Basic.Provider())
 	}
 
 	return providers

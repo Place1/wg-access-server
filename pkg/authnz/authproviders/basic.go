@@ -1,4 +1,4 @@
-package authconfig
+package authproviders
 
 import (
 	"fmt"
@@ -11,6 +11,7 @@ import (
 )
 
 type BasicAuthConfig struct {
+	Name string `yaml:"name"`
 	// Users is a list of htpasswd encoded username:password pairs
 	// supports BCrypt, Sha, Ssha, Md5
 	// example: "htpasswd -nB <username>"
@@ -20,6 +21,7 @@ type BasicAuthConfig struct {
 
 func (c *BasicAuthConfig) Provider() *authruntime.Provider {
 	return &authruntime.Provider{
+		Name: c.Name,
 		Type: "Basic",
 		Invoke: func(w http.ResponseWriter, r *http.Request, runtime *authruntime.ProviderRuntime) {
 			basicAuthLogin(c, runtime)(w, r)
@@ -29,12 +31,14 @@ func (c *BasicAuthConfig) Provider() *authruntime.Provider {
 
 func basicAuthLogin(c *BasicAuthConfig, runtime *authruntime.ProviderRuntime) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		u, p, ok := r.BasicAuth()
-		if !ok {
-			w.Header().Set("WWW-Authenticate", `Basic realm="site"`)
-			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprintln(w, "unauthorized")
-			return
+		// accept standard basic auth challenges
+		u, p, isBasic := r.BasicAuth()
+
+		if !isBasic {
+			// we'll handle form submissions and direct
+			// browser challenges
+			u = r.FormValue("username")
+			p = r.FormValue("password")
 		}
 
 		if ok := checkCreds(c.Users, u, p); ok {
@@ -50,10 +54,17 @@ func basicAuthLogin(c *BasicAuthConfig, runtime *authruntime.ProviderRuntime) ht
 			return
 		}
 
-		w.Header().Set("WWW-Authenticate", `Basic realm="site"`)
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprintln(w, "unauthorized")
-		return
+		if !isBasic {
+			runtime.ShowBanner(w, r, authsession.Banner{
+				Text:   "Invalid username or password",
+				Intent: "danger",
+			})
+		} else {
+			// challenge browser
+			w.Header().Set("WWW-Authenticate", `Basic realm="site"`)
+			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprintln(w, "unauthorized")
+		}
 	}
 }
 

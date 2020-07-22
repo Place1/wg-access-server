@@ -10,6 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/place1/wg-access-server/pkg/authnz/authconfig"
+	"github.com/place1/wg-access-server/pkg/authnz/authproviders"
 	"github.com/vishvananda/netlink"
 
 	"github.com/pkg/errors"
@@ -175,7 +176,7 @@ func Read() *AppConfig {
 
 	if config.AdminPassword != "" && config.AdminSubject != "" {
 		if config.Auth.Basic == nil {
-			config.Auth.Basic = &authconfig.BasicAuthConfig{}
+			config.Auth.Basic = &authproviders.BasicAuthConfig{}
 		}
 		// htpasswd.AcceptBcrypt(config.AdminPassword)
 		pw, err := bcrypt.GenerateFromPassword([]byte(config.AdminPassword), bcrypt.DefaultCost)

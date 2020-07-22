@@ -5,10 +5,13 @@ import (
 	"io"
 
 	"github.com/place1/wg-access-server/pkg/authnz/authruntime"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 )
 
 type LoginPage struct {
+	Title     string
 	Providers []*authruntime.Provider
+	Banner    *authsession.Banner
 }
 
 func RenderLoginPage(w io.Writer, data LoginPage) error {
@@ -22,14 +25,17 @@ func RenderLoginPage(w io.Writer, data LoginPage) error {
 const loginPage string = `
 <style>
 	* {
-		font-family: monospace;
+		font-family: 'Open Sans', -apple-system, BlinkMacSystemFont,
+			"Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+			"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 		font-size: 16px;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
 	}
 
 	body {
-		background-color: #3899c9;
+		background: #1e6cc9;
+		background: -webkit-linear-gradient(0deg, #3357cc 0%, #1e6cc9 100%);
 	}
 
 	.form {
@@ -44,7 +50,7 @@ const loginPage string = `
 	}
 
 	.form h2 {
-		margin: 0 0 35px;
+		margin: 0 0 20px;
 		text-align: center;
 		line-height: 1;
 		color: black;
@@ -52,14 +58,20 @@ const loginPage string = `
 		font-weight: 400;
 	}
 
+	.form label {
+		font-size: 12px;
+	}
+
 	.form input {
+		font-size: 14px;
 		outline: none;
 		display: block;
 		width: 100%;
-		padding: 10px 15px;
+		padding: 8px 12px;
 		border: 1px solid #ccc;
-		color: #ccc;
+		border-radius: 3px;
 		box-sizing: border-box;
+		margin-bottom: 18px;
 	}
 
 	.form a {
@@ -75,18 +87,28 @@ const loginPage string = `
 	}
 
 	.form input:focus {
-		color: #333;
+		//color: #333;
 		border: 1px solid #44c4e7;
 	}
 
 	.form button {
+		position: relative;
 		cursor: pointer;
-		background: #44c4e7;
 		width: 100%;
-		padding: 10px 15px;
+		padding: 10px 34px;
+		border-radius: 3px;
 		border: 0;
-		color: #fff;
-		text-transform: capitalize;
+		background: #44c4e7;
+		color: white;
+	}
+
+	.form button img {
+		position: absolute;
+		left: 8px;
+		top: 50%;
+		transform: translateY(-50%);
+		height: 18px;
+		width: 18px;
 	}
 
 	.form button:hover {
@@ -113,25 +135,78 @@ const loginPage string = `
 		background-color: #4d4d4d;
 		border-radius: 50%;
 	}
+
+	.banner {
+		padding: 8px;
+		font-size: 12px;
+		margin-bottom: 16px;
+	}
+
+	.banner.danger {
+		background: #d65463;
+		color: white;
+	}
 </style>
 
 <section class="form">
-  <h2>Sign In</h2>
+	<h2>{{.Title}}</h2>
 
 	{{range $i, $p := .Providers}}
-		<a href="/signin/{{$i}}">
-			<button>{{$p.Type}}</button>
-		</a>
-	{{end}}
+		{{if eq $p.Type "Basic"}}
+			<form autocomplete="off" method="post" action="/signin/{{$i}}">
+				{{if $.Banner}}
+					<div
+						class="banner {{$.Banner.Intent}}"
+					>
+						{{$.Banner.Text}}
+					</div>
+				{{end}}
+				<div>
+					<label for="username">username</label>
+					<input id="username" name="username" placeholder="Username" type="text"></input>
+				</div>
+				<div>
+					<label for="password">password</label>
+					<input id="password" name="password" placeholder="Password" type="password"></input>
+				</div>
+				<button id="submit">Sign in</button>
+			</form>
 
-	<!--
-	<form autocomplete="off">
-		<input placeholder="Username" type="text" id="username"></input>
-		<input placeholder="Password" type="password" id="password"></input>
-		<button id="submit">Login</button>
-	</form>
-	<hr />
-	-->
+			{{ $length := len $.Providers }}
+			{{ if gt $length 1 }}
+				<hr />
+			{{end}}
+
+		{{else}}
+
+			<a href="/signin/{{$i}}">
+				<button
+					style="
+						{{if .Branding.Background}}
+							background: {{.Branding.Background}}
+						{{else}}
+							background: #44c4e7;
+						{{end}}
+					"
+				>
+					{{if .Branding.Icon}}
+						<img src="{{.Branding.Icon}}"></img>
+					{{end}}
+					<span
+						style="
+							{{if .Branding.Color}}
+								color: {{.Branding.Color}}
+							{{else}}
+								color: white;
+							{{end}}
+						"
+					>
+						Sign in with {{$p.Name}}
+					</span>
+				</button>
+			</a>
+		{{end}}
+	{{end}}
 
 </section>
 `

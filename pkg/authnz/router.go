@@ -39,8 +39,12 @@ func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddle
 
 	router.HandleFunc("/signin", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
+		banner, _ := runtime.GetBanner(r)
 		fmt.Fprint(w, authtemplates.RenderLoginPage(w, authtemplates.LoginPage{
 			Providers: providers,
+			// TODO: make configurable (branding)
+			Title:  "Welcome to WireGuard Access Portal",
+			Banner: banner,
 		}))
 	})
 

@@ -15,6 +15,14 @@ type AuthSession struct {
 	Identity *Identity
 }
 
+type Banner struct {
+	Text string
+	// currently only supports "danger"
+	// i'm planning to rewrite the whole login
+	// page into the react app at some stage.
+	Intent string
+}
+
 type authSessionKey string
 
 var sessionKey authSessionKey = "auth-session"
@@ -42,6 +50,23 @@ func SetSession(store sessions.Store, r *http.Request, w http.ResponseWriter, s 
 		return err
 	}
 	return nil
+}
+
+func AddFlash(store sessions.Store, r *http.Request, w http.ResponseWriter, key string, value string) {
+	session, _ := store.Get(r, string(sessionKey))
+	session.AddFlash(value, key)
+	session.Save(r, w)
+}
+
+func GetFlash(store sessions.Store, r *http.Request, key string) (string, bool) {
+	session, _ := store.Get(r, string(sessionKey))
+	results := session.Flashes(key)
+	if len(results) == 1 {
+		if v, ok := results[0].(string); ok {
+			return v, true
+		}
+	}
+	return "", false
 }
 
 func ClearSession(store sessions.Store, r *http.Request, w http.ResponseWriter) error {

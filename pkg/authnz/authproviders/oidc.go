@@ -1,4 +1,4 @@
-package authconfig
+package authproviders
 
 import (
 	"context"
@@ -58,6 +58,7 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 
 	return &authruntime.Provider{
 		Type: "OIDC",
+		Name: c.Name,
 		Invoke: func(w http.ResponseWriter, r *http.Request, runtime *authruntime.ProviderRuntime) {
 			c.loginHandler(runtime, oauthConfig)(w, r)
 		},
