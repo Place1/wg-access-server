@@ -25,17 +25,15 @@ func RenderLoginPage(w io.Writer, data LoginPage) error {
 const loginPage string = `
 <style>
 	* {
-		font-family: 'Open Sans', -apple-system, BlinkMacSystemFont,
-			"Segoe UI", Roboto, Helvetica, Arial, sans-serif,
-			"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+		font-family: monospace;
 		font-size: 16px;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
 	}
 
 	body {
-		background: #1e6cc9;
-		background: -webkit-linear-gradient(0deg, #3357cc 0%, #1e6cc9 100%);
+		background: #3899c9;
+		background: -webkit-linear-gradient(0deg, #228bbf 0%, #3899c9 100%);
 	}
 
 	.form {
@@ -87,7 +85,6 @@ const loginPage string = `
 	}
 
 	.form input:focus {
-		//color: #333;
 		border: 1px solid #44c4e7;
 	}
 
@@ -98,7 +95,7 @@ const loginPage string = `
 		padding: 10px 34px;
 		border-radius: 3px;
 		border: 0;
-		background: #44c4e7;
+		background: #1e6cc9;
 		color: white;
 	}
 
@@ -183,8 +180,6 @@ const loginPage string = `
 					style="
 						{{if .Branding.Background}}
 							background: {{.Branding.Background}}
-						{{else}}
-							background: #44c4e7;
 						{{end}}
 					"
 				>
