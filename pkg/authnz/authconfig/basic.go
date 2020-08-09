@@ -11,6 +11,7 @@ import (
 )
 
 type BasicAuthConfig struct {
+	Enabled bool `yaml:"enabled"`
 	// Users is a list of htpasswd encoded username:password pairs
 	// supports BCrypt, Sha, Ssha, Md5
 	// example: "htpasswd -nB <username>"

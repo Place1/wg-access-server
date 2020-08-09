@@ -21,14 +21,15 @@ import (
 )
 
 type OIDCConfig struct {
+	Enabled      bool                      `yaml:"enabled"`
 	Name         string                    `yaml:"name"`
 	Issuer       string                    `yaml:"issuer"`
-	ClientID     string                    `yaml:"clientID"`
-	ClientSecret string                    `yaml:"clientSecret"`
+	ClientID     string                    `yaml:"clientID" split_words:"true"`
+	ClientSecret string                    `yaml:"clientSecret" split_words:"true"`
 	Scopes       []string                  `yaml:"scopes"`
-	RedirectURL  string                    `yaml:"redirectURL"`
-	EmailDomains []string                  `yaml:"emailDomains"`
-	ClaimMapping map[string]ruleExpression `yaml:"claimMapping"`
+	RedirectURL  string                    `yaml:"redirectURL" split_words:"true"`
+	EmailDomains []string                  `yaml:"emailDomains" split_words:"true"`
+	ClaimMapping map[string]ruleExpression `yaml:"claimMapping" split_words:"true"`
 }
 
 func (c *OIDCConfig) Provider() *authruntime.Provider {

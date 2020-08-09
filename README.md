@@ -28,12 +28,12 @@ Here's a quick command to run the server to try it out.
 
 ```bash
 docker run \
-  -it \
+  -d \
   --rm \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
   -v wg-access-server-data:/data \
-  -e "WIREGUARD_PRIVATE_KEY=$(wg genkey)" \
+  -e "WGAS_WIREGUARD_PRIVATE_KEY=$(wg genkey)" \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
   place1/wg-access-server

@@ -2,23 +2,38 @@
 
 ## Environment Variables
 
-| Variable              | Description |
-|-----------------------|-------------|
-| CONFIG                | Set the config file path |
-| WIREGUARD_PRIVATE_KEY | Set the wireguard private key |
-| STORAGE               | Set the directory where device config will be persisted |
-| ADMIN_USERNAME        | Set the username (subject) for the admin account |
-| ADMIN_PASSWORD        | Set the admin account's password. The admin account will be a basic-auth user. Leave blank if your admin username authenticates via a configured authentication backend. |
-| UPSTREAM_DNS          | Set the upstream DNS server to proxy client DNS requests to. If empty, resolv.conf will be respected. |
-| LOG_LEVEL             | Set the server's log level (debug, **info**, error, critical) |
-| DISABLE_METADATA      | If true, the server will not record device level metadata such as the last handshake time, tx/rx data size |
-
-## CLI Flags
-
-All environment variables can be configured via a
-CLI flag as well.
-
-For example you can configure `STORAGE` by passing `--storage="<value>"`.
+| Variable                       | Default        | Description |
+|--------------------------------|----------------|-------------|
+| WGAS_LOG_LEVEL                 | `info`         | Set the server's log level (debug, **info**, error, critical) |
+| WGAS_DISABLE_METADATA          | `false`        | If true, the server will not record device level metadata such as the last handshake time, tx/rx data size |
+| WGAS_ADMIN_SUBJECT             | ``             | Set the username (subject) for the admin account |
+| WGAS_ADMIN_PASSWORD            | ``             | Set the admin account's password. The admin account will be a basic-auth user. Leave blank if your admin username authenticates via a configured authentication backend. |
+| WGAS_WEB_PORT                  | `8000`         | Set the port that the web UI will listen on |
+| WGAS_STORAGE                   | `memory://`    | Set the directory where device config will be persisted |
+| WGAS_WIREGUARD_INTERFACE_NAME  | `wg0`          | Set the network interface name of the WireGuard netword device |
+| WGAS_WIREGUARD_PRIVATE_KEY     | ``             | Set the wireguard private key |
+| WGAS_WIREGUARD_EXTERNAL_HOST   | ``             | ExternalAddress is the address that clients use to connect to the wireguard interface |
+| WGAS_WIREGUARD_PORT            | `51820`        | Set the WireGuard ListenPort |
+| WGAS_VPN_CIDR                  | `10.44.0.0/24` | CIDR configures a network address space that client (WireGuard peers) will be allocated an IP address from |
+| WGAS_VPN_GATEWAY_INTERFACE     | ``             | GatewayInterface will be used in iptable forwarding rules that send VPN traffic from clients to this interface Most use-cases will want this interface to have access to the outside internet |
+| WGAS_VPN_ALLOWED_IPS           | `0.0.0.0/0`    | The "AllowedIPs" for VPN clients. This value will be included in client config files and in server-side iptable rules to enforce network access. | 
+| WGAS_DNS_ENABLED               | `true`         | Enabled allows you to turn on/off the VPN DNS proxy feature. |
+| WGAS_DNS_UPSTREAM              | ``             | Set the upstream DNS server to proxy client DNS requests to. If empty, resolv.conf will be respected. |
+| WGAS_AUTH_OIDC_NAME            | ``             | |
+| WGAS_AUTH_OIDC_ISSUER          | ``             | |
+| WGAS_AUTH_OIDC_CLIENT_ID       | ``             | |
+| WGAS_AUTH_OIDC_CLIENT_SECRET   | ``             | |
+| WGAS_AUTH_OIDC_SCOPES          | ``             | |
+| WGAS_AUTH_OIDC_REDIRECT_URL    | ``             | |
+| WGAS_AUTH_OIDC_EMAIL_DOMAINS   | ``             | |
+| WGAS_AUTH_OIDC_CLAIM_MAPPING   | ``             | |
+| WGAS_AUTH_GITLAB_NAME          | ``             | |
+| WGAS_AUTH_GITLAB_BASE_URL      | ``             | |
+| WGAS_AUTH_GITLAB_CLIENT_ID     | ``             | |
+| WGAS_AUTH_GITLAB_CLIENT_SECRET | ``             | |
+| WGAS_AUTH_GITLAB_REDIRECT_URL  | ``             | |
+| WGAS_AUTH_GITLAB_EMAIL_DOMAINS | ``             | |
+| WGAS_AUTH_BASIC_USERS          | ``             | |
 
 ## Config File (config.yaml)
 

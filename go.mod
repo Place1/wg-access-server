@@ -20,6 +20,7 @@ require (
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/ishidawataru/sctp v0.0.0-20191218070446-00ab2ac2db07 // indirect
 	github.com/jinzhu/gorm v1.9.14
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.7.0 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
