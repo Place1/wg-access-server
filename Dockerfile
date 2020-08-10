@@ -12,7 +12,7 @@ RUN npm run codegen
 RUN npm run build
 
 ### Build stage for the website backend server
-FROM golang:1.13.8 as server
+FROM golang:1.14 as server
 RUN apt-get update
 RUN apt-get install -y protobuf-compiler libprotobuf-dev
 WORKDIR /code
@@ -33,12 +33,11 @@ COPY ./pkg/ ./pkg/
 RUN go build -o server
 
 ### Server
-FROM alpine:3.10
-RUN apk add iptables
-RUN apk add wireguard-tools
-RUN apk add curl
-ENV CONFIG="/config.yaml"
-ENV STORAGE="file:///data"
+FROM alpine:3.12
+RUN apk --update --no-cache add \
+	curl \
+	iptables \
+	wireguard-tools
 COPY --from=server /code/server /server
 COPY --from=website /code/build /website/build
-CMD /server
+ENTRYPOINT ["/server"]
