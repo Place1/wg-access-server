@@ -43,7 +43,7 @@ Here's an annotated config file example:
 # The application's log level.
 # Can be debug, info, error
 # Optional, defaults to info
-loglevel: info
+logLevel: info
 # Disable device metadata storage.
 # Device metadata includes the last handshake time,
 # total sent/received bytes count, their endpoint IP.

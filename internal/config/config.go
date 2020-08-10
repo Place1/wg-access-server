@@ -19,7 +19,7 @@ import (
 )
 
 type AppConfig struct {
-	LogLevel        string `yaml:"loglevel" split_words:"true" default:"info"`
+	LogLevel        string `yaml:"logLevel" split_words:"true" default:"info"`
 	DisableMetadata bool   `yaml:"disableMetadata" split_words:"true" default:"false"`
 	AdminSubject    string `yaml:"adminSubject" split_words:"true"`
 	AdminPassword   string `yaml:"adminPassword" split_words:"true"`
@@ -69,7 +69,7 @@ type AppConfig struct {
 		// files and in server-side iptable rules
 		// to enforce network access.
 		// defaults to ["0.0.0.0/1", "128.0.0.0/1"]
-		AllowedIPs []string `yaml:"AllowedIPs" split_words:"true" default:"0.0.0.0/0"`
+		AllowedIPs []string `yaml:"allowedIPs" split_words:"true" default:"0.0.0.0/0"`
 	} `yaml:"vpn"`
 	DNS struct {
 		// Enabled allows you to turn on/off
