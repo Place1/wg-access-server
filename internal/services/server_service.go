@@ -17,6 +17,7 @@ import (
 
 type ServerService struct {
 	Config *config.AppConfig
+	Wg     wgembed.WireGuardInterface
 }
 
 func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.InfoRes, error) {
@@ -25,7 +26,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
 	}
 
-	publicKey, err := wgembed.PublicKey(s.Config.WireGuard.InterfaceName)
+	publicKey, err := s.Wg.PublicKey()
 	if err != nil {
 		ctxlogrus.Extract(ctx).Error(err)
 		return nil, status.Errorf(codes.Internal, "failed to get public key")

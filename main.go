@@ -27,30 +27,34 @@ func main() {
 	vpnip := network.ServerVPNIP(conf.VPN.CIDR)
 
 	// WireGuard Server
-	wg, err := wgembed.New(conf.WireGuard.InterfaceName)
-	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to create wireguard interface"))
-	}
-	defer wg.Close()
+	wg := wgembed.NewNoOpInterface()
+	if conf.WireGuard.Enabled {
+		wgimpl, err := wgembed.New(conf.WireGuard.InterfaceName)
+		if err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to create wireguard interface"))
+		}
+		defer wgimpl.Close()
+		wg = wgimpl
 
-	logrus.Infof("starting wireguard server on 0.0.0.0:%d", conf.WireGuard.Port)
+		logrus.Infof("starting wireguard server on 0.0.0.0:%d", conf.WireGuard.Port)
 
-	wgconfig := &wgembed.ConfigFile{
-		Interface: wgembed.IfaceConfig{
-			PrivateKey: conf.WireGuard.PrivateKey,
-			Address:    vpnip.String(),
-			ListenPort: &conf.WireGuard.Port,
-		},
-	}
+		wgconfig := &wgembed.ConfigFile{
+			Interface: wgembed.IfaceConfig{
+				PrivateKey: conf.WireGuard.PrivateKey,
+				Address:    vpnip.String(),
+				ListenPort: &conf.WireGuard.Port,
+			},
+		}
 
-	if err := wg.LoadConfig(wgconfig); err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to load wireguard config"))
-	}
+		if err := wg.LoadConfig(wgconfig); err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to load wireguard config"))
+		}
 
-	logrus.Infof("wireguard VPN network is %s", conf.VPN.CIDR)
+		logrus.Infof("wireguard VPN network is %s", conf.VPN.CIDR)
 
-	if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR, conf.VPN.AllowedIPs); err != nil {
-		logrus.Fatal(err)
+		if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR, conf.VPN.AllowedIPs); err != nil {
+			logrus.Fatal(err)
+		}
 	}
 
 	// DNS Server
@@ -75,7 +79,7 @@ func main() {
 	defer storageBackend.Close()
 
 	// Services
-	deviceManager := devices.New(wg.Name(), storageBackend, conf.VPN.CIDR)
+	deviceManager := devices.New(wg, storageBackend, conf.VPN.CIDR)
 	if err := deviceManager.StartSync(conf.DisableMetadata); err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to sync"))
 	}
@@ -91,7 +95,7 @@ func main() {
 	if conf.Auth.IsEnabled() {
 		router.Use(authnz.NewMiddleware(conf.Auth, claimsMiddleware(conf)))
 	} else {
-		logrus.Warn("[DEPRECATION NOTICE] using wg-access-server without an admin user is deprecated and will be removed in an upcoming minior release.")
+		logrus.Warn("[DEPRECATION NOTICE] using wg-access-server without an admin user is deprecated and will be removed in an upcoming minor release.")
 		router.Use(func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				next.ServeHTTP(w, r.WithContext(authsession.SetIdentityCtx(r.Context(), &authsession.AuthSession{
@@ -111,6 +115,7 @@ func main() {
 	site.PathPrefix("/api").Handler(services.ApiRouter(&services.ApiServices{
 		Config:        conf,
 		DeviceManager: deviceManager,
+		Wg:            wg,
 	}))
 
 	// Static website

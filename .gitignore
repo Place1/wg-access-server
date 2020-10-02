@@ -63,3 +63,4 @@ website/yarn-debug.log*
 website/yarn-error.log*
 website/yarn.lock
 
+__debug_bin

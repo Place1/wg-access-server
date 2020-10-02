@@ -35,9 +35,7 @@ export class AddDevice extends React.Component<Props> {
   error?: string;
 
   @observable
-  formState = {
-    name: '',
-  };
+  deviceName = '';
 
   @observable
   configFile?: string;
@@ -51,7 +49,7 @@ export class AddDevice extends React.Component<Props> {
 
     try {
       const device = await grpc.devices.addDevice({
-        name: this.formState.name,
+        name: this.deviceName,
         publicKey,
       });
       this.props.onAdd();
@@ -80,7 +78,7 @@ export class AddDevice extends React.Component<Props> {
   };
 
   reset = () => {
-    this.formState.name = '';
+    this.deviceName = '';
   };
 
   render() {
@@ -94,8 +92,8 @@ export class AddDevice extends React.Component<Props> {
                 <InputLabel htmlFor="device-name">Device Name</InputLabel>
                 <Input
                   id="device-name"
-                  value={this.formState.name}
-                  onChange={(event) => (this.formState.name = event.currentTarget.value)}
+                  value={this.deviceName}
+                  onChange={(event) => (this.deviceName = event.currentTarget.value)}
                   aria-describedby="device-name-text"
                 />
                 <FormHelperText id="device-name-text">{this.error}</FormHelperText>

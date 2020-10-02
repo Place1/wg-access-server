@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/place1/wg-embed/pkg/wgembed"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,7 +20,7 @@ func syncMetrics(d *DeviceManager) {
 		logrus.Warn(errors.Wrap(err, "failed to list devices - metrics cannot be recorded"))
 		return
 	}
-	peers, err := wgembed.ListPeers(d.iface)
+	peers, err := d.wg.ListPeers()
 	if err != nil {
 		logrus.Warn(errors.Wrap(err, "failed to list peers - metrics cannot be recorded"))
 		return
