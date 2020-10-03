@@ -30,11 +30,24 @@ func (d *DeviceManager) StartSync(disableMetadataCollection bool) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to list devices")
 	}
+
 	for _, device := range devices {
 		if err := d.wg.AddPeer(device.PublicKey, device.Address); err != nil {
 			logrus.Warn(errors.Wrapf(err, "failed to sync device '%s' (ignoring)", device.Name))
 		}
 	}
+
+	d.storage.OnAdd(func(device *storage.Device) {
+		if err := d.wg.AddPeer(device.PublicKey, device.Address); err != nil {
+			logrus.Error(errors.Wrap(err, "failed to add wireguard peer"))
+		}
+	})
+
+	d.storage.OnDelete(func(device *storage.Device) {
+		if err := d.wg.RemovePeer(device.PublicKey); err != nil {
+			logrus.Error(errors.Wrap(err, "failed to remove wireguard peer"))
+		}
+	})
 
 	// start the metrics loop
 	if !disableMetadataCollection {
@@ -69,10 +82,6 @@ func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, p
 		return nil, errors.Wrap(err, "failed to save the new device")
 	}
 
-	if err := d.wg.AddPeer(publicKey, clientAddr); err != nil {
-		return nil, errors.Wrap(err, "unable to provision peer")
-	}
-
 	return device, nil
 }
 
@@ -93,12 +102,11 @@ func (d *DeviceManager) DeleteDevice(user string, name string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to retrieve device")
 	}
+
 	if err := d.storage.Delete(device); err != nil {
 		return err
 	}
-	if err := d.wg.RemovePeer(device.PublicKey); err != nil {
-		return errors.Wrap(err, "device was removed from storage but failed to be removed from the wireguard interface")
-	}
+
 	return nil
 }
 

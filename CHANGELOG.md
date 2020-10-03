@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [next]
+
+- High availability (HA) is now supported using a Postgres storage backend
+  - TODO: link to docs
+- The file:// storage backend has been removed in favour of sqlite:// for local filesystem persistence
+- The wireguard service can now be disabled via the config file. Helpful for developing on Mac and Windows until support for Mac/Windows networking is added.
+
 ## [0.2.5]
 
 ### Added

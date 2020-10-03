@@ -14,11 +14,15 @@ import (
 
 // implements Storage interface
 type FileStorage struct {
+	*InProcessWatcher
 	directory string
 }
 
 func NewFileStorage(directory string) *FileStorage {
-	return &FileStorage{directory}
+	return &FileStorage{
+		InProcessWatcher: NewInProcessWatcher(),
+		directory:        directory,
+	}
 }
 
 func (s *FileStorage) Open() error {
@@ -46,6 +50,7 @@ func (s *FileStorage) Save(device *Device) error {
 	if err := ioutil.WriteFile(path, bytes, 0600); err != nil {
 		return errors.Wrapf(err, "failed to write device to file %s", path)
 	}
+	s.emitAdd(device)
 	return nil
 }
 
@@ -113,6 +118,7 @@ func (s *FileStorage) Delete(device *Device) error {
 	if err := os.Remove(s.deviceFilePath(key(device))); err != nil {
 		return errors.Wrap(err, "failed to delete device file")
 	}
+	s.emitDelete(device)
 	return nil
 }
 
