@@ -16,7 +16,7 @@ jobs:
         id: prep
         run: |
           TAG=null
-          IMAGE=timtor/wg-access-server
+          IMAGE=place1/wg-access-server
           REF="${{ github.ref }}"
 
           if [[ "$REF" == refs/heads/master ]]; then
