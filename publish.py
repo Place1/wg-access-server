@@ -3,6 +3,7 @@ import urllib.request
 import subprocess
 import json
 import yaml
+from datetime import datetime
 
 def is_release_candidate(version):
     return '-rc' in version
@@ -13,12 +14,15 @@ r = urllib.request.urlopen('https://registry.hub.docker.com/v2/repositories/plac
     .read() \
     .decode('utf-8')
 tags = json.loads(r).get('results', [])
-print('current docker tags:', sorted([t.get('name') for t in tags], reverse=True))
+tags.sort(key=lambda t: datetime.strptime(t.get('last_updated'), '%Y-%m-%dT%H:%M:%S.%f%z'))
+tags = [t.get('name') for t in tags]
+tags = tags[-4:]
+print('current docker tags:')
+print('\n'.join(['    ' + t for t in tags]))
 
 # tag the new image
-version = input('Version: ')
+version = input('pick a published tag: ')
 docker_tag = f"place1/wg-access-server:{version}"
-subprocess.run(['docker', 'build', '-t', docker_tag, '.'])
 
 # update the helm chart and quickstart manifest
 with open('deploy/helm/wg-access-server/Chart.yaml', 'r+') as f:
@@ -41,12 +45,8 @@ subprocess.run(['mkdocs', 'gh-deploy'])
 
 # commit changes
 subprocess.run(['git', 'add', '.'])
-subprocess.run(['git', 'commit', '-m', f'{version}'])
-
-# tag the current commit
-subprocess.run(['git', 'tag', '-a', f'{version}', '-m', f'{version}'])
+subprocess.run(['git', 'commit', '-m', f'{version} - helm & docs update'])
 
 # push everything
 subprocess.run(['git', 'push'])
 subprocess.run(['git', 'push', '--tags'])
-subprocess.run(['docker', 'push', docker_tag])
