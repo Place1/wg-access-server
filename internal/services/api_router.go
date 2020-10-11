@@ -6,6 +6,8 @@ import (
 	"math"
 	"net/http"
 
+	"github.com/place1/wg-embed/pkg/wgembed"
+
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/place1/wg-access-server/internal/config"
@@ -18,6 +20,7 @@ import (
 type ApiServices struct {
 	Config        *config.AppConfig
 	DeviceManager *devices.DeviceManager
+	Wg            wgembed.WireGuardInterface
 }
 
 func ApiRouter(deps *ApiServices) http.Handler {
@@ -32,6 +35,7 @@ func ApiRouter(deps *ApiServices) http.Handler {
 	// Register GRPC services
 	proto.RegisterServerServer(server, &ServerService{
 		Config: deps.Config,
+		Wg:     deps.Wg,
 	})
 	proto.RegisterDevicesServer(server, &DeviceService{
 		DeviceManager: deps.DeviceManager,

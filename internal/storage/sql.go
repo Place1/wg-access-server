@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"net/url"
+	"path/filepath"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -94,7 +95,7 @@ func mysqlconn(u *url.URL) string {
 }
 
 func sqlite3conn(u *url.URL) string {
-	return u.Path
+	return filepath.Join(u.Host, u.Path)
 }
 
 func (s *SQLStorage) Open() error {

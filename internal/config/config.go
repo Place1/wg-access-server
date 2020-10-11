@@ -34,6 +34,7 @@ type AppConfig struct {
 	// Defaults to memory://
 	Storage   string `yaml:"storage"`
 	WireGuard struct {
+		Enabled bool `yaml:"enabled"`
 		// The network interface name of the WireGuard
 		// network device.
 		// Defaults to wg0
@@ -120,6 +121,7 @@ func Read() *AppConfig {
 	config.WireGuard.Port = *wireguardPort
 	config.VPN.CIDR = "10.44.0.0/24"
 	config.DisableMetadata = *disableMetadata
+	config.WireGuard.Enabled = true
 	config.WireGuard.PrivateKey = *privateKey
 	config.Storage = *storage
 	config.VPN.AllowedIPs = []string{"0.0.0.0/0"}

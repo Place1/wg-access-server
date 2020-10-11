@@ -52,6 +52,7 @@ func NewStorage(uri string) (Storage, error) {
 		logrus.Warn("storing data in memory - devices will not persist between restarts")
 		return NewMemoryStorage(), nil
 	case "file":
+		logrus.Warn("[DEPRECATION NOTICE] using file:// storage is deprecated and will be removed in an upcoming minor release. Please use sqlite3:// for filesystem based storage.")
 		logrus.Infof("storing data in %s", u.Path)
 		return NewFileStorage(u.Path), nil
 	case "postgres":

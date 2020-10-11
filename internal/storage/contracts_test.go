@@ -51,6 +51,15 @@ func TestSqliteStorage(t *testing.T) {
 	require.IsType(&SQLStorage{}, s)
 }
 
+func TestSqliteStorageRelativePath(t *testing.T) {
+	require := require.New(t)
+
+	s, err := NewStorage("sqlite3://sqlite.db")
+	require.NoError(err)
+
+	require.IsType(&SQLStorage{}, s)
+}
+
 func TestUnknownStorage(t *testing.T) {
 	require := require.New(t)
 

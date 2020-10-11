@@ -15,13 +15,13 @@ import (
 )
 
 type DeviceManager struct {
-	iface   string
+	wg      wgembed.WireGuardInterface
 	storage storage.Storage
 	cidr    string
 }
 
-func New(iface string, s storage.Storage, cidr string) *DeviceManager {
-	return &DeviceManager{iface, s, cidr}
+func New(wg wgembed.WireGuardInterface, s storage.Storage, cidr string) *DeviceManager {
+	return &DeviceManager{wg, s, cidr}
 }
 
 func (d *DeviceManager) StartSync(disableMetadataCollection bool) error {
@@ -31,7 +31,7 @@ func (d *DeviceManager) StartSync(disableMetadataCollection bool) error {
 		return errors.Wrap(err, "failed to list devices")
 	}
 	for _, device := range devices {
-		if err := wgembed.AddPeer(d.iface, device.PublicKey, device.Address); err != nil {
+		if err := d.wg.AddPeer(device.PublicKey, device.Address); err != nil {
 			logrus.Warn(errors.Wrapf(err, "failed to sync device '%s' (ignoring)", device.Name))
 		}
 	}
@@ -69,7 +69,7 @@ func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, p
 		return nil, errors.Wrap(err, "failed to save the new device")
 	}
 
-	if err := wgembed.AddPeer(d.iface, publicKey, clientAddr); err != nil {
+	if err := d.wg.AddPeer(publicKey, clientAddr); err != nil {
 		return nil, errors.Wrap(err, "unable to provision peer")
 	}
 
@@ -96,7 +96,7 @@ func (d *DeviceManager) DeleteDevice(user string, name string) error {
 	if err := d.storage.Delete(device); err != nil {
 		return err
 	}
-	if err := wgembed.RemovePeer(d.iface, device.PublicKey); err != nil {
+	if err := d.wg.RemovePeer(device.PublicKey); err != nil {
 		return errors.Wrap(err, "device was removed from storage but failed to be removed from the wireguard interface")
 	}
 	return nil
