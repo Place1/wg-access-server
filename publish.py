@@ -46,4 +46,3 @@ subprocess.run(['git', 'commit', '-m', f'{version} - helm & docs update'])
 
 # push everything
 subprocess.run(['git', 'push'])
-subprocess.run(['git', 'push', '--tags'])
