@@ -7,8 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/docker/libnetwork/resolvconf"
-	"github.com/docker/libnetwork/types"
 	"github.com/miekg/dns"
 	"github.com/patrickmn/go-cache"
 	"github.com/pkg/errors"
@@ -27,23 +25,12 @@ type DNSServer struct {
 }
 
 func New(opts DNSServerOpts) (*DNSServer, error) {
-
-	upstream := opts.Upstream
-
-	if len(upstream) == 0 {
-		if r, err := resolvconf.Get(); err == nil {
-			upstream = resolvconf.GetNameservers(r.Content, types.IPv4)
-		}
-	}
-
-	if len(upstream) == 0 {
-		logrus.Warn("failed to get nameservers from /etc/resolv.conf defaulting to 1.1.1.1 for DNS instead")
-		upstream = append(upstream, "1.1.1.1")
+	if len(opts.Upstream) == 0 {
+		return nil, errors.New("at least 1 upstream dns server is required for the dns proxy server to function")
 	}
 
 	addr := "0.0.0.0:53"
-
-	logrus.Infof("starting dns server on %s with upstreams: %s", addr, strings.Join(upstream, ", "))
+	logrus.Infof("starting dns server on %s with upstreams: %s", addr, strings.Join(opts.Upstream, ", "))
 
 	dnsServer := &DNSServer{
 		server: &dns.Server{
@@ -55,7 +42,7 @@ func New(opts DNSServerOpts) (*DNSServer, error) {
 			Timeout:        5 * time.Second,
 		},
 		cache:    cache.New(10*time.Minute, 10*time.Minute),
-		upstream: upstream,
+		upstream: opts.Upstream,
 	}
 	dnsServer.server.Handler = dnsServer
 

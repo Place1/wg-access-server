@@ -39,8 +39,8 @@ FROM alpine:3.10
 RUN apk add iptables
 RUN apk add wireguard-tools
 RUN apk add curl
-ENV CONFIG="/config.yaml"
-ENV STORAGE="sqlite3:///data/db.sqlite3"
+ENV WG_CONFIG="/config.yaml"
+ENV WG_STORAGE="sqlite3:///data/db.sqlite3"
 COPY --from=server /code/wg-access-server /usr/local/bin/wg-access-server
 COPY --from=website /code/build /website/build
 CMD ["wg-access-server", "serve"]

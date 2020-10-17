@@ -5,24 +5,41 @@ import (
 )
 
 type AppConfig struct {
-	LogLevel        string `yaml:"loglevel"`
-	DisableMetadata bool   `yaml:"disableMetadata"`
-	AdminSubject    string `yaml:"adminSubject"`
-	AdminPassword   string `yaml:"adminPassword"`
+	// Set the log level.
+	// Defaults to "info" (fatal, error, warn, info, debug, trace)
+	LogLevel string `yaml:"loglevel"`
+	// Set the superadmin username
+	// Defaults to "admin"
+	AdminUsername string `yaml:"adminUsername"`
+	// Set the superadmin password (required)
+	AdminPassword string `yaml:"adminPassword"`
 	// Port sets the port that the web UI will listen on.
 	// Defaults to 8000
 	Port int `yaml:"port"`
+	// ExternalAddress is the address that clients
+	// use to connect to the wireguard interface
+	// By default, this will be empty and the web ui
+	// will use the current page's origin.
+	ExternalHost string `yaml:"externalHost"`
 	// The storage backend where device configuration will
 	// be persisted.
 	// Supports memory:// file:// postgres:// mysql:// sqlite3://
 	// Defaults to memory://
-	Storage   string `yaml:"storage"`
+	Storage string `yaml:"storage"`
+	// DisableMetadata allows you to turn off collection of device
+	// metadata including last handshake time & rx/tx bytes
+	DisableMetadata bool `yaml:"disableMetadata"`
+	// Configure WireGuard related settings
 	WireGuard struct {
+		// Set this to false to disable the embedded wireguard
+		// server. This is useful for development environments
+		// on mac and windows where we don't currently support
+		// the OS's network stack.
 		Enabled bool `yaml:"enabled"`
 		// The network interface name of the WireGuard
 		// network device.
 		// Defaults to wg0
-		InterfaceName string `yaml:"interfaceName"`
+		Interface string `yaml:"interface"`
 		// The WireGuard PrivateKey
 		// If this value is lost then any existing
 		// clients (WireGuard peers) will no longer
@@ -31,15 +48,11 @@ type AppConfig struct {
 		// their connection configuration or setup
 		// their VPN again using the web ui (easier for most people)
 		PrivateKey string `yaml:"privateKey"`
-		// ExternalAddress is the address that clients
-		// use to connect to the wireguard interface
-		// By default, this will be empty and the web ui
-		// will use the current page's origin.
-		ExternalHost *string `yaml:"externalHost"`
 		// The WireGuard ListenPort
 		// Defaults to 51820
 		Port int `yaml:"port"`
 	} `yaml:"wireguard"`
+	// Configure VPN related settings (networking)
 	VPN struct {
 		// CIDR configures a network address space
 		// that client (WireGuard peers) will be allocated
@@ -56,8 +69,9 @@ type AppConfig struct {
 		// files and in server-side iptable rules
 		// to enforce network access.
 		// defaults to ["0.0.0.0/1", "128.0.0.0/1"]
-		AllowedIPs []string `yaml:"AllowedIPs"`
+		AllowedIPs []string `yaml:"allowedIPs"`
 	}
+	// Configure the embeded DNS server
 	DNS struct {
 		// Enabled allows you to turn on/off
 		// the VPN DNS proxy feature.

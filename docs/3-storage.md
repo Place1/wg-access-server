@@ -1,13 +1,13 @@
-# Storage Backends
+# Storage
 
-wg-access-server supports 4 storage backends suitable for different use-cases.
+wg-access-server supports 4 storage backends.
 
-| Backend  | Persistent | Supports HA | Use Case                               |
-|----------|------------|-------------|----------------------------------------|
-| memory   | ❌         | ❌         | Local development                      |
-| sqlite3  | ✔️         | ❌         | Production - single instance deployments |
-| postgres | ✔️         | ✔️ (soon)  | Production - multi instance deployments  |
-| mysql    | ✔️         | ❌         | Production - single instance deployments |
+| Backend  | Persistent | Supports HA | Use Case                                 |
+| -------- | ---------- | ----------- | ---------------------------------------- |
+| memory   | ❌         | ❌          | Local development                        |
+| sqlite3  | ✔️         | ❌          | Production - single instance deployments |
+| postgres | ✔️         | ✔️ (soon)   | Production - multi instance deployments  |
+| mysql    | ✔️         | ❌          | Production - single instance deployments |
 
 ## Backends
 

@@ -7,6 +7,7 @@ import (
 	"runtime"
 
 	"github.com/pkg/errors"
+	"github.com/place1/wg-access-server/cmd"
 	"github.com/place1/wg-access-server/cmd/migrate"
 	"github.com/place1/wg-access-server/cmd/serve"
 	"github.com/sirupsen/logrus"
@@ -15,20 +16,24 @@ import (
 
 var (
 	app      = kingpin.New("wg-access-server", "An all-in-one WireGuard Access Server & VPN solution")
-	logLevel = app.Flag("log-level", "Log level (debug, info, error)").Envar("LOG_LEVEL").Default("info").String()
-
-	servecmd   = serve.RegisterCommand(app)
-	migratecmd = migrate.RegisterCommand(app)
+	logLevel = app.Flag("log-level", "Log level: trace, debug, info, error, fatal").Envar("LOG_LEVEL").Default("info").String()
 )
 
 func main() {
-	cmd := kingpin.MustParse(app.Parse(os.Args[1:]))
+	// all the subcommands for wg-access-server
+	commands := []cmd.Command{
+		serve.Register(app),
+		migrate.Register(app),
+	}
 
+	// parse CLI arguments
+	clicmd := kingpin.MustParse(app.Parse(os.Args[1:]))
+
+	// set global log level
 	level, err := logrus.ParseLevel(*logLevel)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "invalid log level - should be one of fatal, error, warn, info, debug, trace"))
 	}
-
 	logrus.SetLevel(level)
 	logrus.SetReportCaller(true)
 	logrus.SetFormatter(&logrus.TextFormatter{
@@ -37,12 +42,10 @@ func main() {
 		},
 	})
 
-	switch cmd {
-	case servecmd.Name():
-		servecmd.Run()
-	case migratecmd.Name():
-		migratecmd.Run()
-	default:
-		logrus.Fatal(fmt.Errorf("unknown command: %s", cmd))
+	for _, c := range commands {
+		if clicmd == c.Name() {
+			c.Run()
+			return
+		}
 	}
 }

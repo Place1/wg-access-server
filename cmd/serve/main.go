@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
+	"github.com/docker/libnetwork/resolvconf"
+	"github.com/docker/libnetwork/types"
 	"github.com/place1/wg-access-server/internal/services"
 	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz"
@@ -28,31 +31,31 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func RegisterCommand(app *kingpin.Application) *servecmd {
+func Register(app *kingpin.Application) *servecmd {
 	cmd := &servecmd{}
 	cli := app.Command(cmd.Name(), "Run the server")
-	cli.Flag("config", "Path to a config file").Envar("CONFIG").StringVar(&cmd.configPath)
-	cli.Flag("web-port", "The port that the web ui server will listen on").Envar("WEB_PORT").Default("8000").IntVar(&cmd.webPort)
-	cli.Flag("wireguard-port", "The port that the Wireguard server will listen on").Envar("WIREGUARD_PORT").Default("51820").IntVar(&cmd.wireguardPort)
-	cli.Flag("storage", "The storage backend connection string").Envar("STORAGE").Default("memory://").StringVar(&cmd.storage)
-	cli.Flag("wireguard-private-key", "Wireguard private key").Envar("WIREGUARD_PRIVATE_KEY").StringVar(&cmd.privateKey)
-	cli.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").Envar("DISABLE_METADATA").Default("false").BoolVar(&cmd.disableMetadata)
-	cli.Flag("admin-username", "Admin username (defaults to admin)").Envar("ADMIN_USERNAME").Default("admin").StringVar(&cmd.adminUsername)
-	cli.Flag("admin-password", "Admin password (provide plaintext, stored in-memory only)").Envar("ADMIN_PASSWORD").StringVar(&cmd.adminPassword)
-	cli.Flag("upstream-dns", "An upstream DNS server to proxy DNS traffic to").Envar("UPSTREAM_DNS").StringVar(&cmd.upstreamDNS)
+	cli.Flag("config", "Path to a wg-access-server config file").Envar("WG_CONFIG").FileVar(&cmd.ConfigFilePath)
+	cli.Flag("admin-username", "Admin username (defaults to admin)").Envar("WG_ADMIN_USERNAME").Default("admin").StringVar(&cmd.AppConfig.AdminUsername)
+	cli.Flag("admin-password", "Admin password (provide plaintext, stored in-memory only)").Envar("WG_ADMIN_PASSWORD").Required().StringVar(&cmd.AppConfig.AdminPassword)
+	cli.Flag("port", "The port that the web ui server will listen on").Envar("WG_PORT").Default("8000").IntVar(&cmd.AppConfig.Port)
+	cli.Flag("external-host", "The external origin of the server (e.g. https://mydomain.com)").Envar("WG_EXTERNAL_HOST").StringVar(&cmd.AppConfig.ExternalHost)
+	cli.Flag("storage", "The storage backend connection string").Envar("WG_STORAGE").Default("memory://").StringVar(&cmd.AppConfig.Storage)
+	cli.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").Envar("WG_DISABLE_METADATA").Default("false").BoolVar(&cmd.AppConfig.DisableMetadata)
+	cli.Flag("wireguard-enabled", "Enable or disable the embedded wireguard server (useful for development)").Envar("WG_WIREGUARD_ENABLED").Default("true").BoolVar(&cmd.AppConfig.WireGuard.Enabled)
+	cli.Flag("wireguard-interface", "Set the wireguard interface name").Default("wg0").Envar("WG_WIREGUARD_INTERFACE").StringVar(&cmd.AppConfig.WireGuard.Interface)
+	cli.Flag("wireguard-private-key", "Wireguard private key").Envar("WG_WIREGUARD_PRIVATE_KEY").StringVar(&cmd.AppConfig.WireGuard.PrivateKey)
+	cli.Flag("wireguard-port", "The port that the Wireguard server will listen on").Envar("WG_WIREGUARD_PORT").Default("51820").IntVar(&cmd.AppConfig.WireGuard.Port)
+	cli.Flag("vpn-cidr", "The network CIDR for the VPN").Envar("WG_VPN_CIDR").Default("10.44.0.0/24").StringVar(&cmd.AppConfig.VPN.CIDR)
+	cli.Flag("vpn-gateway-interface", "The gateway network interface (i.e. eth0)").Envar("WG_VPN_GATEWAY_INTERFACE").Default(detectDefaultInterface()).StringVar(&cmd.AppConfig.VPN.GatewayInterface)
+	cli.Flag("vpn-allowed-ips", "A list of networks that VPN clients will be allowed to connect to via the VPN").Envar("WG_VPN_ALLOWED_IPS").Default("0.0.0.0/1", "128.0.0.0/1").StringsVar(&cmd.AppConfig.VPN.AllowedIPs)
+	cli.Flag("dns-enabled", "Enable or disable the embedded dns proxy server (useful for development)").Envar("WG_DNS_ENABLED").Default("true").BoolVar(&cmd.AppConfig.DNS.Enabled)
+	cli.Flag("dns-upstream", "An upstream DNS server to proxy DNS traffic to. Defaults to resolveconf or 1.1.1.1").Envar("WG_DNS_UPSTREAM").Default(detectDNSUpstream()).StringsVar(&cmd.AppConfig.DNS.Upstream)
 	return cmd
 }
 
 type servecmd struct {
-	configPath      string
-	webPort         int
-	wireguardPort   int
-	storage         string
-	privateKey      string
-	disableMetadata bool
-	adminUsername   string
-	adminPassword   string
-	upstreamDNS     string
+	ConfigFilePath *os.File
+	AppConfig      config.AppConfig
 }
 
 func (cmd *servecmd) Name() string {
@@ -68,7 +71,7 @@ func (cmd *servecmd) Run() {
 	// WireGuard Server
 	wg := wgembed.NewNoOpInterface()
 	if conf.WireGuard.Enabled {
-		wgimpl, err := wgembed.New(conf.WireGuard.InterfaceName)
+		wgimpl, err := wgembed.New(conf.WireGuard.Interface)
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err, "failed to create wireguard interface"))
 		}
@@ -91,7 +94,7 @@ func (cmd *servecmd) Run() {
 
 		logrus.Infof("wireguard VPN network is %s", conf.VPN.CIDR)
 
-		if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR, conf.VPN.AllowedIPs); err != nil {
+		if err := network.ConfigureForwarding(conf.WireGuard.Interface, conf.VPN.GatewayInterface, conf.VPN.CIDR, conf.VPN.AllowedIPs); err != nil {
 			logrus.Fatal(err)
 		}
 	}
@@ -160,13 +163,6 @@ func (cmd *servecmd) Run() {
 	// Static website
 	site.PathPrefix("/").Handler(services.WebsiteRouter())
 
-	// publicRouter.NotFoundHandler = authMiddleware.Wrap(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	if authsession.Authenticated(r.Context()) {
-	// 		router.ServeHTTP(w, r)
-	// 	} else {
-	// 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
-	// 	}
-	// }))
 	publicRouter := router
 
 	// Listen
@@ -184,107 +180,92 @@ func (cmd *servecmd) Run() {
 }
 
 func (cmd *servecmd) ReadConfig() *config.AppConfig {
-	// here we're filling out the config struct
-	// with values from our flags/defaults.
-	config := &config.AppConfig{}
-	config.Port = cmd.webPort
-	config.WireGuard.InterfaceName = "wg0"
-	config.WireGuard.Port = cmd.wireguardPort
-	config.VPN.CIDR = "10.44.0.0/24"
-	config.DisableMetadata = cmd.disableMetadata
-	config.WireGuard.Enabled = true
-	config.WireGuard.PrivateKey = cmd.privateKey
-	config.Storage = cmd.storage
-	config.VPN.AllowedIPs = []string{"0.0.0.0/0"}
-	config.DNS.Enabled = true
-	config.AdminPassword = cmd.adminPassword
-	config.AdminSubject = cmd.adminUsername
-
-	if cmd.upstreamDNS != "" {
-		config.DNS.Upstream = []string{cmd.upstreamDNS}
-	}
-
-	if cmd.configPath != "" {
-		if b, err := ioutil.ReadFile(cmd.configPath); err == nil {
-			if err := yaml.Unmarshal(b, &config); err != nil {
+	if cmd.ConfigFilePath != nil {
+		defer cmd.ConfigFilePath.Close()
+		if b, err := ioutil.ReadAll(cmd.ConfigFilePath); err == nil {
+			if err := yaml.Unmarshal(b, &cmd.AppConfig); err != nil {
 				logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
 			}
 		}
 	}
 
-	if config.LogLevel != "" {
-		level, err := logrus.ParseLevel(config.LogLevel)
-		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "invalid log level - should be one of fatal, error, warn, info, debug, trace"))
+	if cmd.AppConfig.LogLevel != "" {
+		if level, err := logrus.ParseLevel(cmd.AppConfig.LogLevel); err == nil {
+			logrus.SetLevel(level)
 		}
-		logrus.SetLevel(level)
 	}
 
-	if config.DisableMetadata {
+	if cmd.AppConfig.DisableMetadata {
 		logrus.Info("Metadata collection has been disabled. No metrics or device connectivity information will be recorded or shown")
 	}
 
-	if config.VPN.GatewayInterface == "" {
-		iface, err := defaultInterface()
-		if err != nil {
-			logrus.Warn(errors.Wrap(err, "failed to set default value for VPN.GatewayInterface"))
-		} else {
-			config.VPN.GatewayInterface = iface
-		}
+	// set a basic auth entry for the admin user
+	if cmd.AppConfig.Auth.Basic == nil {
+		cmd.AppConfig.Auth.Basic = &authconfig.BasicAuthConfig{}
 	}
+	pw, err := bcrypt.GenerateFromPassword([]byte(cmd.AppConfig.AdminPassword), bcrypt.DefaultCost)
+	if err != nil {
+		logrus.Fatal(errors.Wrap(err, "failed to generate a bcrypt hash for the provided admin password"))
+	}
+	cmd.AppConfig.Auth.Basic.Users = append(cmd.AppConfig.Auth.Basic.Users, fmt.Sprintf("%s:%s", cmd.AppConfig.AdminUsername, string(pw)))
 
-	if config.WireGuard.PrivateKey == "" {
-		if !strings.HasPrefix(config.Storage, "memory://") {
+	// we'll generate a private key when using memory://
+	// storage only.
+	if cmd.AppConfig.WireGuard.PrivateKey == "" {
+		if !strings.HasPrefix(cmd.AppConfig.Storage, "memory://") {
 			logrus.Fatal(missingPrivateKey)
 		}
 		key, err := wgtypes.GeneratePrivateKey()
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err, "failed to generate a server private key"))
 		}
-		config.WireGuard.PrivateKey = key.String()
+		cmd.AppConfig.WireGuard.PrivateKey = key.String()
 	}
 
-	if config.AdminPassword != "" && config.AdminSubject != "" {
-		if config.Auth.Basic == nil {
-			config.Auth.Basic = &authconfig.BasicAuthConfig{}
-		}
-		// htpasswd.AcceptBcrypt(config.AdminPassword)
-		pw, err := bcrypt.GenerateFromPassword([]byte(config.AdminPassword), bcrypt.DefaultCost)
-		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to generate a bcrypt hash for the provided admin password"))
-		}
-		config.Auth.Basic.Users = append(config.Auth.Basic.Users, fmt.Sprintf("%s:%s", config.AdminSubject, string(pw)))
-	}
-
-	return config
+	return &cmd.AppConfig
 }
 
 func claimsMiddleware(conf *config.AppConfig) authsession.ClaimsMiddleware {
 	return func(user *authsession.Identity) error {
-		if user.Subject == conf.AdminSubject {
+		if user.Subject == conf.AdminUsername {
 			user.Claims.Add("admin", "true")
 		}
 		return nil
 	}
 }
 
-func defaultInterface() (string, error) {
+func detectDNSUpstream() string {
+	upstream := []string{}
+	if r, err := resolvconf.Get(); err == nil {
+		upstream = resolvconf.GetNameservers(r.Content, types.IPv4)
+	}
+	if len(upstream) == 0 {
+		logrus.Warn("failed to get nameservers from /etc/resolv.conf defaulting to 1.1.1.1 for DNS instead")
+		upstream = []string{"1.1.1.1"}
+	}
+	return upstream[0]
+}
+
+func detectDefaultInterface() string {
 	links, err := netlink.LinkList()
 	if err != nil {
-		return "", errors.Wrap(err, "failed to list network interfaces")
+		logrus.Warn(errors.Wrap(err, "failed to list network interfaces"))
+		return ""
 	}
 	for _, link := range links {
 		routes, err := netlink.RouteList(link, 4)
 		if err != nil {
-			return "", errors.Wrapf(err, "failed to list routes for interface %s", link.Attrs().Name)
+			logrus.Warn(errors.Wrapf(err, "failed to list routes for interface %s", link.Attrs().Name))
+			return ""
 		}
 		for _, route := range routes {
 			if route.Dst == nil {
-				return link.Attrs().Name, nil
+				return link.Attrs().Name
 			}
 		}
 	}
-	return "", errors.New("could not determine the default network interface name")
+	logrus.Warn(errors.New("could not determine the default network interface name"))
+	return ""
 }
 
 var missingPrivateKey = `missing wireguard private key:

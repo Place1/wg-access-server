@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v0.3.0-rc1]
+## [next (v0.3.0)]
 
 ### Added
 
@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - the wireguard private key is now required when the storage backend is persistent (i.e. not `memory://`)
+- configuration flags, environment variables and file properties have been refactored for consistency
+  * all configuration file properties (excluding auth providers) can now be set via flags and environment variables
+  * all environment variables are prefixed with `WG_` to avoid collisions in hosted environments like Kubernetes
+  * all flags & environment variables are named consistently
+  * **breaking:** no functionality has been removed but you'll need to update any flags/envvars that you're using
 
 ### Deprecations
 

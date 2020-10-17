@@ -10,10 +10,16 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/main.go",
-      "env": {},
+      "env": {
+        "WG_ADMIN_PASSWORD": "example",
+        "WG_WIREGUARD_PRIVATE_KEY": "4DRYOeSSeZyWRrLw357Pg9sv/RppMGwveTwz7sxM4mo=",
+      },
       "args": [
         "serve",
-        "--config=config.yaml"
+        "--config=config.yaml",
+        "--no-wireguard-enabled",
+        "--no-dns-enabled",
+        "--port=9001"
       ]
     }
   ]

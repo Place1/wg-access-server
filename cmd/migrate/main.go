@@ -7,7 +7,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-func RegisterCommand(app *kingpin.Application) *migratecmd {
+func Register(app *kingpin.Application) *migratecmd {
 	cmd := &migratecmd{}
 	cli := app.Command(cmd.Name(), "Migrate your wg-access-server devices between storage backends. This tool is provided on a best effort bases.")
 	cli.Arg("source", "The source storage URI").Required().StringVar(&cmd.src)
