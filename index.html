@@ -327,15 +327,27 @@
       
 
 
+  <li class="md-nav__item">
+    <a href="storage/" title="Storage Backends" class="md-nav__link">
+      Storage Backends
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
     
-    <label class="md-nav__link" for="nav-3">
+    <label class="md-nav__link" for="nav-4">
       Deployment
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-3">
+      <label class="md-nav__title" for="nav-4">
         Deployment
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -490,18 +502,21 @@ homelab enthusiasts and anyone else feeling adventurous.</p>
 </ul>
 <h2 id="running-with-docker">Running with Docker<a class="headerlink" href="#running-with-docker" title="Permanent link"> ¶</a></h2>
 <p>Here's a quick command to run the server to try it out.</p>
-<div class="codehilite"><pre><span></span><code>docker run <span class="se">\</span>
+<div class="codehilite"><pre><span></span><code><span class="nb">export</span> <span class="nv">ADMIN_PASSWORD</span><span class="o">=</span><span class="s2">&quot;example&quot;</span>
+<span class="nb">export</span> <span class="nv">WIREGUARD_PRIVATE_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>wg genkey<span class="k">)</span><span class="s2">&quot;</span>
+
+docker run <span class="se">\</span>
   -it <span class="se">\</span>
   --rm <span class="se">\</span>
   --cap-add NET_ADMIN <span class="se">\</span>
   --device /dev/net/tun:/dev/net/tun <span class="se">\</span>
   -v wg-access-server-data:/data <span class="se">\</span>
-  -e <span class="s2">&quot;WIREGUARD_PRIVATE_KEY=</span><span class="k">$(</span>wg genkey<span class="k">)</span><span class="s2">&quot;</span> <span class="se">\</span>
+  -e <span class="s2">&quot;ADMIN_PASSWORD=</span><span class="nv">$ADMIN_PASSWORD</span><span class="s2">&quot;</span> <span class="se">\</span>
+  -e <span class="s2">&quot;WIREGUARD_PRIVATE_KEY=</span><span class="nv">$WIREGUARD_PRIVATE_KEY</span><span class="s2">&quot;</span> <span class="se">\</span>
   -p <span class="m">8000</span>:8000/tcp <span class="se">\</span>
   -p <span class="m">51820</span>:51820/udp <span class="se">\</span>
   place1/wg-access-server
 </code></pre></div>
-
 <p>If you open your browser using your LAN ip address you can even connect your
 phone to try it out: for example, i'll open my browser at http://192.168.0.XX:8000
 using the local LAN IP address.</p>
@@ -516,12 +531,13 @@ helm install my-release --repo https://place1.github.io/wg-access-server wg-acce
 <span class="c1"># cleanup</span>
 helm delete my-release
 </code></pre></div>
-
 <h2 id="running-with-docker-compose">Running with Docker-Compose<a class="headerlink" href="#running-with-docker-compose" title="Permanent link"> ¶</a></h2>
-<p>You modify the docker-compose.yml file for you need then run this following command.</p>
-<div class="codehilite"><pre><span></span><code>docker-compose up
-</code></pre></div>
+<p>Download the the docker-compose.yml file from the repo and run the following command.</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">export</span> <span class="nv">ADMIN_PASSWORD</span><span class="o">=</span><span class="s2">&quot;example&quot;</span>
+<span class="nb">export</span> <span class="nv">WIREGUARD_PRIVATE_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>wg genkey<span class="k">)</span><span class="s2">&quot;</span>
 
+docker-compose up
+</code></pre></div>
 <p>You can connect to the web server on the local machine browser at http://localhost:8000</p>
 <p>If you open your browser to your machine's LAN IP address you'll be able
 to connect your phone using the UI and QR code!</p>

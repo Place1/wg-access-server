@@ -246,18 +246,30 @@
       
       
 
+
+  <li class="md-nav__item">
+    <a href="../../storage/" title="Storage Backends" class="md-nav__link">
+      Storage Backends
+    </a>
+  </li>
+
+    
+      
+      
+      
+
   
 
 
   <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" checked>
     
-    <label class="md-nav__link" for="nav-3">
+    <label class="md-nav__link" for="nav-4">
       Deployment
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-3">
+      <label class="md-nav__title" for="nav-4">
         Deployment
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -362,6 +374,10 @@ can be configured.</p>
     <span class="nt">volumes</span><span class="p">:</span>
       <span class="p p-Indicator">-</span> <span class="s">&quot;wg-access-server-data:/data&quot;</span>
     <span class="c1">#   - &quot;./config.yaml:/config.yaml&quot; # if you have a custom config file</span>
+    <span class="nt">environment</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;ADMIN_USERNAME=admin&quot;</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;ADMIN_PASSWORD=${ADMIN_PASSWORD:?\n\nplease</span><span class="nv"> </span><span class="s">set</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">ADMIN_PASSWORD</span><span class="nv"> </span><span class="s">environment</span><span class="nv"> </span><span class="s">variable:\n</span><span class="nv">    </span><span class="s">export</span><span class="nv"> </span><span class="s">ADMIN_PASSWORD=example\n}&quot;</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY:?\n\nplease</span><span class="nv"> </span><span class="s">set</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">WIREGUARD_PRIVATE_KEY</span><span class="nv"> </span><span class="s">environment</span><span class="nv"> </span><span class="s">variable:\n</span><span class="nv">    </span><span class="s">export</span><span class="nv"> </span><span class="s">WIREGUARD_PRIVATE_KEY=$(wg</span><span class="nv"> </span><span class="s">genkey)\n}&quot;</span>
     <span class="nt">ports</span><span class="p">:</span>
       <span class="p p-Indicator">-</span> <span class="s">&quot;8000:8000/tcp&quot;</span>
       <span class="p p-Indicator">-</span> <span class="s">&quot;51820:51820/udp&quot;</span>

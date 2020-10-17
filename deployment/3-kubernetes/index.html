@@ -246,18 +246,30 @@
       
       
 
+
+  <li class="md-nav__item">
+    <a href="../../storage/" title="Storage Backends" class="md-nav__link">
+      Storage Backends
+    </a>
+  </li>
+
+    
+      
+      
+      
+
   
 
 
   <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" checked>
     
-    <label class="md-nav__link" for="nav-3">
+    <label class="md-nav__link" for="nav-4">
       Deployment
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-3">
+      <label class="md-nav__title" for="nav-4">
         Deployment
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -435,7 +447,6 @@
 <p>To install the chart with the release name <code class="codehilite"><span class="err">my-release</span></code>:</p>
 <div class="codehilite"><pre><span></span><code>$ helm install my-release --repo https://place1.github.io/wg-access-server wg-access-server
 </code></pre></div>
-
 <p>The command deploys wg-access-server on the Kubernetes cluster in the default configuration. The configuration section lists the parameters that can be configured during installation.</p>
 <p>By default an in-memory wireguard private key will be generated and devices will not persist
 between pod restarts.</p>
@@ -443,7 +454,6 @@ between pod restarts.</p>
 <p>To uninstall/delete the my-release deployment:</p>
 <div class="codehilite"><pre><span></span><code>$ helm delete my-release
 </code></pre></div>
-
 <p>The command removes all the Kubernetes components associated with the chart and deletes the release.</p>
 <h2 id="example-valuesyaml">Example values.yaml<a class="headerlink" href="#example-valuesyaml" title="Permanent link"> ¶</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="nt">config</span><span class="p">:</span>
@@ -475,7 +485,6 @@ between pod restarts.</p>
     <span class="p p-Indicator">-</span> <span class="nt">hosts</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;vpn.example.com&quot;</span><span class="p p-Indicator">]</span>
       <span class="nt">secretName</span><span class="p">:</span> <span class="s">&quot;tls-wg-access-server&quot;</span>
 </code></pre></div>
-
 <h2 id="all-configuration">All Configuration<a class="headerlink" href="#all-configuration" title="Permanent link"> ¶</a></h2>
 <table>
 <thead>
