@@ -66,7 +66,7 @@ func (s *FileStorage) List(username string) ([]*Device, error) {
 		}
 		p := strings.TrimPrefix(path, s.directory)
 		p = strings.TrimPrefix(p, string(os.PathSeparator))
-		if strings.HasPrefix(p, prefix) {
+		if strings.HasPrefix(p, prefix) && filepath.Ext(path) == ".json" {
 			files = append(files, path)
 		}
 		return nil

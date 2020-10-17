@@ -27,13 +27,17 @@ Quick Links:
 Here's a quick command to run the server to try it out.
 
 ```bash
+export ADMIN_PASSWORD="example"
+export WIREGUARD_PRIVATE_KEY="$(wg genkey)"
+
 docker run \
   -it \
   --rm \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
   -v wg-access-server-data:/data \
-  -e "WIREGUARD_PRIVATE_KEY=$(wg genkey)" \
+  -e "ADMIN_PASSWORD=$ADMIN_PASSWORD" \
+  -e "WIREGUARD_PRIVATE_KEY=$WIREGUARD_PRIVATE_KEY" \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
   place1/wg-access-server
@@ -62,9 +66,12 @@ helm delete my-release
 
 ## Running with Docker-Compose
 
-You modify the docker-compose.yml file for you need then run this following command.
+Download the the docker-compose.yml file from the repo and run the following command.
 
 ```bash
+export ADMIN_PASSWORD="example"
+export WIREGUARD_PRIVATE_KEY="$(wg genkey)"
+
 docker-compose up
 ```
 

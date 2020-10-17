@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+SCRIPT_DIR="$(dirname $0)"
 OUT_DIR="$SCRIPT_DIR/proto/proto"
 
 mkdir -p "$OUT_DIR" || true

@@ -2,153 +2,47 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-
-	"github.com/place1/wg-access-server/internal/services"
-	"github.com/place1/wg-access-server/internal/storage"
-	"github.com/place1/wg-access-server/pkg/authnz"
-	"github.com/place1/wg-access-server/pkg/authnz/authsession"
-
-	"github.com/gorilla/mux"
-	"github.com/place1/wg-embed/pkg/wgembed"
+	"os"
+	"path/filepath"
+	"runtime"
 
 	"github.com/pkg/errors"
-	"github.com/place1/wg-access-server/internal/config"
-	"github.com/place1/wg-access-server/internal/devices"
-	"github.com/place1/wg-access-server/internal/dnsproxy"
-	"github.com/place1/wg-access-server/internal/network"
+	"github.com/place1/wg-access-server/cmd/migrate"
+	"github.com/place1/wg-access-server/cmd/serve"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/alecthomas/kingpin.v2"
+)
+
+var (
+	app      = kingpin.New("wg-access-server", "An all-in-one WireGuard Access Server & VPN solution")
+	logLevel = app.Flag("log-level", "Log level (debug, info, error)").Envar("LOG_LEVEL").Default("info").String()
+
+	servecmd   = serve.RegisterCommand(app)
+	migratecmd = migrate.RegisterCommand(app)
 )
 
 func main() {
-	conf := config.Read()
+	cmd := kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	// The server's IP within the VPN virtual network
-	vpnip := network.ServerVPNIP(conf.VPN.CIDR)
-
-	// WireGuard Server
-	wg := wgembed.NewNoOpInterface()
-	if conf.WireGuard.Enabled {
-		wgimpl, err := wgembed.New(conf.WireGuard.InterfaceName)
-		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to create wireguard interface"))
-		}
-		defer wgimpl.Close()
-		wg = wgimpl
-
-		logrus.Infof("starting wireguard server on 0.0.0.0:%d", conf.WireGuard.Port)
-
-		wgconfig := &wgembed.ConfigFile{
-			Interface: wgembed.IfaceConfig{
-				PrivateKey: conf.WireGuard.PrivateKey,
-				Address:    vpnip.String(),
-				ListenPort: &conf.WireGuard.Port,
-			},
-		}
-
-		if err := wg.LoadConfig(wgconfig); err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to load wireguard config"))
-		}
-
-		logrus.Infof("wireguard VPN network is %s", conf.VPN.CIDR)
-
-		if err := network.ConfigureForwarding(conf.WireGuard.InterfaceName, conf.VPN.GatewayInterface, conf.VPN.CIDR, conf.VPN.AllowedIPs); err != nil {
-			logrus.Fatal(err)
-		}
-	}
-
-	// DNS Server
-	if conf.DNS.Enabled {
-		dns, err := dnsproxy.New(dnsproxy.DNSServerOpts{
-			Upstream: conf.DNS.Upstream,
-		})
-		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to start dns server"))
-		}
-		defer dns.Close()
-	}
-
-	// Storage
-	storageBackend, err := storage.NewStorage(conf.Storage)
+	level, err := logrus.ParseLevel(*logLevel)
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to create storage backend"))
-	}
-	if err := storageBackend.Open(); err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to connect/open storage backend"))
-	}
-	defer storageBackend.Close()
-
-	// Services
-	deviceManager := devices.New(wg, storageBackend, conf.VPN.CIDR)
-	if err := deviceManager.StartSync(conf.DisableMetadata); err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to sync"))
+		logrus.Fatal(errors.Wrap(err, "invalid log level - should be one of fatal, error, warn, info, debug, trace"))
 	}
 
-	router := mux.NewRouter()
-	router.Use(services.TracesMiddleware)
-	router.Use(services.RecoveryMiddleware)
+	logrus.SetLevel(level)
+	logrus.SetReportCaller(true)
+	logrus.SetFormatter(&logrus.TextFormatter{
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			return "", fmt.Sprintf("%s:%d", filepath.Base(f.File), f.Line)
+		},
+	})
 
-	// Health check endpoint
-	router.PathPrefix("/health").Handler(services.HealthEndpoint())
-
-	// Authentication middleware
-	if conf.Auth.IsEnabled() {
-		router.Use(authnz.NewMiddleware(conf.Auth, claimsMiddleware(conf)))
-	} else {
-		logrus.Warn("[DEPRECATION NOTICE] using wg-access-server without an admin user is deprecated and will be removed in an upcoming minor release.")
-		router.Use(func(next http.Handler) http.Handler {
-			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				next.ServeHTTP(w, r.WithContext(authsession.SetIdentityCtx(r.Context(), &authsession.AuthSession{
-					Identity: &authsession.Identity{
-						Subject: "",
-					},
-				})))
-			})
-		})
-	}
-
-	// Subrouter for our site (web + api)
-	site := router.PathPrefix("/").Subrouter()
-	site.Use(authnz.RequireAuthentication)
-
-	// Grpc api
-	site.PathPrefix("/api").Handler(services.ApiRouter(&services.ApiServices{
-		Config:        conf,
-		DeviceManager: deviceManager,
-		Wg:            wg,
-	}))
-
-	// Static website
-	site.PathPrefix("/").Handler(services.WebsiteRouter())
-
-	// publicRouter.NotFoundHandler = authMiddleware.Wrap(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	if authsession.Authenticated(r.Context()) {
-	// 		router.ServeHTTP(w, r)
-	// 	} else {
-	// 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
-	// 	}
-	// }))
-	publicRouter := router
-
-	// Listen
-	address := fmt.Sprintf("0.0.0.0:%d", conf.Port)
-	srv := &http.Server{
-		Addr:    address,
-		Handler: publicRouter,
-	}
-
-	// Start Web server
-	logrus.Infof("web ui listening on %v", address)
-	if err := srv.ListenAndServe(); err != nil {
-		logrus.Fatal(errors.Wrap(err, "unable to start http server"))
-	}
-}
-
-func claimsMiddleware(conf *config.AppConfig) authsession.ClaimsMiddleware {
-	return func(user *authsession.Identity) error {
-		if user.Subject == conf.AdminSubject {
-			user.Claims.Add("admin", "true")
-		}
-		return nil
+	switch cmd {
+	case servecmd.Name():
+		servecmd.Run()
+	case migratecmd.Name():
+		migratecmd.Run()
+	default:
+		logrus.Fatal(fmt.Errorf("unknown command: %s", cmd))
 	}
 }

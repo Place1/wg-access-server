@@ -144,6 +144,8 @@ github.com/place1/wg-embed v0.2.0 h1:JzdDeDDWqzY7w6/JJ/fW+q/Qc7AzI/i1GqyeFNf/HT0
 github.com/place1/wg-embed v0.2.0/go.mod h1:i09dm8AEkurC4oATFxjvyH0+e1pdmtZoNk2FfPupROI=
 github.com/place1/wg-embed v0.3.0 h1:n7piTgnp3MgyceBEAD/A7ZiLA4kH8qkqCTVPLBHj6SE=
 github.com/place1/wg-embed v0.3.0/go.mod h1:i09dm8AEkurC4oATFxjvyH0+e1pdmtZoNk2FfPupROI=
+github.com/place1/wg-embed v0.4.0 h1:rToHj4+TuI2ruv2mz3Y16vvisv280BuzdojsGGNQ/pM=
+github.com/place1/wg-embed v0.4.0/go.mod h1:i09dm8AEkurC4oATFxjvyH0+e1pdmtZoNk2FfPupROI=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 h1:J9b7z+QKAmPf4YLrFg6oQUotqHQeUNWwkvo7jZp1GLU=
