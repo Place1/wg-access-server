@@ -5,9 +5,6 @@ import json
 import yaml
 from datetime import datetime
 
-def is_release_candidate(version):
-    return '-rc' in version
-
 # print the latest tags so we don't have to google our own
 # image to check :P
 r = urllib.request.urlopen('https://registry.hub.docker.com/v2/repositories/place1/wg-access-server/tags?page_size=10') \
