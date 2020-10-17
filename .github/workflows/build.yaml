@@ -14,18 +14,18 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          TAGS=null
-          IMAGE=place1/wg-access-server
+          TAGS=""
+          IMAGE="place1/wg-access-server"
+
           if [[ "$GITHUB_REF" == refs/heads/master ]]; then
             TAGS="$IMAGE:master"
           elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            VERSION="${REF#refs/tags/}"
+            VERSION="${GITHUB_REF#refs/tags/}"
             TAGS="$IMAGE:$VERSION,$IMAGE:latest"
           fi
 
           echo "building ref: $GITHUB_REF"
           echo "docker images: $TAGS"
-
           echo ::set-output name=tags::${TAGS}
 
       - name: Checkout
