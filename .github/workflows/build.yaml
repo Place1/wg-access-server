@@ -21,7 +21,10 @@ jobs:
             TAGS="$IMAGE:master"
           elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
             VERSION="${GITHUB_REF#refs/tags/}"
-            TAGS="$IMAGE:$VERSION,$IMAGE:latest"
+            TAGS="$IMAGE:$VERSION"
+            if [[ ! "$VERSION" =~ -rc.* ]]; then
+              TAGS="$TAGS,$IMAGE:latest"
+            fi
           fi
 
           echo "building ref: $GITHUB_REF"
