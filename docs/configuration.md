@@ -42,7 +42,7 @@ disableMetadata: false
 # Optional, defaults to 8000
 port: 8000
 # Directory that VPN devices (WireGuard peers)
-# What type of storage do you want? inmemory (default), file:///some/directory, or postgresql, mysql, sqlite3
+# What type of storage do you want? inmemory (default), file:///some/directory, or postgres, mysql, sqlite3
 storage: "memory://"
 wireguard:
   # The network interface name for wireguard

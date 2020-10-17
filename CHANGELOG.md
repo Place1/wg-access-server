@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.3.0-rc1]
+
+### Added
+
+- arm64 and arm/v7 docker image support + github actions thanks to [@timtorChen](https://github.com/Place1/wg-access-server/pull/73)
+
+### Changed
+
+- the wireguard private key is now required when the storage backend is persistent (i.e. not `memory://`)
+
+### Deprecations
+
+- deprecated support for having no admin account
+  * a config error will be thrown in v0.4.0 if an admin account is not configured
+  * see the README.md for examples on setting the admin account
+- deprecated file:// storage in favour of sqlite3://
+  * will be removed in v0.4.0
+  * there is now a storage `migrate` command that you can use to move your data to a different storage backend
+  * see the docs for migrating your data: https://place1.github.io/wg-access-server/storage/#migration-between-backends
+
 ## [0.2.5]
 
 ### Added
