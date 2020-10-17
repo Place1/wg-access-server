@@ -11,7 +11,7 @@
       <meta http-equiv="x-ua-compatible" content="ie=edge">
       
       
-        <link rel="canonical" href="https://place1.github.io/wg-access-server/configuration/">
+        <link rel="canonical" href="https://place1.github.io/wg-access-server/3-storage/">
       
       
       
@@ -38,7 +38,7 @@
     
     
       
-        <title>Configuration - wg-access-server</title>
+        <title>Storage - wg-access-server</title>
       
     
     
@@ -87,7 +87,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#configuration" tabindex="0" class="md-skip">
+      <a href="#storage" tabindex="0" class="md-skip">
         Skip to content
       </a>
     
@@ -113,7 +113,7 @@
             </span>
             <span class="md-header-nav__topic">
               
-                Configuration
+                Storage
               
             </span>
           
@@ -234,6 +234,18 @@
       
       
 
+
+  <li class="md-nav__item">
+    <a href="../2-configuration/" title="Configuration" class="md-nav__link">
+      Configuration
+    </a>
+  </li>
+
+    
+      
+      
+      
+
   
 
 
@@ -245,11 +257,11 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="__toc">
-        Configuration
+        Storage
       </label>
     
-    <a href="./" title="Configuration" class="md-nav__link md-nav__link--active">
-      Configuration
+    <a href="./" title="Storage" class="md-nav__link md-nav__link--active">
+      Storage
     </a>
     
       
@@ -263,23 +275,77 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#environment-variables" class="md-nav__link">
-    Environment Variables
+  <a href="#backends" class="md-nav__link">
+    Backends
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memory" class="md-nav__link">
+    Memory
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sqlite3" class="md-nav__link">
+    Sqlite3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgres" class="md-nav__link">
+    Postgres
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mysql" class="md-nav__link">
+    Mysql
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-deprecated" class="md-nav__link">
+    File (deprecated)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#cli-flags" class="md-nav__link">
-    CLI Flags
+  <a href="#migration-between-backends" class="md-nav__link">
+    Migration Between Backends
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-file-to-sqlite3" class="md-nav__link">
+    Example: file:// to sqlite3://
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#config-file-configyaml" class="md-nav__link">
-    Config File (config.yaml)
+        
+          <li class="md-nav__item">
+  <a href="#example-sqlite3-to-postgres" class="md-nav__link">
+    Example: sqlite3:// to postgres://
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -300,8 +366,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../storage/" title="Storage Backends" class="md-nav__link">
-      Storage Backends
+    <a href="../4-auth/" title="Authentication" class="md-nav__link">
+      Authentication
     </a>
   </li>
 
@@ -313,13 +379,13 @@
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
     
-    <label class="md-nav__link" for="nav-4">
+    <label class="md-nav__link" for="nav-5">
       Deployment
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-4">
+      <label class="md-nav__title" for="nav-5">
         Deployment
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -387,23 +453,77 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#environment-variables" class="md-nav__link">
-    Environment Variables
+  <a href="#backends" class="md-nav__link">
+    Backends
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memory" class="md-nav__link">
+    Memory
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sqlite3" class="md-nav__link">
+    Sqlite3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgres" class="md-nav__link">
+    Postgres
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mysql" class="md-nav__link">
+    Mysql
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-deprecated" class="md-nav__link">
+    File (deprecated)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#cli-flags" class="md-nav__link">
-    CLI Flags
+  <a href="#migration-between-backends" class="md-nav__link">
+    Migration Between Backends
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-file-to-sqlite3" class="md-nav__link">
+    Example: file:// to sqlite3://
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#config-file-configyaml" class="md-nav__link">
-    Config File (config.yaml)
+        
+          <li class="md-nav__item">
+  <a href="#example-sqlite3-to-postgres" class="md-nav__link">
+    Example: sqlite3:// to postgres://
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -423,168 +543,100 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/place1/wg-access-server/edit/master/docs/configuration.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/place1/wg-access-server/edit/master/docs/3-storage.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link"> ¶</a></h1>
-<h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link"> ¶</a></h2>
+                <h1 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link"> ¶</a></h1>
+<p>wg-access-server supports 4 storage backends.</p>
 <table>
 <thead>
 <tr>
-<th>Variable</th>
-<th>Description</th>
+<th>Backend</th>
+<th>Persistent</th>
+<th>Supports HA</th>
+<th>Use Case</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>CONFIG</td>
-<td>Set the config file path</td>
+<td>memory</td>
+<td>❌</td>
+<td>❌</td>
+<td>Local development</td>
 </tr>
 <tr>
-<td>WIREGUARD_PRIVATE_KEY</td>
-<td>Set the wireguard private key</td>
+<td>sqlite3</td>
+<td>✔️</td>
+<td>❌</td>
+<td>Production - single instance deployments</td>
 </tr>
 <tr>
-<td>STORAGE</td>
-<td>Set the directory where device config will be persisted</td>
+<td>postgres</td>
+<td>✔️</td>
+<td>✔️ (soon)</td>
+<td>Production - multi instance deployments</td>
 </tr>
 <tr>
-<td>ADMIN_USERNAME</td>
-<td>Set the username (subject) for the admin account</td>
-</tr>
-<tr>
-<td>ADMIN_PASSWORD</td>
-<td>Set the admin account's password. The admin account will be a basic-auth user. Leave blank if your admin username authenticates via a configured authentication backend.</td>
-</tr>
-<tr>
-<td>UPSTREAM_DNS</td>
-<td>Set the upstream DNS server to proxy client DNS requests to. If empty, resolv.conf will be respected.</td>
-</tr>
-<tr>
-<td>LOG_LEVEL</td>
-<td>Set the server's log level (debug, <strong>info</strong>, error, critical)</td>
-</tr>
-<tr>
-<td>DISABLE_METADATA</td>
-<td>If true, the server will not record device level metadata such as the last handshake time, tx/rx data size</td>
+<td>mysql</td>
+<td>✔️</td>
+<td>❌</td>
+<td>Production - single instance deployments</td>
 </tr>
 </tbody>
 </table>
-<h2 id="cli-flags">CLI Flags<a class="headerlink" href="#cli-flags" title="Permanent link"> ¶</a></h2>
-<p>All environment variables can be configured via a
-CLI flag as well.</p>
-<p>For example you can configure <code class="codehilite"><span class="err">STORAGE</span></code> by passing <code class="codehilite"><span class="err">--storage=&quot;&lt;value&gt;&quot;</span></code>.</p>
-<h2 id="config-file-configyaml">Config File (config.yaml)<a class="headerlink" href="#config-file-configyaml" title="Permanent link"> ¶</a></h2>
-<p>Here's an annotated config file example:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># The application&#39;s log level.</span>
-<span class="c1"># Can be debug, info, error</span>
-<span class="c1"># Optional, defaults to info</span>
-<span class="nt">loglevel</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">info</span>
-<span class="c1"># Disable device metadata storage.</span>
-<span class="c1"># Device metadata includes the last handshake time,</span>
-<span class="c1"># total sent/received bytes count, their endpoint IP.</span>
-<span class="c1"># This metadata is captured from wireguard itself.</span>
-<span class="c1"># Disabling this flag will not stop wireguard from capturing</span>
-<span class="c1"># this data.</span>
-<span class="c1"># See stored data here: https://github.com/Place1/wg-access-server/blob/master/internal/storage/contracts.go#L14</span>
-<span class="c1"># Optional, defaults to false.</span>
-<span class="nt">disableMetadata</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="c1"># The port that the web ui server (http) will listen on.</span>
-<span class="c1"># Optional, defaults to 8000</span>
-<span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8000</span>
-<span class="c1"># Directory that VPN devices (WireGuard peers)</span>
-<span class="c1"># What type of storage do you want? inmemory (default), file:///some/directory, or postgres, mysql, sqlite3</span>
-<span class="nt">storage</span><span class="p">:</span> <span class="s">&quot;memory://&quot;</span>
-<span class="nt">wireguard</span><span class="p">:</span>
-  <span class="c1"># The network interface name for wireguard</span>
-  <span class="c1"># Optional, defaults to wg0</span>
-  <span class="nt">interfaceName</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">wg0</span>
-  <span class="c1"># The WireGuard PrivateKey</span>
-  <span class="c1"># You can generate this value using &quot;$ wg genkey&quot;</span>
-  <span class="c1"># If this value is empty then the server will use an in-memory</span>
-  <span class="c1"># generated key</span>
-  <span class="nt">privateKey</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-  <span class="c1"># ExternalAddress is the address (without port) that clients use to connect to the wireguard interface</span>
-  <span class="c1"># By default, this will be empty and the web ui</span>
-  <span class="c1"># will use the current page&#39;s origin i.e. window.location.origin</span>
-  <span class="c1"># Optional</span>
-  <span class="nt">externalHost</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-  <span class="c1"># The WireGuard ListenPort</span>
-  <span class="c1"># Optional, defaults to 51820</span>
-  <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">51820</span>
-<span class="nt">vpn</span><span class="p">:</span>
-  <span class="c1"># CIDR configures a network address space</span>
-  <span class="c1"># that client (WireGuard peers) will be allocated</span>
-  <span class="c1"># an IP address from.</span>
-  <span class="c1"># Optional</span>
-  <span class="nt">cidr</span><span class="p">:</span> <span class="s">&quot;10.44.0.0/24&quot;</span>
-  <span class="c1"># GatewayInterface will be used in iptable forwarding</span>
-  <span class="c1"># rules that send VPN traffic from clients to this interface</span>
-  <span class="c1"># Most use-cases will want this interface to have access</span>
-  <span class="c1"># to the outside internet</span>
-  <span class="c1"># If not configured then the server will select the default</span>
-  <span class="c1"># network interface e.g. eth0</span>
-  <span class="c1"># Optional</span>
-  <span class="nt">gatewayInterface</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-  <span class="c1"># The &quot;AllowedIPs&quot; for VPN clients.</span>
-  <span class="c1"># This value will be included in client config</span>
-  <span class="c1"># files and in server-side iptable rules</span>
-  <span class="c1"># to enforce network access.</span>
-  <span class="c1"># Optional</span>
-  <span class="nt">allowedIPs</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="s">&quot;0.0.0.0/0&quot;</span>
-<span class="nt">dns</span><span class="p">:</span>
-  <span class="c1"># Enable a DNS proxy for VPN clients.</span>
-  <span class="c1"># Optional, Defaults to true</span>
-  <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="c1"># upstream DNS servers.</span>
-  <span class="c1"># that the server-side DNS proxy will forward requests to.</span>
-  <span class="c1"># By default /etc/resolv.conf will be used to find upstream</span>
-  <span class="c1"># DNS servers.</span>
-  <span class="c1"># Optional</span>
-  <span class="nt">upstream</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="s">&quot;1.1.1.1&quot;</span>
-<span class="c1"># Auth configures optional authentication backends</span>
-<span class="c1"># to controll access to the web ui.</span>
-<span class="c1"># Devices will be managed on a per-user basis if any</span>
-<span class="c1"># auth backends are configured.</span>
-<span class="c1"># If no authentication backends are configured then</span>
-<span class="c1"># the server will not require any authentication.</span>
-<span class="c1"># It&#39;s recommended to make use of basic authentication</span>
-<span class="c1"># or use an upstream HTTP proxy that enforces authentication</span>
-<span class="c1"># Optional</span>
-<span class="nt">auth</span><span class="p">:</span>
-  <span class="c1"># HTTP Basic Authentication</span>
-  <span class="nt">basic</span><span class="p">:</span>
-    <span class="c1"># Users is a list of htpasswd encoded username:password pairs</span>
-    <span class="c1"># supports BCrypt, Sha, Ssha, Md5</span>
-    <span class="c1"># You can create a user using &quot;htpasswd -nB &lt;username&gt;&quot;</span>
-    <span class="nt">users</span><span class="p">:</span> <span class="p p-Indicator">[]</span>
-  <span class="nt">oidc</span><span class="p">:</span>
-    <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;&quot;</span> <span class="c1"># anything you want</span>
-    <span class="nt">issuer</span><span class="p">:</span> <span class="s">&quot;&quot;</span> <span class="c1"># Should point to the oidc url without .well-known</span>
-    <span class="nt">clientID</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-    <span class="nt">clientSecret</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-    <span class="nt">scopes</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>  <span class="c1"># list of scopes, defaults to [&quot;openid&quot;]</span>
-    <span class="nt">redirectURL</span><span class="p">:</span> <span class="s">&quot;&quot;</span> <span class="c1"># full url you want the oidc to redirect to, example: https://vpn-admin.example.com/finish-signin</span>
-    <span class="c1"># See https://github.com/Knetic/govaluate/blob/9aa49832a739dcd78a5542ff189fb82c3e423116/MANUAL.md for how to write rules</span>
-    <span class="nt">userClaimsRules</span><span class="p">:</span>
-      <span class="nt">admin</span><span class="p">:</span> <span class="s">&quot;&#39;WireguardAdmins&#39;</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">group_membership&quot;</span>
-    <span class="c1"># Optionally restrict login to users with an allowed email domain</span>
-    <span class="c1"># if empty or omitted, any email domain will be allowed.</span>
-    <span class="nt">emailDomains</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
-  <span class="nt">gitlab</span><span class="p">:</span>
-    <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-    <span class="nt">baseURL</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-    <span class="nt">clientID</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-    <span class="nt">clientSecret</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-    <span class="nt">redirectURL</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
-    <span class="c1"># Optionally restrict login to users with an allowed email domain</span>
-    <span class="c1"># if empty or omitted, any email domain will be allowed.</span>
-    <span class="nt">emailDomains</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">example.com</span>
+<h2 id="backends">Backends<a class="headerlink" href="#backends" title="Permanent link"> ¶</a></h2>
+<h3 id="memory">Memory<a class="headerlink" href="#memory" title="Permanent link"> ¶</a></h3>
+<p>This is the default backend if you're running the binary directly and haven't configured
+another storage backend. Data will be lost between restarts. Handy for development.</p>
+<h3 id="sqlite3">Sqlite3<a class="headerlink" href="#sqlite3" title="Permanent link"> ¶</a></h3>
+<p>This is the default backend if you're running the docker container directly or using docker-compose.</p>
+<p>The database file will be written to <code class="codehilite"><span class="err">/data/db.sqlite3</span></code> within the container by default.</p>
+<p>Sqlite3 is probably the simplest storage backend to get started with because it doesn't require
+any additional setup to be done. It should work out of the box and should be able to support a
+large number of users &amp; devices.</p>
+<p>Example connection string:</p>
+<ul>
+<li>Relative path: <code class="codehilite"><span class="c">sqlite3://path/to/db.sqlite3</span></code></li>
+<li>Absolute path: <code class="codehilite"><span class="c">sqlite3:///absolute/path/to/db.sqlite3</span></code></li>
+</ul>
+<h3 id="postgres">Postgres<a class="headerlink" href="#postgres" title="Permanent link"> ¶</a></h3>
+<p>This backend requires an external Postgres database to be deployed.</p>
+<p>Postgres will support highly-available deployments of wg-access-server in the near future
+and is the recommended storage backend where possible.</p>
+<p>Example connection string:</p>
+<ul>
+<li><code class="codehilite"><span class="c">postgres://user:password@localhost:5432/database?sslmode=disable</span></code></li>
+</ul>
+<h3 id="mysql">Mysql<a class="headerlink" href="#mysql" title="Permanent link"> ¶</a></h3>
+<p>This backend requires an external Mysql database to be deployed. Mysql flavours should be compatible.
+wg-access-server uses <a href="github.com/go-sql-driver/mysql">this golang driver</a> if you want to check the
+compatibility of your favorite flavour.</p>
+<p>Example connection string:</p>
+<ul>
+<li><code class="codehilite"><span class="c">mysql://user:password@localhost:3306/database?ssl-mode=disabled</span></code></li>
+</ul>
+<h3 id="file-deprecated">File (deprecated)<a class="headerlink" href="#file-deprecated" title="Permanent link"> ¶</a></h3>
+<p>The <code class="codehilite"><span class="c">file://</span></code> backend has been deprecated in 0.3.0 and will be removed in 0.4.0</p>
+<p>You can use the migration guide below to migrate to a different storage backend.</p>
+<h2 id="migration-between-backends">Migration Between Backends<a class="headerlink" href="#migration-between-backends" title="Permanent link"> ¶</a></h2>
+<p>You can migrate your registered devices between backends using the <code class="codehilite"><span class="err">wg-access-server migrate &lt;src&gt; &lt;dest&gt;</span></code>
+command.</p>
+<p>The migrate command was added in <code class="codehilite"><span class="err">v0.3.0</span></code> and is provided on a <em>best effort</em> level. As an open source
+project any community support here is warmly welcomed.</p>
+<h3 id="example-file-to-sqlite3">Example: <code class="codehilite"><span class="c">file://</span></code> to <code class="codehilite"><span class="c">sqlite3://</span></code><a class="headerlink" href="#example-file-to-sqlite3" title="Permanent link"> ¶</a></h3>
+<p>If you're using the now deprecated <code class="codehilite"><span class="c">file://</span></code> backend you can migrate to <code class="codehilite"><span class="c">sqlite3://</span></code> like this:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># after upgrading to place1/wg-access-server:v0.3.0</span>
+docker <span class="nb">exec</span> -it &lt;container-name&gt; wg-access-server migrate file:///data sqlite3:///data/db.sqlite3
 </code></pre></div>
+<p>If you need to do the above within a kubernetes deployment substitute <code class="codehilite"><span class="err">docker exec</span></code> with the equivalent
+<code class="codehilite"><span class="err">kubectl exec</span></code> command.</p>
+<p>The migrate command is non-destructive but it's always a good idea to take a backup of your data first!</p>
+<h3 id="example-sqlite3-to-postgres">Example: <code class="codehilite"><span class="c">sqlite3://</span></code> to <code class="codehilite"><span class="c">postgres://</span></code><a class="headerlink" href="#example-sqlite3-to-postgres" title="Permanent link"> ¶</a></h3>
+<p>First you'll need to make sure your postgres server is up and that you can connect to it from your
+wg-access-server container/pod/vm.</p>
+<div class="codehilite"><pre><span></span><code>wg-access-server migrate sqlite3:///data/db.sqlite3 postgres://user:password@localhost:5432/database?sslmode<span class="o">=</span>disable
+</code></pre></div>
+<p>Remember to update your wg-access-server config to connect to postgres 😀</p>
                 
                   
                 
@@ -606,7 +658,7 @@ CLI flag as well.</p>
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href=".." title="Home" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../2-configuration/" title="Configuration" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -615,19 +667,19 @@ CLI flag as well.</p>
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Home
+                Configuration
               </span>
             </div>
           </a>
         
         
-          <a href="../storage/" title="Storage Backends" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../4-auth/" title="Authentication" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Storage Backends
+                Authentication
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
