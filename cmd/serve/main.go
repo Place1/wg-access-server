@@ -36,7 +36,7 @@ func Register(app *kingpin.Application) *servecmd {
 	cli := app.Command(cmd.Name(), "Run the server")
 	cli.Flag("config", "Path to a wg-access-server config file").Envar("WG_CONFIG").FileVar(&cmd.ConfigFilePath)
 	cli.Flag("admin-username", "Admin username (defaults to admin)").Envar("WG_ADMIN_USERNAME").Default("admin").StringVar(&cmd.AppConfig.AdminUsername)
-	cli.Flag("admin-password", "Admin password (provide plaintext, stored in-memory only)").Envar("WG_ADMIN_PASSWORD").Required().StringVar(&cmd.AppConfig.AdminPassword)
+	cli.Flag("admin-password", "Admin password (provide plaintext, stored in-memory only)").Envar("WG_ADMIN_PASSWORD").StringVar(&cmd.AppConfig.AdminPassword)
 	cli.Flag("port", "The port that the web ui server will listen on").Envar("WG_PORT").Default("8000").IntVar(&cmd.AppConfig.Port)
 	cli.Flag("external-host", "The external origin of the server (e.g. https://mydomain.com)").Envar("WG_EXTERNAL_HOST").StringVar(&cmd.AppConfig.ExternalHost)
 	cli.Flag("storage", "The storage backend connection string").Envar("WG_STORAGE").Default("memory://").StringVar(&cmd.AppConfig.Storage)
@@ -193,6 +193,10 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 		if level, err := logrus.ParseLevel(cmd.AppConfig.LogLevel); err == nil {
 			logrus.SetLevel(level)
 		}
+	}
+
+	if cmd.AppConfig.AdminPassword == "" {
+		logrus.Fatal("missing admin password: please set via environment variable, flag or config file")
 	}
 
 	if cmd.AppConfig.DisableMetadata {
