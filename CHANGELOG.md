@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - deprecated file:// storage in favour of sqlite3://
   * will be removed in v0.4.0
   * there is now a storage `migrate` command that you can use to move your data to a different storage backend
-  * see the docs for migrating your data: https://place1.github.io/wg-access-server/storage/#migration-between-backends
+  * see the docs for migrating your data: https://place1.github.io/wg-access-server/3-storage/#example-file-to-sqlite3
 
 ## [0.2.5]
 
