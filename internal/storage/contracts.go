@@ -60,6 +60,8 @@ func NewStorage(uri string) (Storage, error) {
 	case "memory":
 		logrus.Warn("storing data in memory - devices will not persist between restarts")
 		return NewMemoryStorage(), nil
+	case "postgresql":
+		fallthrough
 	case "postgres":
 		fallthrough
 	case "mysql":

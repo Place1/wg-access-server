@@ -40,7 +40,7 @@ and is the recommended storage backend where possible.
 
 Example connection string:
 
-- `postgres://user:password@localhost:5432/database?sslmode=disable`
+- `postgresql://user:password@localhost:5432/database?sslmode=disable`
 
 ### Mysql
 
@@ -84,13 +84,13 @@ If you need to do the above within a kubernetes deployment substitute `docker ex
 
 The migrate command is non-destructive but it's always a good idea to take a backup of your data first!
 
-### Example: `sqlite3://` to `postgres://`
+### Example: `sqlite3://` to `postgresql://`
 
 First you'll need to make sure your postgres server is up and that you can connect to it from your
 wg-access-server container/pod/vm.
 
 ```bash
-wg-access-server migrate sqlite3:///data/db.sqlite3 postgres://user:password@localhost:5432/database?sslmode=disable
+wg-access-server migrate sqlite3:///data/db.sqlite3 postgresql://user:password@localhost:5432/database?sslmode=disable
 ```
 
 Remember to update your wg-access-server config to connect to postgres 😀

@@ -8,7 +8,11 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: "{{ .Values.strategy.type }}"
+    {{- if .Values.persistence.enabled  }}
+    type: {{ .Values.strategy.type | default "Recreate" | quote }}
+    {{- else }}
+    type: {{ .Values.strategy.type | default "RollingUpdate" | quote }}
+    {{- end }}
   selector:
     matchLabels:
       {{- include "wg-access-server.selectorLabels" . | nindent 6 }}

@@ -23,7 +23,7 @@ type AppConfig struct {
 	ExternalHost string `yaml:"externalHost"`
 	// The storage backend where device configuration will
 	// be persisted.
-	// Supports memory:// postgres:// mysql:// sqlite3://
+	// Supports memory:// postgresql:// mysql:// sqlite3://
 	// Defaults to memory://
 	Storage string `yaml:"storage"`
 	// DisableMetadata allows you to turn off collection of device

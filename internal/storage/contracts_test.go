@@ -18,7 +18,7 @@ func TestMemoryStorage(t *testing.T) {
 func TestPostgresqlStorage(t *testing.T) {
 	require := require.New(t)
 
-	s, err := NewStorage("postgres://localhost:5432/dbname?sslmode=disable")
+	s, err := NewStorage("postgresql://localhost:5432/dbname?sslmode=disable")
 	require.NoError(err)
 
 	require.IsType(&SQLStorage{}, s)

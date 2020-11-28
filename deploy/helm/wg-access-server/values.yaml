@@ -53,8 +53,14 @@ image:
   repository: place1/wg-access-server
   pullPolicy: IfNotPresent
 
-strategy:
-  type: Recreate
+# multiple replicas is only supported when using
+# a supported highly-available storage backend (i.e. postgresql)
+replicas: 1
+
+strategy: {}
+  # the deployment strategy type will default to "Recreate" when persistence is enabled
+  # or "RollingUpdate" when persistence is not enabled.
+  # type: Recreate
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
