@@ -16,7 +16,7 @@ import (
 
 var (
 	app      = kingpin.New("wg-access-server", "An all-in-one WireGuard Access Server & VPN solution")
-	logLevel = app.Flag("log-level", "Log level: trace, debug, info, error, fatal").Envar("LOG_LEVEL").Default("info").String()
+	logLevel = app.Flag("log-level", "Log level: trace, debug, info, error, fatal").Envar("WG_LOG_LEVEL").Default("info").String()
 )
 
 func main() {
