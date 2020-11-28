@@ -7,7 +7,7 @@ metadata:
     {{- include "wg-access-server.labels" . | nindent 4 }}
 {{- if .Values.web.service.annotations }}
   annotations:
-    {{ toYaml .Values.web.service.annotations | indent 4 }}
+{{ toYaml .Values.web.service.annotations | indent 4 }}
 {{- end }}
 spec:
 {{- if .Values.web.service.externalTrafficPolicy }}
