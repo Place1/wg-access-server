@@ -62,7 +62,7 @@ auth:
     # This feature is used to define wg-access-server admins
     # based off a claim in your OIDC token
     # See https://github.com/Knetic/govaluate/blob/9aa49832a739dcd78a5542ff189fb82c3e423116/MANUAL.md for how to write rules
-    userClaimsRules:
+    claimMapping:
       admin: "'WireguardAdmins' in group_membership"
   gitlab:
     name: "My Gitlab Backend"
