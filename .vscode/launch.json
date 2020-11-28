@@ -13,13 +13,13 @@
       "env": {
         "WG_ADMIN_PASSWORD": "example",
         "WG_WIREGUARD_PRIVATE_KEY": "4DRYOeSSeZyWRrLw357Pg9sv/RppMGwveTwz7sxM4mo=",
+        "WG_STORAGE": "sqlite3:///tmp/wg-access-server.sqlite3"
       },
       "args": [
         "serve",
         "--config=config.yaml",
         "--no-wireguard-enabled",
-        "--no-dns-enabled",
-        "--port=9001"
+        "--no-dns-enabled"
       ]
     }
   ]
