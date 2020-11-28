@@ -62,7 +62,7 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          platforms: linux/amd64, linux/arm64, linux/arm/v7
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.prep.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
