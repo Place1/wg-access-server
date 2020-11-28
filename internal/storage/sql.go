@@ -37,13 +37,14 @@ func (*GormLogger) Print(v ...interface{}) {
 
 // implements Storage interface
 type SQLStorage struct {
+	Watcher
 	db               *gorm.DB
 	sqlType          string
 	connectionString string
 }
 
 func NewSqlStorage(u *url.URL) *SQLStorage {
-	connectionString := ""
+	var connectionString string
 
 	switch u.Scheme {
 	case "postgres":
@@ -59,6 +60,7 @@ func NewSqlStorage(u *url.URL) *SQLStorage {
 	}
 
 	return &SQLStorage{
+		Watcher:          nil,
 		db:               nil,
 		sqlType:          u.Scheme,
 		connectionString: connectionString,
@@ -104,11 +106,23 @@ func (s *SQLStorage) Open() error {
 		return errors.Wrap(err, fmt.Sprintf("failed to connect to %s", s.sqlType))
 	}
 	s.db = db
+
 	db.SetLogger(&GormLogger{})
 	db.LogMode(true)
 
 	// Migrate the schema
 	s.db.AutoMigrate(&Device{})
+
+	if s.sqlType == "postgres" {
+		watcher, err := NewPgWatcher(s.connectionString, db.NewScope(&Device{}).TableName())
+		if err != nil {
+			return errors.Wrap(err, "failed to create pg watcher")
+		}
+		s.Watcher = watcher
+	} else {
+		s.Watcher = NewInProcessWatcher()
+	}
+
 	return nil
 }
 

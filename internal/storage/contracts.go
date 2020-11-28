@@ -10,6 +10,7 @@ import (
 )
 
 type Storage interface {
+	Watcher
 	Save(device *Device) error
 	List(owner string) ([]*Device, error)
 	Get(owner string, name string) (*Device, error)
@@ -18,15 +19,23 @@ type Storage interface {
 	Open() error
 }
 
+type Watcher interface {
+	OnAdd(cb Callback)
+	OnDelete(cb Callback)
+	OnReconnect(func())
+}
+
+type Callback func(device *Device)
+
 type Device struct {
 	Owner         string    `json:"owner" gorm:"type:varchar(100);unique_index:key;primary_key"`
-	OwnerName     string    `json:"ownerName"`
-	OwnerEmail    string    `json:"ownerEmail"`
-	OwnerProvider string    `json:"ownerProvider"`
+	OwnerName     string    `json:"owner_name"`
+	OwnerEmail    string    `json:"owner_email"`
+	OwnerProvider string    `json:"owner_provider"`
 	Name          string    `json:"name" gorm:"type:varchar(100);unique_index:key;primary_key"`
-	PublicKey     string    `json:"publicKey"`
+	PublicKey     string    `json:"public_key"`
 	Address       string    `json:"address"`
-	CreatedAt     time.Time `json:"createdAt" gorm:"column:created_at"`
+	CreatedAt     time.Time `json:"created_at" gorm:"column:created_at"`
 
 	/**
 	 * Metadata fields below.
@@ -35,9 +44,9 @@ type Device struct {
 	 */
 
 	// metadata about the device during the current session
-	LastHandshakeTime *time.Time `json:"lastHandshakeTime"`
-	ReceiveBytes      int64      `json:"receivedBytes"`
-	TransmitBytes     int64      `json:"transmitBytes"`
+	LastHandshakeTime *time.Time `json:"last_handshake_time"`
+	ReceiveBytes      int64      `json:"received_bytes"`
+	TransmitBytes     int64      `json:"transmit_bytes"`
 	Endpoint          string     `json:"endpoint"`
 }
 

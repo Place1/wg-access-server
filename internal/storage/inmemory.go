@@ -7,13 +7,15 @@ import (
 
 // implements Storage interface
 type InMemoryStorage struct {
+	*InProcessWatcher
 	db map[string]*Device
 }
 
 func NewMemoryStorage() *InMemoryStorage {
 	db := make(map[string]*Device)
 	return &InMemoryStorage{
-		db: db,
+		InProcessWatcher: NewInProcessWatcher(),
+		db:               db,
 	}
 }
 
@@ -27,6 +29,7 @@ func (s *InMemoryStorage) Close() error {
 
 func (s *InMemoryStorage) Save(device *Device) error {
 	s.db[key(device)] = device
+	s.emitAdd(device)
 	return nil
 }
 
@@ -56,5 +59,6 @@ func (s *InMemoryStorage) Get(owner string, name string) (*Device, error) {
 
 func (s *InMemoryStorage) Delete(device *Device) error {
 	delete(s.db, key(device))
+	s.emitDelete(device)
 	return nil
 }
