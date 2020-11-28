@@ -64,3 +64,5 @@ website/yarn-error.log*
 website/yarn.lock
 
 __debug_bin
+
+db.sqlite3

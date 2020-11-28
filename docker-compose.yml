@@ -12,6 +12,10 @@ services:
     volumes:
       - "wg-access-server-data:/data"
     #   - "./config.yaml:/config.yaml" # if you have a custom config file
+    environment:
+      - "WG_ADMIN_USERNAME=admin"
+      - "WG_ADMIN_PASSWORD=${WG_ADMIN_PASSWORD:?\n\nplease set the WG_ADMIN_PASSWORD environment variable:\n    export WG_ADMIN_PASSWORD=example\n}"
+      - "WG_WIREGUARD_PRIVATE_KEY=${WG_WIREGUARD_PRIVATE_KEY:?\n\nplease set the WG_WIREGUARD_PRIVATE_KEY environment variable:\n    export WG_WIREGUARD_PRIVATE_KEY=$(wg genkey)\n}"
     ports:
       - "8000:8000/tcp"
       - "51820:51820/udp"

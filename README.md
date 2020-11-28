@@ -17,7 +17,7 @@ wg-access-server is a functional but young project. Contributions are welcome!
 
 Quick Links:
 
-- [Configuration Overview](https://place1.github.io/wg-access-server/configuration/)
+- [Configuration Overview](https://place1.github.io/wg-access-server/2-configuration/)
 - [Deploy With Docker](https://place1.github.io/wg-access-server/deployment/1-docker/)
 - [Deploy With Helm](https://place1.github.io/wg-access-server/deployment/2-docker-compose/)
 - [Deploy With Docker-Compose](https://place1.github.io/wg-access-server/deployment/2-docker-compose/)
@@ -27,13 +27,17 @@ Quick Links:
 Here's a quick command to run the server to try it out.
 
 ```bash
+export WG_ADMIN_PASSWORD="example"
+export WG_WIREGUARD_PRIVATE_KEY="$(wg genkey)"
+
 docker run \
   -it \
   --rm \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
   -v wg-access-server-data:/data \
-  -e "WIREGUARD_PRIVATE_KEY=$(wg genkey)" \
+  -e "WG_ADMIN_PASSWORD=$WG_ADMIN_PASSWORD" \
+  -e "WG_WIREGUARD_PRIVATE_KEY=$WG_WIREGUARD_PRIVATE_KEY" \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
   place1/wg-access-server
@@ -62,9 +66,12 @@ helm delete my-release
 
 ## Running with Docker-Compose
 
-You modify the docker-compose.yml file for you need then run this following command.
+Download the the docker-compose.yml file from the repo and run the following command.
 
 ```bash
+export WG_ADMIN_PASSWORD="example"
+export WG_WIREGUARD_PRIVATE_KEY="$(wg genkey)"
+
 docker-compose up
 ```
 

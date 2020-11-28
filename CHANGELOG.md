@@ -12,6 +12,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The file:// storage backend has been removed in favour of sqlite:// for local filesystem persistence
 - The wireguard service can now be disabled via the config file. Helpful for developing on Mac and Windows until support for Mac/Windows networking is added.
 
+## [v0.3.0]
+
+### Added
+
+- arm64 and arm/v7 docker image support + github actions thanks to [@timtorChen](https://github.com/Place1/wg-access-server/pull/73)
+
+### Changed
+
+- the wireguard private key is now required when the storage backend is persistent (i.e. not `memory://`)
+- configuration flags, environment variables and file properties have been refactored for consistency
+  * all configuration file properties (excluding auth providers) can now be set via flags and environment variables
+  * all environment variables are prefixed with `WG_` to avoid collisions in hosted environments like Kubernetes
+  * all flags & environment variables are named consistently
+  * **breaking:** no functionality has been removed but you'll need to update any flags/envvars that you're using
+
+### Deprecations
+
+- deprecated support for having no admin account
+  * a config error will be thrown in v0.4.0 if an admin account is not configured
+  * see the README.md for examples on setting the admin account
+- deprecated file:// storage in favour of sqlite3://
+  * will be removed in v0.4.0
+  * there is now a storage `migrate` command that you can use to move your data to a different storage backend
+  * see the docs for migrating your data: https://place1.github.io/wg-access-server/3-storage/#example-file-to-sqlite3
+
 ## [0.2.5]
 
 ### Added

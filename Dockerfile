@@ -12,13 +12,14 @@ RUN npm run codegen
 RUN npm run build
 
 ### Build stage for the website backend server
-FROM golang:1.13.8 as server
-RUN apt-get update
-RUN apt-get install -y protobuf-compiler libprotobuf-dev
+FROM golang:1.13.8-alpine as server
+RUN apk add gcc musl-dev
+RUN apk add protobuf
+RUN apk add protobuf-dev
 WORKDIR /code
 ENV GOOS=linux
 ENV GARCH=amd64
-ENV CGO_ENABLED=0
+ENV CGO_ENABLED=1
 ENV GO111MODULE=on
 RUN go get github.com/golang/protobuf/protoc-gen-go@v1.3.5
 COPY ./go.mod ./
@@ -28,17 +29,18 @@ COPY ./proto/ ./proto/
 COPY ./codegen.sh ./
 RUN ./codegen.sh
 COPY ./main.go ./main.go
-COPY ./internal/ ./internal/
+COPY ./cmd/ ./cmd/
 COPY ./pkg/ ./pkg/
-RUN go build -o server
+COPY ./internal/ ./internal/
+RUN go build -o wg-access-server
 
 ### Server
 FROM alpine:3.10
 RUN apk add iptables
 RUN apk add wireguard-tools
 RUN apk add curl
-ENV CONFIG="/config.yaml"
-ENV STORAGE="file:///data"
-COPY --from=server /code/server /server
+ENV WG_CONFIG="/config.yaml"
+ENV WG_STORAGE="sqlite3:///data/db.sqlite3"
+COPY --from=server /code/wg-access-server /usr/local/bin/wg-access-server
 COPY --from=website /code/build /website/build
-CMD /server
+CMD ["wg-access-server", "serve"]
