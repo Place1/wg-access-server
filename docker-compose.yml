@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.0"
 services:
   wg-access-server:
     # to build the docker image from the source
