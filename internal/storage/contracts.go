@@ -22,6 +22,7 @@ type Storage interface {
 type Watcher interface {
 	OnAdd(cb Callback)
 	OnDelete(cb Callback)
+	OnReconnect(func())
 }
 
 type Callback func(device *Device)

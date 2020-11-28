@@ -43,6 +43,10 @@ func (w *PgWatcher) OnDelete(cb Callback) {
 	})
 }
 
+func (w *PgWatcher) OnReconnect(cb func()) {
+	w.Listener.OnReconnect(cb)
+}
+
 func (w *PgWatcher) emit(cb Callback, event *pgevents.TableEvent) {
 	device := &Device{}
 	if err := json.Unmarshal([]byte(event.Data), device); err != nil {

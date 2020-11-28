@@ -25,18 +25,7 @@ func New(wg wgembed.WireGuardInterface, s storage.Storage, cidr string) *DeviceM
 }
 
 func (d *DeviceManager) StartSync(disableMetadataCollection bool) error {
-	// sync devices from storage once
-	devices, err := d.ListDevices("")
-	if err != nil {
-		return errors.Wrap(err, "failed to list devices")
-	}
-
-	for _, device := range devices {
-		if err := d.wg.AddPeer(device.PublicKey, device.Address); err != nil {
-			logrus.Warn(errors.Wrapf(err, "failed to sync device '%s' (ignoring)", device.Name))
-		}
-	}
-
+	// Start listening to the device add/remove events
 	d.storage.OnAdd(func(device *storage.Device) {
 		if err := d.wg.AddPeer(device.PublicKey, device.Address); err != nil {
 			logrus.Error(errors.Wrap(err, "failed to add wireguard peer"))
@@ -48,6 +37,17 @@ func (d *DeviceManager) StartSync(disableMetadataCollection bool) error {
 			logrus.Error(errors.Wrap(err, "failed to remove wireguard peer"))
 		}
 	})
+
+	d.storage.OnReconnect(func() {
+		if err := d.sync(); err != nil {
+			logrus.Error(errors.Wrap(err, "device sync after storage backend reconnect event failed"))
+		}
+	})
+
+	// Do an initial sync of existing devices
+	if err := d.sync(); err != nil {
+		return errors.Wrap(err, "initial device sync from storage failed")
+	}
 
 	// start the metrics loop
 	if !disableMetadataCollection {
@@ -87,6 +87,36 @@ func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, p
 
 func (d *DeviceManager) SaveDevice(device *storage.Device) error {
 	return d.storage.Save(device)
+}
+
+func (d *DeviceManager) sync() error {
+	devices, err := d.ListAllDevices()
+	if err != nil {
+		return errors.Wrap(err, "failed to list devices")
+	}
+
+	peers, err := d.wg.ListPeers()
+	if err != nil {
+		return errors.Wrap(err, "failed to list peers")
+	}
+
+	// Remove any peers for devices that are no longer in storage
+	for _, peer := range peers {
+		if !deviceListContains(devices, peer.PublicKey.String()) {
+			if err := d.wg.RemovePeer(peer.PublicKey.String()); err != nil {
+				logrus.Error(errors.Wrapf(err, "failed to remove peer during sync: %s", peer.PublicKey.String()))
+			}
+		}
+	}
+
+	// Add peers for all devices in storage
+	for _, device := range devices {
+		if err := d.wg.AddPeer(device.PublicKey, device.Address); err != nil {
+			logrus.Warn(errors.Wrapf(err, "failed to add device during sync: %s", device.Name))
+		}
+	}
+
+	return nil
 }
 
 func (d *DeviceManager) ListAllDevices() ([]*storage.Device, error) {
@@ -176,4 +206,13 @@ func nextIP(ip net.IP) net.IP {
 		}
 	}
 	return next
+}
+
+func deviceListContains(devices []*storage.Device, publicKey string) bool {
+	for _, device := range devices {
+		if device.PublicKey == publicKey {
+			return true
+		}
+	}
+	return false
 }

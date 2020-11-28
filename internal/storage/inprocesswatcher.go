@@ -20,6 +20,10 @@ func (w *InProcessWatcher) OnDelete(cb Callback) {
 	w.delete = append(w.delete, cb)
 }
 
+func (w *InProcessWatcher) OnReconnect(cb func()) {
+	// noop because the inprocess watcher can't disconnect
+}
+
 func (w *InProcessWatcher) emitAdd(device *Device) {
 	for _, cb := range w.add {
 		cb(device)
