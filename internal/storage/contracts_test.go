@@ -15,15 +15,6 @@ func TestMemoryStorage(t *testing.T) {
 	require.IsType(&InMemoryStorage{}, s)
 }
 
-func TestFileStorage(t *testing.T) {
-	require := require.New(t)
-
-	s, err := NewStorage("file:///some/path")
-	require.NoError(err)
-
-	require.IsType(&FileStorage{}, s)
-}
-
 func TestPostgresqlStorage(t *testing.T) {
 	require := require.New(t)
 

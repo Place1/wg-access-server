@@ -52,11 +52,15 @@ Example connection string:
 
 - `mysql://user:password@localhost:3306/database?ssl-mode=disabled`
 
-### File (deprecated)
+### File (removed)
 
-The `file://` backend has been deprecated in 0.3.0 and will be removed in 0.4.0
+The `file://` backend was deprecated in 0.3.0 and has been removed in 0.4.0
 
-You can use the migration guide below to migrate to a different storage backend.
+If you'd like to migrate your `file://` storage to a supported backend you must use
+version 0.3.0 and then follow the migration guide below to migrate to a different storage backend.
+
+_Note that the migration tool itself doesn't support the `file://` backend on versions
+released after 0.3.0_.
 
 ## Migration Between Backends
 
