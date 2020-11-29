@@ -5,12 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [next]
+## [v0.4.0]
 
-- High availability (HA) is now supported using a Postgres storage backend
-  - TODO: link to docs
-- The file:// storage backend has been removed in favour of sqlite:// for local filesystem persistence
-- The wireguard service can now be disabled via the config file. Helpful for developing on Mac and Windows until support for Mac/Windows networking is added.
+- High availability (HA) is now supported when using the `postgresql://` storage backend.
+  You can now deploy multiple replicas of wg-access-server pointing to the same Postgres DB.
+- The `file://` storage backend was deprecated in v0.3.0 and has now been removed.
+  See the v0.3.0 changelog entry for more information about migrating your data.
+- The wireguard service can now be disabled via the config file. Helpful for developing
+  on Mac and Windows.
 
 ## [v0.3.0]
 
@@ -32,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - deprecated support for having no admin account
   * a config error will be thrown in v0.4.0 if an admin account is not configured
   * see the README.md for examples on setting the admin account
-- deprecated file:// storage in favour of sqlite3://
+- deprecated `file://` storage in favour of `sqlite3://`
   * will be removed in v0.4.0
   * there is now a storage `migrate` command that you can use to move your data to a different storage backend
   * see the docs for migrating your data: https://place1.github.io/wg-access-server/3-storage/#example-file-to-sqlite3

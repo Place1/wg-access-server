@@ -6,7 +6,7 @@ wg-access-server supports 4 storage backends.
 | -------- | ---------- | ----------- | ---------------------------------------- |
 | memory   | ❌         | ❌          | Local development                        |
 | sqlite3  | ✔️         | ❌          | Production - single instance deployments |
-| postgres | ✔️         | ✔️ (soon)   | Production - multi instance deployments  |
+| postgres | ✔️         | ✔️          | Production - multi instance deployments  |
 | mysql    | ✔️         | ❌          | Production - single instance deployments |
 
 ## Backends
