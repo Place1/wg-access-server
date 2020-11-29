@@ -38,10 +38,11 @@ metadata:
 {{ toYaml .Values.wireguard.service.annotations | indent 4 }}
 {{- end }}
 spec:
+  type: {{ .Values.wireguard.service.type }}
+  sessionAffinity: ClientIP
 {{- if .Values.wireguard.service.externalTrafficPolicy }}
   externalTrafficPolicy: {{ .Values.wireguard.service.externalTrafficPolicy }}
 {{- end }}
-  type: {{ .Values.wireguard.service.type }}
 {{- if .Values.wireguard.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.wireguard.service.loadBalancerIP }}
 {{- end }}
