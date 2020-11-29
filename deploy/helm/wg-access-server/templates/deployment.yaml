@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "wg-access-server.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicas }}
   strategy:
     {{- if .Values.persistence.enabled  }}
     type: {{ .Values.strategy.type | default "Recreate" | quote }}
