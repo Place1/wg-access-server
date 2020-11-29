@@ -52,6 +52,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
+  sessionAffinity: ClientIP
   ports:
     - port: 51820
       targetPort: 51820
