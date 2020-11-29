@@ -44,12 +44,6 @@ func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, allow
 	}
 
 	if gatewayIface != "" {
-		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-i", gatewayIface, "-o", wgIface, "-j", "ACCEPT"); err != nil {
-			return errors.Wrap(err, "failed to set ip tables rule")
-		}
-		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-i", wgIface, "-o", gatewayIface, "-j", "ACCEPT"); err != nil {
-			return errors.Wrap(err, "failed to set ip tables rule")
-		}
 		if err := ipt.AppendUnique("nat", "WG_ACCESS_SERVER_POSTROUTING", "-s", cidr, "-o", gatewayIface, "-j", "MASQUERADE"); err != nil {
 			return errors.Wrap(err, "failed to set ip tables rule")
 		}

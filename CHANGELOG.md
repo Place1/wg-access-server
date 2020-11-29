@@ -5,14 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.4.2]
+
+### Bug Fixes
+
+- The vpn Allowed IPs setting is now correctly enforced.
+
+## [v0.4.1]
+
+### Bug Fixes
+
+- Fixed a bug that caused devices to get disconnected intermittently
+- The helm template now respects the "replicas" value
+
 ## [v0.4.0]
+
+### Added
 
 - High availability (HA) is now supported when using the `postgresql://` storage backend.
   You can now deploy multiple replicas of wg-access-server pointing to the same Postgres DB.
-- The `file://` storage backend was deprecated in v0.3.0 and has now been removed.
-  See the v0.3.0 changelog entry for more information about migrating your data.
 - The wireguard service can now be disabled via the config file. Helpful for developing
   on Mac and Windows.
+
+### Removed
+
+- The `file://` storage backend was deprecated in v0.3.0 and has now been removed.
+  See the v0.3.0 changelog entry for more information about migrating your data.
 
 ## [v0.3.0]
 
