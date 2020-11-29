@@ -70,7 +70,7 @@ type AppConfig struct {
 		// to enforce network access.
 		// defaults to ["0.0.0.0/1", "128.0.0.0/1"]
 		AllowedIPs []string `yaml:"allowedIPs"`
-	}
+	} `yaml:"vpn"`
 	// Configure the embeded DNS server
 	DNS struct {
 		// Enabled allows you to turn on/off
