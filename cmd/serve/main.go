@@ -68,6 +68,11 @@ func (cmd *servecmd) Run() {
 	// The server's IP within the VPN virtual network
 	vpnip := network.ServerVPNIP(conf.VPN.CIDR)
 
+	// Allow traffic to wg-access-server's peer endpoint.
+	// This is important because clients will send traffic
+	// to the embedded DNS proxy using the VPN IP
+	conf.VPN.AllowedIPs = append(conf.VPN.AllowedIPs, fmt.Sprintf("%s/32", vpnip.IP.String()))
+
 	// WireGuard Server
 	wg := wgembed.NewNoOpInterface()
 	if conf.WireGuard.Enabled {
