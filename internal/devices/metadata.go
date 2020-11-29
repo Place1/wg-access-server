@@ -15,6 +15,7 @@ func metadataLoop(d *DeviceManager) {
 }
 
 func syncMetrics(d *DeviceManager) {
+	logrus.Debug("metadata sync executing")
 	devices, err := d.ListAllDevices()
 	if err != nil {
 		logrus.Warn(errors.Wrap(err, "failed to list devices - metrics cannot be recorded"))

@@ -27,12 +27,14 @@ func New(wg wgembed.WireGuardInterface, s storage.Storage, cidr string) *DeviceM
 func (d *DeviceManager) StartSync(disableMetadataCollection bool) error {
 	// Start listening to the device add/remove events
 	d.storage.OnAdd(func(device *storage.Device) {
+		logrus.Debugf("storage event: device added: %s/%s", device.Owner, device.Name)
 		if err := d.wg.AddPeer(device.PublicKey, device.Address); err != nil {
 			logrus.Error(errors.Wrap(err, "failed to add wireguard peer"))
 		}
 	})
 
 	d.storage.OnDelete(func(device *storage.Device) {
+		logrus.Debugf("storage event: device removed: %s/%s", device.Owner, device.Name)
 		if err := d.wg.RemovePeer(device.PublicKey); err != nil {
 			logrus.Error(errors.Wrap(err, "failed to remove wireguard peer"))
 		}

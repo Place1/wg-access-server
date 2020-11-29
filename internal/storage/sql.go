@@ -155,7 +155,7 @@ func (s *SQLStorage) List(username string) ([]*Device, error) {
 		err = s.db.Find(&devices).Error
 	}
 
-	logrus.Debugf("Found devices: %+v", devices)
+	logrus.Debugf("found %d device(s)", len(devices))
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to read devices from sql")
 	}

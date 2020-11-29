@@ -29,7 +29,11 @@ func NewPgWatcher(connectionString string, table string) (*PgWatcher, error) {
 
 func (w *PgWatcher) OnAdd(cb Callback) {
 	w.Listener.OnEvent(func(event *pgevents.TableEvent) {
-		if event.Action == "UPDATE" || event.Action == "INSERT" {
+		// we only emit the "add" event on an insert because wg-access-server
+		// doesn't allow anyone to modify their public key or allowed IPs.
+		// a future change to wg-access-server may require listening to "updates"
+		// if either of those properties become mutable.
+		if event.Action == "INSERT" {
 			w.emit(cb, event)
 		}
 	})
