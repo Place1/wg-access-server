@@ -420,6 +420,7 @@ password can be anything you like. You can generate a wireguard private key by
 <p>TLDR:</p>
 <div class="codehilite"><pre><span></span><code>wg genkey
 </code></pre></div>
+
 <p>The config file format is <code class="codehilite"><span class="err">yaml</span></code> and an example is provided <a href="#the-config-file-configyaml">below</a>.</p>
 <p>Here's what you can configure:</p>
 <table>
@@ -437,10 +438,18 @@ password can be anything you like. You can generate a wireguard private key by
 <tr>
 <td><code class="codehilite"><span class="err">WG_CONFIG</span></code></td>
 <td><code class="codehilite"><span class="err">--config</span></code></td>
-<td><code class="codehilite"><span class="err">loglevel</span></code></td>
+<td></td>
+<td></td>
+<td></td>
+<td>The path to a wg-access-server config.yaml file</td>
+</tr>
+<tr>
+<td><code class="codehilite"><span class="err">WG_LOG_LEVEL</span></code></td>
+<td><code class="codehilite"><span class="err">--log-level</span></code></td>
+<td><code class="codehilite"><span class="err">logLevel</span></code></td>
 <td></td>
 <td><code class="codehilite"><span class="err">info</span></code></td>
-<td>Global log level</td>
+<td>The global log level</td>
 </tr>
 <tr>
 <td><code class="codehilite"><span class="err">WG_ADMIN_USERNAME</span></code></td>

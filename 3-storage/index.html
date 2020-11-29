@@ -311,8 +311,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#file-deprecated" class="md-nav__link">
-    File (deprecated)
+  <a href="#file-removed" class="md-nav__link">
+    File (removed)
   </a>
   
 </li>
@@ -338,8 +338,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-sqlite3-to-postgres" class="md-nav__link">
-    Example: sqlite3:// to postgres://
+  <a href="#example-sqlite3-to-postgresql" class="md-nav__link">
+    Example: sqlite3:// to postgresql://
   </a>
   
 </li>
@@ -489,8 +489,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#file-deprecated" class="md-nav__link">
-    File (deprecated)
+  <a href="#file-removed" class="md-nav__link">
+    File (removed)
   </a>
   
 </li>
@@ -516,8 +516,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-sqlite3-to-postgres" class="md-nav__link">
-    Example: sqlite3:// to postgres://
+  <a href="#example-sqlite3-to-postgresql" class="md-nav__link">
+    Example: sqlite3:// to postgresql://
   </a>
   
 </li>
@@ -573,7 +573,7 @@
 <tr>
 <td>postgres</td>
 <td>✔️</td>
-<td>✔️ (soon)</td>
+<td>✔️</td>
 <td>Production - multi instance deployments</td>
 </tr>
 <tr>
@@ -605,7 +605,7 @@ large number of users &amp; devices.</p>
 and is the recommended storage backend where possible.</p>
 <p>Example connection string:</p>
 <ul>
-<li><code class="codehilite"><span class="c">postgres://user:password@localhost:5432/database?sslmode=disable</span></code></li>
+<li><code class="codehilite"><span class="c">postgresql://user:password@localhost:5432/database?sslmode=disable</span></code></li>
 </ul>
 <h3 id="mysql">Mysql<a class="headerlink" href="#mysql" title="Permanent link"> ¶</a></h3>
 <p>This backend requires an external Mysql database to be deployed. Mysql flavours should be compatible.
@@ -615,9 +615,12 @@ compatibility of your favorite flavour.</p>
 <ul>
 <li><code class="codehilite"><span class="c">mysql://user:password@localhost:3306/database?ssl-mode=disabled</span></code></li>
 </ul>
-<h3 id="file-deprecated">File (deprecated)<a class="headerlink" href="#file-deprecated" title="Permanent link"> ¶</a></h3>
-<p>The <code class="codehilite"><span class="c">file://</span></code> backend has been deprecated in 0.3.0 and will be removed in 0.4.0</p>
-<p>You can use the migration guide below to migrate to a different storage backend.</p>
+<h3 id="file-removed">File (removed)<a class="headerlink" href="#file-removed" title="Permanent link"> ¶</a></h3>
+<p>The <code class="codehilite"><span class="c">file://</span></code> backend was deprecated in 0.3.0 and has been removed in 0.4.0</p>
+<p>If you'd like to migrate your <code class="codehilite"><span class="c">file://</span></code> storage to a supported backend you must use
+version 0.3.0 and then follow the migration guide below to migrate to a different storage backend.</p>
+<p><em>Note that the migration tool itself doesn't support the <code class="codehilite"><span class="c">file://</span></code> backend on versions
+released after 0.3.0</em>.</p>
 <h2 id="migration-between-backends">Migration Between Backends<a class="headerlink" href="#migration-between-backends" title="Permanent link"> ¶</a></h2>
 <p>You can migrate your registered devices between backends using the <code class="codehilite"><span class="err">wg-access-server migrate &lt;src&gt; &lt;dest&gt;</span></code>
 command.</p>
@@ -628,14 +631,16 @@ project any community support here is warmly welcomed.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># after upgrading to place1/wg-access-server:v0.3.0</span>
 docker <span class="nb">exec</span> -it &lt;container-name&gt; wg-access-server migrate file:///data sqlite3:///data/db.sqlite3
 </code></pre></div>
+
 <p>If you need to do the above within a kubernetes deployment substitute <code class="codehilite"><span class="err">docker exec</span></code> with the equivalent
 <code class="codehilite"><span class="err">kubectl exec</span></code> command.</p>
 <p>The migrate command is non-destructive but it's always a good idea to take a backup of your data first!</p>
-<h3 id="example-sqlite3-to-postgres">Example: <code class="codehilite"><span class="c">sqlite3://</span></code> to <code class="codehilite"><span class="c">postgres://</span></code><a class="headerlink" href="#example-sqlite3-to-postgres" title="Permanent link"> ¶</a></h3>
+<h3 id="example-sqlite3-to-postgresql">Example: <code class="codehilite"><span class="c">sqlite3://</span></code> to <code class="codehilite"><span class="c">postgresql://</span></code><a class="headerlink" href="#example-sqlite3-to-postgresql" title="Permanent link"> ¶</a></h3>
 <p>First you'll need to make sure your postgres server is up and that you can connect to it from your
 wg-access-server container/pod/vm.</p>
-<div class="codehilite"><pre><span></span><code>wg-access-server migrate sqlite3:///data/db.sqlite3 postgres://user:password@localhost:5432/database?sslmode<span class="o">=</span>disable
+<div class="codehilite"><pre><span></span><code>wg-access-server migrate sqlite3:///data/db.sqlite3 postgresql://user:password@localhost:5432/database?sslmode<span class="o">=</span>disable
 </code></pre></div>
+
 <p>Remember to update your wg-access-server config to connect to postgres 😀</p>
                 
                   
