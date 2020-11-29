@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.4.3]
+
+### Changed
+
+- The device list on the website now updates a little less frequently.
+- The device list now always shows the "last seen" field to hopefully
+  better reflect what the "connected" status means.
+- The metadata scraping loop has been updated to be more efficient when
+  there are many disconnected peers compared to connected peers.
+- The metadata scraping algorithm is now more friendly for HA deployments.
+
 ## [v0.4.2]
 
 ### Bug Fixes
