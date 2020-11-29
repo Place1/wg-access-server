@@ -170,6 +170,14 @@ func (s *SQLStorage) Get(owner string, name string) (*Device, error) {
 	return device, nil
 }
 
+func (s *SQLStorage) GetByPublicKey(publicKey string) (*Device, error) {
+	device := &Device{}
+	if err := s.db.Where("public_key = ?", publicKey).First(&device).Error; err != nil {
+		return nil, errors.Wrapf(err, "failed to read device")
+	}
+	return device, nil
+}
+
 func (s *SQLStorage) Delete(device *Device) error {
 	if err := s.db.Delete(&device).Error; err != nil {
 		return errors.Wrap(err, "failed to delete device file")

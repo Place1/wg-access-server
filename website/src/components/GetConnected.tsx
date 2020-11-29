@@ -67,11 +67,11 @@ export class GetConnected extends React.Component<Props> {
                     <LinuxIcon />
                   </Button>
                   <Button
-                    onClick={() => this.go('https://download.WireGuard.com/windows-client/WireGuard-amd64-0.1.1.msi')}
+                    onClick={() => this.go('https://www.wireguard.com/install/')}
                   >
                     <WindowsIcon />
                   </Button>
-                  <Button onClick={() => this.go('https://itunes.apple.com/us/app/WireGuard/id1451685025?ls=1&mt=12')}>
+                  <Button onClick={() => this.go('https://www.wireguard.com/install/#macos-app-store')}>
                     <MacOSIcon />
                   </Button>
                 </ButtonGroup>

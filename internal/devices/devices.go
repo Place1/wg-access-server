@@ -142,6 +142,10 @@ func (d *DeviceManager) DeleteDevice(user string, name string) error {
 	return nil
 }
 
+func (d *DeviceManager) GetByPublicKey(publicKey string) (*storage.Device, error) {
+	return d.storage.GetByPublicKey(publicKey)
+}
+
 var nextIPLock = sync.Mutex{}
 
 func (d *DeviceManager) nextClientAddress() (string, error) {

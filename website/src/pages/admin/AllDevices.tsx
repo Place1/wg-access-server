@@ -6,11 +6,13 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 import { observer } from 'mobx-react';
 import { grpc } from '../../Api';
 import { lastSeen, lazy } from '../../Util';
 import { Device } from '../../sdk/devices_pb';
 import { confirm } from '../../components/Present';
+import { AppState } from '../../AppState';
 
 @observer
 export class AllDevices extends React.Component {
@@ -42,38 +44,52 @@ export class AllDevices extends React.Component {
     const showProviderCol = rows.length >= 2 && rows.some((r) => r.ownerProvider !== rows[0].ownerProvider);
 
     return (
-      <TableContainer>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell>Owner</TableCell>
-              {showProviderCol && <TableCell>Auth Provider</TableCell>}
-              <TableCell>Device</TableCell>
-              <TableCell>Connected</TableCell>
-              <TableCell>Last Seen</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row, i) => (
-              <TableRow key={i}>
-                <TableCell component="th" scope="row">
-                  {row.ownerName || row.ownerEmail || row.owner}
-                </TableCell>
-                {showProviderCol && <TableCell>{row.ownerProvider}</TableCell>}
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.connected ? 'yes' : 'no'}</TableCell>
-                <TableCell>{lastSeen(row.lastHandshakeTime)}</TableCell>
-                <TableCell>
-                  <Button variant="outlined" color="secondary" onClick={() => this.deleteDevice(row)}>
-                    Delete
-                  </Button>
-                </TableCell>
+      <div style={{ display: 'grid', gridGap: 25, gridAutoFlow: 'row'}}>
+        <Typography variant="h5" component="h5">
+          Devices
+        </Typography>
+        <TableContainer>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>Owner</TableCell>
+                {showProviderCol && <TableCell>Auth Provider</TableCell>}
+                <TableCell>Device</TableCell>
+                <TableCell>Connected</TableCell>
+                <TableCell>Last Seen</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {rows.map((row, i) => (
+                <TableRow key={i}>
+                  <TableCell component="th" scope="row">
+                    {row.ownerName || row.ownerEmail || row.owner}
+                  </TableCell>
+                  {showProviderCol && <TableCell>{row.ownerProvider}</TableCell>}
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.connected ? 'yes' : 'no'}</TableCell>
+                  <TableCell>{lastSeen(row.lastHandshakeTime)}</TableCell>
+                  <TableCell>
+                    <Button variant="outlined" color="secondary" onClick={() => this.deleteDevice(row)}>
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Typography variant="h5" component="h5">
+          Server Info
+        </Typography>
+        <code>
+          <pre>
+          {JSON.stringify(AppState.info, null, 2)}
+
+          </pre>
+        </code>
+      </div>
     );
   }
 }

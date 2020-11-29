@@ -73,16 +73,14 @@ export class DeviceListItem extends React.Component<Props> {
                 </>
               )}
               {AppState.info?.metadataEnabled && !device.connected && (
-                <>
-                  <tr>
-                    <td>Disconnected</td>
-                  </tr>
-                  <tr>
-                    <td>Last Seen</td>
-                    <td>{lastSeen(device.lastHandshakeTime)}</td>
-                  </tr>
-                </>
+                <tr>
+                  <td>Disconnected</td>
+                </tr>
               )}
+              <tr>
+                <td>Last Seen</td>
+                <td>{lastSeen(device.lastHandshakeTime)}</td>
+              </tr>
               <tr>
                 <td>Public key</td>
                 <td>

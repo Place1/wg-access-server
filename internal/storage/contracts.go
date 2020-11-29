@@ -14,6 +14,7 @@ type Storage interface {
 	Save(device *Device) error
 	List(owner string) ([]*Device, error)
 	Get(owner string, name string) (*Device, error)
+	GetByPublicKey(publicKey string) (*Device, error)
 	Delete(device *Device) error
 	Close() error
 	Open() error
@@ -33,7 +34,7 @@ type Device struct {
 	OwnerEmail    string    `json:"owner_email"`
 	OwnerProvider string    `json:"owner_provider"`
 	Name          string    `json:"name" gorm:"type:varchar(100);unique_index:key;primary_key"`
-	PublicKey     string    `json:"public_key"`
+	PublicKey     string    `json:"public_key" gorm:"unique_index"`
 	Address       string    `json:"address"`
 	CreatedAt     time.Time `json:"created_at" gorm:"column:created_at"`
 

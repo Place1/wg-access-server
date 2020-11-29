@@ -57,6 +57,19 @@ func (s *InMemoryStorage) Get(owner string, name string) (*Device, error) {
 	return device, nil
 }
 
+func (s *InMemoryStorage) GetByPublicKey(publicKey string) (*Device, error) {
+	devices, err := s.List("")
+	if err != nil {
+		return nil, err
+	}
+	for _, device := range devices {
+		if device.PublicKey == publicKey {
+			return device, nil
+		}
+	}
+	return nil, errors.New("device doesn't exist")
+}
+
 func (s *InMemoryStorage) Delete(device *Device) error {
 	delete(s.db, key(device))
 	s.emitDelete(device)

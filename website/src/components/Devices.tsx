@@ -10,7 +10,7 @@ import { AddDevice } from './AddDevice';
 @observer
 export class Devices extends React.Component {
   @observable
-  devices = autorefresh(5, async () => {
+  devices = autorefresh(30, async () => {
     return (await grpc.devices.listDevices({})).items;
   });
 
