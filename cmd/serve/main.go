@@ -47,7 +47,7 @@ func Register(app *kingpin.Application) *servecmd {
 	cli.Flag("wireguard-port", "The port that the Wireguard server will listen on").Envar("WG_WIREGUARD_PORT").Default("51820").IntVar(&cmd.AppConfig.WireGuard.Port)
 	cli.Flag("vpn-cidr", "The network CIDR for the VPN").Envar("WG_VPN_CIDR").Default("10.44.0.0/24").StringVar(&cmd.AppConfig.VPN.CIDR)
 	cli.Flag("vpn-gateway-interface", "The gateway network interface (i.e. eth0)").Envar("WG_VPN_GATEWAY_INTERFACE").Default(detectDefaultInterface()).StringVar(&cmd.AppConfig.VPN.GatewayInterface)
-	cli.Flag("vpn-allowed-ips", "A list of networks that VPN clients will be allowed to connect to via the VPN").Envar("WG_VPN_ALLOWED_IPS").Default("0.0.0.0/1", "128.0.0.0/1").StringsVar(&cmd.AppConfig.VPN.AllowedIPs)
+	cli.Flag("vpn-allowed-ips", "A list of networks that VPN clients will be allowed to connect to via the VPN").Envar("WG_VPN_ALLOWED_IPS").Default("0.0.0.0/0").StringsVar(&cmd.AppConfig.VPN.AllowedIPs)
 	cli.Flag("dns-enabled", "Enable or disable the embedded dns proxy server (useful for development)").Envar("WG_DNS_ENABLED").Default("true").BoolVar(&cmd.AppConfig.DNS.Enabled)
 	cli.Flag("dns-upstream", "An upstream DNS server to proxy DNS traffic to. Defaults to resolveconf or 1.1.1.1").Envar("WG_DNS_UPSTREAM").Default(detectDNSUpstream()).StringsVar(&cmd.AppConfig.DNS.Upstream)
 	return cmd
