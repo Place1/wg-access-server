@@ -59,3 +59,11 @@ func (w *PgWatcher) emit(cb Callback, event *pgevents.TableEvent) {
 		cb(device)
 	}
 }
+
+func (w *PgWatcher) EmitAdd(device *Device) {
+	// noop because we rely on postgres channels
+}
+
+func (w *PgWatcher) EmitDelete(device *Device) {
+	// noop because we rely on postgres channels
+}

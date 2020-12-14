@@ -143,6 +143,7 @@ func (s *SQLStorage) Save(device *Device) error {
 	if err := s.db.Save(&device).Error; err != nil {
 		return errors.Wrapf(err, "failed to write device")
 	}
+	s.Watcher.EmitAdd(device)
 	return nil
 }
 
@@ -182,5 +183,6 @@ func (s *SQLStorage) Delete(device *Device) error {
 	if err := s.db.Delete(&device).Error; err != nil {
 		return errors.Wrap(err, "failed to delete device file")
 	}
+	s.Watcher.EmitDelete(device)
 	return nil
 }

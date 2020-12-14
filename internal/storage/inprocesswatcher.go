@@ -24,13 +24,13 @@ func (w *InProcessWatcher) OnReconnect(cb func()) {
 	// noop because the inprocess watcher can't disconnect
 }
 
-func (w *InProcessWatcher) emitAdd(device *Device) {
+func (w *InProcessWatcher) EmitAdd(device *Device) {
 	for _, cb := range w.add {
 		cb(device)
 	}
 }
 
-func (w *InProcessWatcher) emitDelete(device *Device) {
+func (w *InProcessWatcher) EmitDelete(device *Device) {
 	for _, cb := range w.delete {
 		cb(device)
 	}

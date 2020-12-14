@@ -24,6 +24,8 @@ type Watcher interface {
 	OnAdd(cb Callback)
 	OnDelete(cb Callback)
 	OnReconnect(func())
+	EmitAdd(device *Device)
+	EmitDelete(device *Device)
 }
 
 type Callback func(device *Device)

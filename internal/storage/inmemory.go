@@ -29,7 +29,7 @@ func (s *InMemoryStorage) Close() error {
 
 func (s *InMemoryStorage) Save(device *Device) error {
 	s.db[key(device)] = device
-	s.emitAdd(device)
+	s.EmitAdd(device)
 	return nil
 }
 
@@ -72,6 +72,6 @@ func (s *InMemoryStorage) GetByPublicKey(publicKey string) (*Device, error) {
 
 func (s *InMemoryStorage) Delete(device *Device) error {
 	delete(s.db, key(device))
-	s.emitDelete(device)
+	s.EmitDelete(device)
 	return nil
 }
