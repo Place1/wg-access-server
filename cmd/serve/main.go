@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/docker/libnetwork/resolvconf"
@@ -34,7 +33,7 @@ import (
 func Register(app *kingpin.Application) *servecmd {
 	cmd := &servecmd{}
 	cli := app.Command(cmd.Name(), "Run the server")
-	cli.Flag("config", "Path to a wg-access-server config file").Envar("WG_CONFIG").FileVar(&cmd.ConfigFilePath)
+	cli.Flag("config", "Path to a wg-access-server config file").Envar("WG_CONFIG").StringVar(&cmd.ConfigFilePath)
 	cli.Flag("admin-username", "Admin username (defaults to admin)").Envar("WG_ADMIN_USERNAME").Default("admin").StringVar(&cmd.AppConfig.AdminUsername)
 	cli.Flag("admin-password", "Admin password (provide plaintext, stored in-memory only)").Envar("WG_ADMIN_PASSWORD").StringVar(&cmd.AppConfig.AdminPassword)
 	cli.Flag("port", "The port that the web ui server will listen on").Envar("WG_PORT").Default("8000").IntVar(&cmd.AppConfig.Port)
@@ -54,7 +53,7 @@ func Register(app *kingpin.Application) *servecmd {
 }
 
 type servecmd struct {
-	ConfigFilePath *os.File
+	ConfigFilePath string
 	AppConfig      config.AppConfig
 }
 
@@ -185,9 +184,8 @@ func (cmd *servecmd) Run() {
 }
 
 func (cmd *servecmd) ReadConfig() *config.AppConfig {
-	if cmd.ConfigFilePath != nil {
-		defer cmd.ConfigFilePath.Close()
-		if b, err := ioutil.ReadAll(cmd.ConfigFilePath); err == nil {
+	if cmd.ConfigFilePath != "" {
+		if b, err := ioutil.ReadFile(cmd.ConfigFilePath); err == nil {
 			if err := yaml.Unmarshal(b, &cmd.AppConfig); err != nil {
 				logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
 			}
