@@ -84,9 +84,9 @@ to connect your phone using the UI and QR code!
 
 ![Devices](https://github.com/Place1/wg-access-server/raw/master/screenshots/devices.png)
 
-![Connect iOS](https://github.com/Place1/wg-access-server/raw/master/screenshots/connect-ios.png)
+![Connect iOS](https://github.com/Place1/wg-access-server/raw/master/screenshots/connect-mobile.png)
 
-![Connect MacOS](https://github.com/Place1/wg-access-server/raw/master/screenshots/connect-macos.png)
+![Connect MacOS](https://github.com/Place1/wg-access-server/raw/master/screenshots/connect-desktop.png)
 
 ![Sign In](https://github.com/Place1/wg-access-server/raw/master/screenshots/signin.png)
 
