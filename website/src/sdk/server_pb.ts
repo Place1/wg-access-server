@@ -116,6 +116,7 @@ export declare namespace InfoRes {
 		allowedIps: string,
 		dnsEnabled: boolean,
 		dnsAddress: string,
+		isBasicProvider: boolean,
 	}
 }
 
@@ -203,6 +204,14 @@ export class InfoRes extends jspb.Message {
 		(jspb.Message as any).setProto3StringField(this, 9, value);
 	}
 
+	getIsBasicProvider(): boolean {
+		return jspb.Message.getFieldWithDefault(this, 10, false);
+	}
+
+	setIsBasicProvider(value: boolean): void {
+		(jspb.Message as any).setProto3BooleanField(this, 10, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		InfoRes.serializeBinaryToWriter(this, writer);
@@ -220,6 +229,7 @@ export class InfoRes extends jspb.Message {
 			allowedIps: this.getAllowedIps(),
 			dnsEnabled: this.getDnsEnabled(),
 			dnsAddress: this.getDnsAddress(),
+			isBasicProvider: this.getIsBasicProvider(),
 			
 		};
 	}
@@ -260,6 +270,10 @@ export class InfoRes extends jspb.Message {
 		const field9 = message.getDnsAddress();
 		if (field9.length > 0) {
 			writer.writeString(9, field9);
+		}
+		const field10 = message.getIsBasicProvider();
+		if (field10 != false) {
+			writer.writeBool(10, field10);
 		}
 	}
 
@@ -313,6 +327,10 @@ export class InfoRes extends jspb.Message {
 				const field9 = reader.readString()
 				message.setDnsAddress(field9);
 				break;
+			case 10:
+				const field10 = reader.readBool()
+				message.setIsBasicProvider(field10);
+				break;
 			default:
 				reader.skipField();
 				break;
@@ -346,6 +364,7 @@ function InfoResFromObject(obj: InfoRes.AsObject | undefined): InfoRes | undefin
 	message.setAllowedIps(obj.allowedIps);
 	message.setDnsEnabled(obj.dnsEnabled);
 	message.setDnsAddress(obj.dnsAddress);
+	message.setIsBasicProvider(obj.isBasicProvider);
 	return message;
 }
 
