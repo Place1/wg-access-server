@@ -17,6 +17,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Navigation() {
+
+  function logout_basic() {
+    var req = new window.XMLHttpRequest()
+    req.open("HEAD", "/signin/0", false, "*", (new Date()).getTime().toString())
+    req.send("")
+    document.location.href = '/signout'    
+  }
+
   const classes = useStyles();
   const hasAuthCookie = !!getCookie('auth-session');
   return (
@@ -44,7 +52,7 @@ export default function Navigation() {
         )}
 
         {hasAuthCookie && (
-          <Link href="/signout" color="inherit">
+          <Link href='#' color="inherit" onClick={() => AppState.info?.isBasicProvider ? logout_basic() : document.location.href = '/signout'}>
             <Button color="inherit">Logout</Button>
           </Link>
         )}
