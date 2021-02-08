@@ -49,7 +49,11 @@ func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, allow
 		}
 	}
 
-	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-j", "REJECT"); err != nil {
+	target := "REJECT"
+	if IsSynologyDSM() {
+		target = "DROP"
+	}
+	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-j", target); err != nil {
 		return errors.Wrap(err, "failed to set ip tables rule")
 	}
 
@@ -84,6 +88,9 @@ func nextIP(ip net.IP) net.IP {
 func boolToRule(accept bool) string {
 	if accept {
 		return "ACCEPT"
+	}
+	if IsSynologyDSM() {
+		return "DROP"
 	}
 	return "REJECT"
 }
