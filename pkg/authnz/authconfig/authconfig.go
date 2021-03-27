@@ -8,10 +8,11 @@ type AuthConfig struct {
 	OIDC   *OIDCConfig      `yaml:"oidc"`
 	Gitlab *GitlabConfig    `yaml:"gitlab"`
 	Basic  *BasicAuthConfig `yaml:"basic"`
+	Proxy  *ProxyAuthConfig `yaml:"proxy"`
 }
 
 func (c *AuthConfig) IsEnabled() bool {
-	return c.OIDC != nil || c.Gitlab != nil || c.Basic != nil
+	return c.OIDC != nil || c.Gitlab != nil || c.Basic != nil || c.Proxy != nil
 }
 
 func (c *AuthConfig) Providers() []*authruntime.Provider {
@@ -27,6 +28,10 @@ func (c *AuthConfig) Providers() []*authruntime.Provider {
 
 	if c.Basic != nil {
 		providers = append(providers, c.Basic.Provider())
+	}
+
+	if c.Proxy != nil {
+		providers = append(providers, c.Proxy.Provider())
 	}
 
 	return providers
