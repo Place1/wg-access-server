@@ -29,7 +29,7 @@ func New(opts DNSServerOpts) (*DNSServer, error) {
 		return nil, errors.New("at least 1 upstream dns server is required for the dns proxy server to function")
 	}
 
-	addr := "0.0.0.0:53"
+	addr := ":53"
 	logrus.Infof("starting dns server on %s with upstreams: %s", addr, strings.Join(opts.Upstream, ", "))
 
 	dnsServer := &DNSServer{
@@ -97,9 +97,19 @@ func (d *DNSServer) Lookup(m *dns.Msg) (*dns.Msg, error) {
 	}
 
 	// fallback to upstream exchange
-	response, _, err := d.client.Exchange(m, net.JoinHostPort(d.upstream[0], "53"))
-	if err != nil {
-		return nil, err
+	// TODO disable upstream after certain amount of failures?
+	var response *dns.Msg
+	var firstErr error
+	for _, upstream := range d.upstream {
+		resp, _, err := d.client.Exchange(m, net.JoinHostPort(upstream, "53"))
+		if err != nil && firstErr == nil {
+			logrus.Warnf(errors.Wrap(err, fmt.Sprintf("DNS lookup failed for upstream %s", upstream)).Error())
+			firstErr = err
+		}
+		response = resp
+	}
+	if response == nil {
+		return nil, firstErr
 	}
 
 	if len(response.Answer) > 0 {
