@@ -26,5 +26,5 @@ jobs:
         with:
           push: true
           tags: |
-            docker.pkg.github.com/${{ github.repository }}/wg-access-server:${{ github.sha }}
-            docker.pkg.github.com/${{ github.repository }}/wg-access-server:${{ github.ref }}
+            docker.pkg.github.com/freifunkmuc/wg-access-server:${{ github.sha }}
+            docker.pkg.github.com/freifunkmuc/wg-access-server:${{ github.ref }}
