@@ -33,5 +33,4 @@ jobs:
           password: ${{ github.token }}
           push: true
           tags: |
-            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}:${{ github.sha }}
-            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}:${{ github.ref }}
+            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}:latest
