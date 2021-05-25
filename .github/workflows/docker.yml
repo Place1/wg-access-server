@@ -21,9 +21,16 @@ jobs:
           registry: docker.pkg.github.com
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - id: read-docker-image-identifiers
+        name: Read Docker Image Identifiers
+        run: echo ::set-env name=IMAGE_REPOSITORY::$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
       - name: Build container image
-        uses: crazy-max/docker-build-push-action@sanitize-tags
+        uses: docker/build-push-action@v2
         with:
+          registry: docker.pkg.github.com
+          repository: ${{ env.IMAGE_REPOSITORY }}/my-image
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
           push: true
           tags: |
             docker.pkg.github.com/${{ github.repository }}/wg-access-server:${{ github.sha }}
