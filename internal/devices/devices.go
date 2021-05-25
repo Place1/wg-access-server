@@ -10,6 +10,7 @@ import (
 	"github.com/place1/wg-embed/pkg/wgembed"
 
 	"github.com/pkg/errors"
+	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/sirupsen/logrus"
@@ -30,7 +31,7 @@ func (d *DeviceManager) StartSync(disableMetadataCollection bool) error {
 	// Start listening to the device add/remove events
 	d.storage.OnAdd(func(device *storage.Device) {
 		logrus.Debugf("storage event: device added: %s/%s", device.Owner, device.Name)
-		if err := d.wg.AddPeer(device.PublicKey, device.Address); err != nil {
+		if err := d.wg.AddPeer(device.PublicKey, network.SplitAddresses(device.Address)); err != nil {
 			logrus.Error(errors.Wrap(err, "failed to add wireguard peer"))
 		}
 	})
@@ -115,7 +116,7 @@ func (d *DeviceManager) sync() error {
 
 	// Add peers for all devices in storage
 	for _, device := range devices {
-		if err := d.wg.AddPeer(device.PublicKey, device.Address); err != nil {
+		if err := d.wg.AddPeer(device.PublicKey, network.SplitAddresses(device.Address)); err != nil {
 			logrus.Warn(errors.Wrapf(err, "failed to add device during sync: %s", device.Name))
 		}
 	}

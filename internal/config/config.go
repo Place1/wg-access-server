@@ -78,7 +78,7 @@ type AppConfig struct {
 		// This value will be included in client config
 		// files and in server-side iptable rules
 		// to enforce network access.
-		// defaults to ["0.0.0.0/0"]
+		// defaults to ["0.0.0.0/0", "::/0"]
 		AllowedIPs []string `yaml:"allowedIPs"`
 	} `yaml:"vpn"`
 	// Configure the embeded DNS server

@@ -46,7 +46,7 @@ func Register(app *kingpin.Application) *servecmd {
 	cli.Flag("wireguard-private-key", "Wireguard private key").Envar("WG_WIREGUARD_PRIVATE_KEY").StringVar(&cmd.AppConfig.WireGuard.PrivateKey)
 	cli.Flag("wireguard-port", "The port that the Wireguard server will listen on").Envar("WG_WIREGUARD_PORT").Default("51820").IntVar(&cmd.AppConfig.WireGuard.Port)
 	cli.Flag("vpn-cidr", "The network CIDR for the VPN").Envar("WG_VPN_CIDR").Default("10.44.0.0/24").StringVar(&cmd.AppConfig.VPN.CIDR)
-	cli.Flag("vpn-cidrv6", "The IPv6 network CIDR for the VPN").Envar("WG_VPN_CIDRv6").Default("fd48:04c4:7aa9::/64").StringVar(&cmd.AppConfig.VPN.CIDRv6)
+	cli.Flag("vpn-cidrv6", "The IPv6 network CIDR for the VPN").Envar("WG_VPN_CIDRv6").Default("fd48:4c4:7aa9::/64").StringVar(&cmd.AppConfig.VPN.CIDRv6)
 	cli.Flag("vpn-nat66-enabled", "Enable or disable NAT of IPv6 traffic leaving through the gateway").Envar("WG_IPv6_NAT_ENABLED").Default("true").BoolVar(&cmd.AppConfig.VPN.NAT66)
 	cli.Flag("vpn-gateway-interface", "The gateway network interface (i.e. eth0)").Envar("WG_VPN_GATEWAY_INTERFACE").Default(detectDefaultInterface()).StringVar(&cmd.AppConfig.VPN.GatewayInterface)
 	cli.Flag("vpn-allowed-ips", "A list of networks that VPN clients will be allowed to connect to via the VPN").Envar("WG_VPN_ALLOWED_IPS").Default("0.0.0.0/0", "::/0").StringsVar(&cmd.AppConfig.VPN.AllowedIPs)
@@ -81,11 +81,14 @@ func (cmd *servecmd) Run() {
 	// Allow traffic to wg-access-server's peer endpoint.
 	// This is important because clients will send traffic
 	// to the embedded DNS proxy using the VPN IP
+	vpnipstrings := make([]string, 0, 2)
 	if vpnip != nil {
 		conf.VPN.AllowedIPs = append(conf.VPN.AllowedIPs, fmt.Sprintf("%s/32", vpnip.IP.String()))
+		vpnipstrings = append(vpnipstrings, vpnip.String())
 	}
 	if vpnipv6 != nil {
 		conf.VPN.AllowedIPs = append(conf.VPN.AllowedIPs, fmt.Sprintf("%s/128", vpnipv6.IP.String()))
+		vpnipstrings = append(vpnipstrings, vpnipv6.String())
 	}
 
 	// WireGuard Server
@@ -103,7 +106,7 @@ func (cmd *servecmd) Run() {
 		wgconfig := &wgembed.ConfigFile{
 			Interface: wgembed.IfaceConfig{
 				PrivateKey: conf.WireGuard.PrivateKey,
-				Address:    network.StringJoinIPNets(vpnip, vpnipv6),
+				Address:    vpnipstrings,
 				ListenPort: &conf.WireGuard.Port,
 			},
 		}

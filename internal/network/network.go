@@ -56,6 +56,15 @@ func StringJoinIPs(a, b *net.IPNet) string {
 	return ""
 }
 
+// SplitAddresses splits multiple comma-separated addresses into a slice of address strings
+func SplitAddresses(addresses string) []string {
+	split := strings.Split(addresses, ",")
+	for i, addr := range split {
+		split[i] = strings.TrimSpace(addr)
+	}
+	return split
+}
+
 func ConfigureForwarding(gatewayIface string, cidr string, cidrv6 string, nat66 bool, allowedIPs []string) error {
 	// Networking configuration (iptables) configuration
 	// to ensure that traffic from clients of the wireguard interface
@@ -78,7 +87,7 @@ func ConfigureForwarding(gatewayIface string, cidr string, cidrv6 string, nat66 
 		}
 	}
 
-	if cidr != ""{
+	if cidr != "" {
 		if err := configureForwardingv4(gatewayIface, cidr, allowedIPv4s); err != nil {
 			return err
 		}
