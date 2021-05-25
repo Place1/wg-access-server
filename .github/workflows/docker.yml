@@ -33,4 +33,4 @@ jobs:
           password: ${{ github.token }}
           push: true
           tags: |
-            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}:latest
+            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/wg-access-server:latest
