@@ -36,7 +36,7 @@ RUN go build -o wg-access-server
 
 ### Server
 FROM alpine:3.10
-RUN apk add iptables
+RUN apk add iptables ip6tables
 RUN apk add wireguard-tools
 RUN apk add curl
 ENV WG_CONFIG="/config.yaml"
