@@ -204,10 +204,10 @@ func (d *DeviceManager) nextClientAddress() (string, error) {
 		startIPv6 := vpnipv6.Mask(vpnsubnetv6.Mask)
 
 		// Add the network address and the VPN server address to the list of occupied addresses
-		usedIPv6s = []net.IP{
+		usedIPv6s = append(usedIPv6s,
 			startIPv6,         // ::0
 			nextIP(startIPv6), // ::1
-		}
+		)
 
 		for ip := startIPv6; vpnsubnetv6.Contains(ip); ip = nextIP(ip) {
 			if !contains(usedIPv6s, ip) {
