@@ -19,7 +19,7 @@ Quick Links:
 
 - [Configuration Overview](https://place1.github.io/wg-access-server/2-configuration/)
 - [Deploy With Docker](https://place1.github.io/wg-access-server/deployment/1-docker/)
-- [Deploy With Helm](https://place1.github.io/wg-access-server/deployment/2-docker-compose/)
+- [Deploy With Helm](https://place1.github.io/wg-access-server/deployment/3-kubernetes/)
 - [Deploy With Docker-Compose](https://place1.github.io/wg-access-server/deployment/2-docker-compose/)
 
 ## Running with Docker
