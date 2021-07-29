@@ -27,10 +27,7 @@ jobs:
       - name: Build container image
         uses: docker/build-push-action@v2
         with:
-          registry: docker.pkg.github.com
-          repository: ${{ env.IMAGE_REPOSITORY }}
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
+          context: .
           push: true
           tags: |
             docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/wg-access-server:latest

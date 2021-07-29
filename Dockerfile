@@ -1,5 +1,5 @@
 ### Build stage for the website frontend
-FROM node:10 as website
+FROM node:16 as website
 RUN apt-get update
 RUN apt-get install -y protobuf-compiler libprotobuf-dev
 WORKDIR /code
@@ -12,7 +12,7 @@ RUN npm run codegen
 RUN npm run build
 
 ### Build stage for the website backend server
-FROM golang:1.13.8-alpine as server
+FROM golang:1.13.15-alpine as server
 RUN apk add gcc musl-dev
 RUN apk add protobuf
 RUN apk add protobuf-dev
@@ -35,7 +35,7 @@ COPY ./internal/ ./internal/
 RUN go build -o wg-access-server
 
 ### Server
-FROM alpine:3.10
+FROM alpine:3.14
 RUN apk add iptables ip6tables
 RUN apk add wireguard-tools
 RUN apk add curl
