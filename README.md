@@ -1,30 +1,35 @@
 # wg-access-server
 
-wg-access-server is a single binary that provides a WireGuard
-VPN server and device management web ui. We support user authentication,
-_1 click_ device registration that works with Mac, Linux, Windows, Ios and Android
-including QR codes. You can configure different network isolation modes for
-better control and more.
+wg-access-server is a single binary file that contains a WireGuard
+VPN server and a web user interface for device management. We support user authentication,
+_1-click_ device enrollment that works with macOS, Linux, Windows, iOS/iPadOS and Android
+including QR codes. We from Freifunk Munich have also added IPv6 network support, since the upstream seems to be stuck in a dead end. Furthermore you can choose from different network isolation modes for a
+better control over connected devices. Generally speaking you can customize the project to your use-case with relative ease.
 
-This project aims to deliver a simple VPN solution for developers,
-homelab enthusiasts and anyone else feeling adventurous.
+This project aims to provide a simple VPN solution for developers,
+Homelab enthusiasts, and anyone else who is adventurous.
 
-wg-access-server is a functional but young project. Contributions are welcome!
+
+**This is a fork of the original work of freifunkMUC. Since the upstream is currently poorly maintained, we try to add new features and keep the project up to date and in a working state.**
+
+**Contributions are always welcome so that we can offer new bug fixes, features and improvements to the users of this project**.
 
 ## Documentation
 
-[See our documentation website](https://place1.github.io/wg-access-server/)
+**The links in the documentation section currently point to our new home page and not to the documentation of the wg-access-server project. We'll get things sorted out soon and provide you with more up-to-date documentation on our changes and deployment. In the meantime, you can use the documentation listed upstream of Place1 as a first reference.**
+
+[See our documentation website](https://freifunkMUC.github.io/wg-access-server/)
 
 Quick Links:
 
-- [Configuration Overview](https://place1.github.io/wg-access-server/2-configuration/)
-- [Deploy With Docker](https://place1.github.io/wg-access-server/deployment/1-docker/)
-- [Deploy With Helm](https://place1.github.io/wg-access-server/deployment/2-docker-compose/)
-- [Deploy With Docker-Compose](https://place1.github.io/wg-access-server/deployment/2-docker-compose/)
+- [Configuration Overview](https://freifunkMUC.github.io/wg-access-server/2-configuration/)
+- [Deploy With Docker](https://freifunkMUC.github.io/wg-access-server/deployment/1-docker/)
+- [Deploy With Helm](https://freifunkMUC.github.io/wg-access-server/deployment/2-docker-compose/)
+- [Deploy With Docker-Compose](https://freifunkMUC.github.io/wg-access-server/deployment/2-docker-compose/)
 
 ## Running with Docker
 
-Here's a quick command to run the server to try it out.
+Here is a quick command to start the wg-access-server for the first time and try it out.
 
 ```bash
 export WG_ADMIN_PASSWORD="example"
@@ -40,25 +45,23 @@ docker run \
   -e "WG_WIREGUARD_PRIVATE_KEY=$WG_WIREGUARD_PRIVATE_KEY" \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
-  place1/wg-access-server
+  ghcr.io/freifunkmuc/wg-access-server/wg-access-server:latest
 ```
 
-If you open your browser using your LAN ip address you can even connect your
-phone to try it out: for example, i'll open my browser at http://192.168.0.XX:8000
-using the local LAN IP address.
+If the wg-access-server is accessible via LAN or a network you are in, you can directly connect your phone to the VPN. You have to call the webfrontent of the project for this. Normally, this is done via the IP address of the device or server on which the wg-access-server is running followed by the standard port 8000, via which the web interface can be reached. For most deployments something like this should work: http://192.168.0.XX:8000
 
-You can connect to the web server on the local machine browser at http://localhost:8000
+If the project is running locally on the computer, you can easily connect to the web interface by connecting to http://localhost:8000 in the browser.
 
 ## Running on Kubernetes via Helm
 
 wg-access-server ships a Helm chart to make it easy to get started on
 Kubernetes.
 
-Here's a quick start, but you can read more at the [Helm Chart Deployment Docs](https://place1.github.io/wg-access-server/deployment/3-kubernetes/)
+Here's a quick start, but you can read more at the [Helm Chart Deployment Docs](https://freifunkMUC.github.io/wg-access-server/deployment/3-kubernetes/)
 
 ```bash
 # deploy
-helm install my-release --repo https://place1.github.io/wg-access-server wg-access-server
+helm install my-release --repo https://freifunkMUC.github.io/wg-access-server wg-access-server
 
 # cleanup
 helm delete my-release
@@ -82,37 +85,35 @@ to connect your phone using the UI and QR code!
 
 ## Screenshots
 
-![Devices](https://github.com/Place1/wg-access-server/raw/master/screenshots/devices.png)
+![Devices](https://github.com/freifunkMUC/wg-access-server/raw/master/screenshots/devices.png)
 
-![Connect iOS](https://github.com/Place1/wg-access-server/raw/master/screenshots/connect-mobile.png)
+![Connect iOS](https://github.com/freifunkMUC/wg-access-server/raw/master/screenshots/connect-mobile.png)
 
-![Connect MacOS](https://github.com/Place1/wg-access-server/raw/master/screenshots/connect-desktop.png)
+![Connect MacOS](https://github.com/freifunkMUC/wg-access-server/raw/master/screenshots/connect-desktop.png)
 
-![Sign In](https://github.com/Place1/wg-access-server/raw/master/screenshots/signin.png)
+![Sign In](https://github.com/freifunkMUC/wg-access-server/raw/master/screenshots/signin.png)
 
 ## Changelog
 
-See the [CHANGELOG.md](https://github.com/Place1/wg-access-server/blob/master/CHANGELOG.md) file
+See the [CHANGELOG.md](https://github.com/freifunkMUC/wg-access-server/blob/master/CHANGELOG.md) file
 
 ## Development
 
-The software is made up a Golang Server and React App.
+The software consists of a Golang server and a React app.
 
-Here's how I develop locally:
+If you want to make changes to the project locally, you can do so relatively easily with the following steps.
 
-1. run `cd website && npm install && npm start` to get the frontend running on `:3000`
-2. run `sudo go run ./main.go` to get the server running on `:8000`
+1. Run `cd website && npm install && npm start` to get the frontend running on `:3000`.
+2. Run `sudo go run ./main.go` to get the server running on `:8000`.
 
-Here are some notes about the development configuration:
+Here are some notes on development configuration:
 
-- sudo is required because the server uses iptables/ip to configure the VPN networking
-- you'll access the website on `:3000` and it'll proxy API requests to `:8000` thanks to webpack
-- in-memory storage and generated wireguard keys will be used
+- sudo is required because the server uses iptables/ip to configure the VPN network
+- access to the website is on `:3000` and API requests are redirected to `:8000` thanks to webpack
+- in-memory storage and generated WireGuard keys are used
 
-GRPC codegeneration:
+gRPC code generation:
 
-The client communicates with the server via gRPC-Web. You can edit the API specification
-in `./proto/*.proto`.
+The client communicates with the server via gRPC web. You can edit the API specification in `./proto/*.proto`.
 
-After changing a service or message definition you'll want to re-generate server and client
-code using: `./codegen.sh`.
+After changing a service or message definition, you must regenerate the server and client code using: `./codegen.sh`.
