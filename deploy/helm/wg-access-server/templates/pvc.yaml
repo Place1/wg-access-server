@@ -1,4 +1,4 @@
-{{- if .Values.persistence.enabled -}}
+{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) -}}
 {{- $fullName := include "wg-access-server.fullname" . -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
