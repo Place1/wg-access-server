@@ -39,7 +39,7 @@ metadata:
 {{- end }}
 spec:
   type: {{ .Values.wireguard.service.type }}
-  sessionAffinity: ClientIP
+  sessionAffinity: {{ .Values.wireguard.service.sessionAffinity }}
 {{- if .Values.wireguard.service.externalTrafficPolicy }}
   externalTrafficPolicy: {{ .Values.wireguard.service.externalTrafficPolicy }}
 {{- end }}
