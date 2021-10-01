@@ -44,6 +44,7 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20210930144712-2e2e1008e8a3 // indirect
 	google.golang.org/grpc v1.41.0
+	google.golang.org/protobuf v1.27.1
 	gopkg.in/Knetic/govaluate.v2 v2.3.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ini.v1 v1.63.2 // indirect
@@ -66,7 +67,6 @@ require (
 	github.com/mdlayher/genetlink v1.0.0 // indirect
 	github.com/mdlayher/netlink v1.4.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
 
