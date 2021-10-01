@@ -28,7 +28,7 @@ Here's a quick command to run the server to try it out.
 
 ```bash
 export WG_ADMIN_PASSWORD="example"
-export WG_WIREGUARD_PRIVATE_KEY="$(wg genkey)"
+export WG_WIREGUARD_PRIVATE_KEY="$(docker run -it --rm place1/wg-access-server wg genkey)"
 
 docker run \
   -it \
