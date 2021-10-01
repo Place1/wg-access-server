@@ -16,7 +16,7 @@ type AppConfig struct {
 	// Port sets the port that the web UI will listen on.
 	// Defaults to 8000
 	Port int `yaml:"port"`
-	// ExternalAddress is the address that clients
+	// ExternalHost is the address that clients
 	// use to connect to the wireguard interface
 	// By default, this will be empty and the web ui
 	// will use the current page's origin.
@@ -59,6 +59,16 @@ type AppConfig struct {
 		// an IP address from
 		// defaults to 10.44.0.0/24
 		CIDR string `yaml:"cidr"`
+		// CIDRv6 configures an IPv6 network address space
+		// that client (WireGuard peers) will be allocated
+		// an IP address from
+		// defaults to fd48:4c4:7aa9::/64
+		CIDRv6 string `yaml:"cidrv6"`
+		// NAT66 configures whether IPv6 traffic leaving
+		// through the GatewayInterface should be
+		// masqueraded like IPv4 traffic
+		// defaults to true
+		NAT66 bool `yaml:"nat66"`
 		// GatewayInterface will be used in iptable forwarding
 		// rules that send VPN traffic from clients to this interface
 		// Most use-cases will want this interface to have access
@@ -68,7 +78,7 @@ type AppConfig struct {
 		// This value will be included in client config
 		// files and in server-side iptable rules
 		// to enforce network access.
-		// defaults to ["0.0.0.0/0"]
+		// defaults to ["0.0.0.0/0", "::/0"]
 		AllowedIPs []string `yaml:"allowedIPs"`
 	} `yaml:"vpn"`
 	// Configure the embeded DNS server

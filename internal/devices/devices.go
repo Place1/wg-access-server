@@ -3,12 +3,14 @@ package devices
 import (
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/place1/wg-embed/pkg/wgembed"
 
 	"github.com/pkg/errors"
+	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/sirupsen/logrus"
@@ -18,17 +20,18 @@ type DeviceManager struct {
 	wg      wgembed.WireGuardInterface
 	storage storage.Storage
 	cidr    string
+	cidrv6  string
 }
 
-func New(wg wgembed.WireGuardInterface, s storage.Storage, cidr string) *DeviceManager {
-	return &DeviceManager{wg, s, cidr}
+func New(wg wgembed.WireGuardInterface, s storage.Storage, cidr, cidrv6 string) *DeviceManager {
+	return &DeviceManager{wg, s, cidr, cidrv6}
 }
 
 func (d *DeviceManager) StartSync(disableMetadataCollection bool) error {
 	// Start listening to the device add/remove events
 	d.storage.OnAdd(func(device *storage.Device) {
 		logrus.Debugf("storage event: device added: %s/%s", device.Owner, device.Name)
-		if err := d.wg.AddPeer(device.PublicKey, device.Address); err != nil {
+		if err := d.wg.AddPeer(device.PublicKey, network.SplitAddresses(device.Address)); err != nil {
 			logrus.Error(errors.Wrap(err, "failed to add wireguard peer"))
 		}
 	})
@@ -113,7 +116,7 @@ func (d *DeviceManager) sync() error {
 
 	// Add peers for all devices in storage
 	for _, device := range devices {
-		if err := d.wg.AddPeer(device.PublicKey, device.Address); err != nil {
+		if err := d.wg.AddPeer(device.PublicKey, network.SplitAddresses(device.Address)); err != nil {
 			logrus.Warn(errors.Wrapf(err, "failed to add device during sync: %s", device.Name))
 		}
 	}
@@ -157,27 +160,81 @@ func (d *DeviceManager) nextClientAddress() (string, error) {
 		return "", errors.Wrap(err, "failed to list devices")
 	}
 
-	vpnip, vpnsubnet := MustParseCIDR(d.cidr)
-	ip := vpnip.Mask(vpnsubnet.Mask)
-
 	// TODO: read up on better ways to allocate client's IP
 	// addresses from a configurable CIDR
-	usedIPs := []net.IP{
-		ip,         // x.x.x.0
-		nextIP(ip), // x.x.x.1
-	}
-	for _, device := range devices {
-		ip, _ := MustParseCIDR(device.Address)
-		usedIPs = append(usedIPs, ip)
-	}
 
-	for ip := ip; vpnsubnet.Contains(ip); ip = nextIP(ip) {
-		if !contains(usedIPs, ip) {
-			return fmt.Sprintf("%s/32", ip.String()), nil
+	var usedIPv4s []net.IP
+	var usedIPv6s []net.IP
+
+	// Check what IP addresses are already occupied
+	for _, device := range devices {
+		addresses := network.SplitAddresses(device.Address)
+		for _, addr := range addresses {
+			ip, _ := MustParseCIDR(strings.TrimSpace(addr))
+			if as4 := ip.To4(); as4 != nil {
+				usedIPv4s = append(usedIPv4s, as4)
+			} else {
+				usedIPv6s = append(usedIPv6s, ip)
+			}
 		}
 	}
 
-	return "", fmt.Errorf("there are no free IP addresses in the vpn subnet: '%s'", vpnsubnet)
+	var ipv4 string
+	var ipv6 string
+
+	if d.cidr != "" {
+		vpnipv4, vpnsubnetv4 := MustParseCIDR(d.cidr)
+		startIPv4 := vpnipv4.Mask(vpnsubnetv4.Mask)
+
+		// Add the network address and the VPN server address to the list of occupied addresses
+		usedIPv4s = append(usedIPv4s,
+			startIPv4,         // x.x.x.0
+			nextIP(startIPv4), // x.x.x.1
+		)
+
+		for ip := startIPv4; vpnsubnetv4.Contains(ip); ip = nextIP(ip) {
+			if !contains(usedIPv4s, ip) {
+				ipv4 = fmt.Sprintf("%s/32", ip.String())
+				break
+			}
+		}
+	}
+
+	if d.cidrv6 != "" {
+		vpnipv6, vpnsubnetv6 := MustParseCIDR(d.cidrv6)
+		startIPv6 := vpnipv6.Mask(vpnsubnetv6.Mask)
+
+		// Add the network address and the VPN server address to the list of occupied addresses
+		usedIPv6s = append(usedIPv6s,
+			startIPv6,         // ::0
+			nextIP(startIPv6), // ::1
+		)
+
+		for ip := startIPv6; vpnsubnetv6.Contains(ip); ip = nextIP(ip) {
+			if !contains(usedIPv6s, ip) {
+				ipv6 = fmt.Sprintf("%s/128", ip.String())
+				break
+			}
+		}
+	}
+
+	if ipv4 != "" {
+		if ipv6 != "" {
+			return fmt.Sprintf("%s, %s", ipv4, ipv6), nil
+		} else if d.cidrv6 != "" {
+			return "", fmt.Errorf("there are no free IP addresses in the vpn subnet: '%s'", d.cidrv6)
+		} else {
+			return ipv4, nil
+		}
+	} else if ipv6 != "" {
+		if d.cidr != "" {
+			return "", fmt.Errorf("there are no free IP addresses in the vpn subnet: '%s'", d.cidr)
+		} else {
+			return ipv6, nil
+		}
+	} else {
+		return "", fmt.Errorf("there are no free IP addresses in the vpn subnets: '%s', '%s'", d.cidr, d.cidrv6)
+	}
 }
 
 func contains(ips []net.IP, target net.IP) bool {
