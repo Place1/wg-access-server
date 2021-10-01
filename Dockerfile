@@ -12,7 +12,7 @@ RUN npm run codegen
 RUN npm run build
 
 ### Build stage for the website backend server
-FROM golang:1.13.15-alpine as server
+FROM golang:1.17.1-alpine as server
 RUN apk add gcc musl-dev
 RUN apk add protobuf
 RUN apk add protobuf-dev
@@ -21,7 +21,7 @@ ENV GOOS=linux
 ENV GARCH=amd64
 ENV CGO_ENABLED=1
 ENV GO111MODULE=on
-RUN go get github.com/golang/protobuf/protoc-gen-go@v1.3.5
+RUN go get github.com/golang/protobuf/protoc-gen-go@v1.5.2
 COPY ./go.mod ./
 COPY ./go.sum ./
 RUN go mod download
