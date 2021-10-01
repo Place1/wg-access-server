@@ -1,5 +1,5 @@
 import React from 'react';
-import { observable } from 'mobx';
+import { observable, makeObservable } from 'mobx';
 import { observer } from 'mobx-react';
 import Popover from '@material-ui/core/Popover';
 import IconButton from '@material-ui/core/IconButton';
@@ -9,10 +9,16 @@ interface Props {
   children: React.ReactNode;
 }
 
-@observer
-export class Info extends React.Component<Props> {
-  @observable
+export const Info = observer(class Info extends React.Component<Props> {
   anchor?: HTMLElement;
+
+  constructor(props: Props) {
+    super(props);
+
+    makeObservable(this, {
+      anchor: observable
+    });
+  }
 
   render() {
     return (
@@ -38,4 +44,4 @@ export class Info extends React.Component<Props> {
       </>
     );
   }
-}
+});

@@ -1,9 +1,14 @@
-import { observable } from 'mobx';
+import { observable, makeObservable } from 'mobx';
 import { InfoRes } from './sdk/server_pb';
 
 class GlobalAppState {
-  @observable
   info?: InfoRes.AsObject;
+
+  constructor() {
+    makeObservable(this, {
+      info: observable
+    });
+  }
 }
 
 export const AppState = new GlobalAppState();

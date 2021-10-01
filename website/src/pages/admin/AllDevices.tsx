@@ -14,8 +14,7 @@ import { Device } from '../../sdk/devices_pb';
 import { confirm } from '../../components/Present';
 import { AppState } from '../../AppState';
 
-@observer
-export class AllDevices extends React.Component {
+export const AllDevices = observer(class AllDevices extends React.Component {
   devices = lazy(async () => {
     const res = await grpc.devices.listAllDevices({});
     return res.items;
@@ -92,4 +91,4 @@ export class AllDevices extends React.Component {
       </div>
     );
   }
-}
+});
