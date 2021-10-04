@@ -20,8 +20,7 @@ interface Props {
   onRemove: () => void;
 }
 
-@observer
-export class DeviceListItem extends React.Component<Props> {
+export const DeviceListItem = observer(class DeviceListItem extends React.Component<Props> {
   removeDevice = async () => {
     try {
       await grpc.devices.deleteDevice({
@@ -93,4 +92,4 @@ export class DeviceListItem extends React.Component<Props> {
       </Card>
     );
   }
-}
+});

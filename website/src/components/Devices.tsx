@@ -1,18 +1,24 @@
 import React from 'react';
 import Grid from '@material-ui/core/Grid';
-import { observable } from 'mobx';
+import { observable, makeObservable } from 'mobx';
 import { observer } from 'mobx-react';
 import { grpc } from '../Api';
 import { autorefresh } from '../Util';
 import { DeviceListItem } from './DeviceListItem';
 import { AddDevice } from './AddDevice';
 
-@observer
-export class Devices extends React.Component {
-  @observable
+export const Devices = observer(class Devices extends React.Component {
   devices = autorefresh(30, async () => {
     return (await grpc.devices.listDevices({})).items;
   });
+
+  constructor(props: {}) {
+    super(props);
+
+    makeObservable(this, {
+      devices: observable
+    });
+  }
 
   componentWillUnmount() {
     this.devices.dispose();
@@ -39,4 +45,4 @@ export class Devices extends React.Component {
       </Grid>
     );
   }
-}
+});

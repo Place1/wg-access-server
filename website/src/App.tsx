@@ -9,8 +9,7 @@ import { AppState } from './AppState';
 import { YourDevices } from './pages/YourDevices';
 import { AllDevices } from './pages/admin/AllDevices';
 
-@observer
-export class App extends React.Component {
+export const App = observer(class App extends React.Component {
   async componentDidMount() {
     AppState.info = await grpc.server.info({});
   }
@@ -36,4 +35,4 @@ export class App extends React.Component {
       </Router>
     );
   }
-}
+});

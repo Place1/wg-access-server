@@ -5,7 +5,7 @@ import { fromResource, lazyObservable } from 'mobx-utils';
 import { toast } from './components/Toast';
 
 export function sleep(seconds: number) {
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     setTimeout(() => {
       resolve();
     }, seconds * 1000);

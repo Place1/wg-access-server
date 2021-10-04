@@ -13,7 +13,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import { codeBlock } from 'common-tags';
-import { observable } from 'mobx';
+import { observable, makeObservable } from 'mobx';
 import { observer } from 'mobx-react';
 import React from 'react';
 import { box_keyPair } from 'tweetnacl-ts';
@@ -26,18 +26,13 @@ interface Props {
   onAdd: () => void;
 }
 
-@observer
-export class AddDevice extends React.Component<Props> {
-  @observable
+export const AddDevice = observer(class AddDevice extends React.Component<Props> {
   dialogOpen = false;
 
-  @observable
   error?: string;
 
-  @observable
   deviceName = '';
 
-  @observable
   configFile?: string;
 
   submit = async (event: React.FormEvent) => {
@@ -80,6 +75,17 @@ export class AddDevice extends React.Component<Props> {
   reset = () => {
     this.deviceName = '';
   };
+
+  constructor(props: Props) {
+    super(props);
+
+    makeObservable(this, {
+      dialogOpen: observable,
+      error: observable,
+      deviceName: observable,
+      configFile: observable
+    });
+  }
 
   render() {
     return (
@@ -138,4 +144,4 @@ export class AddDevice extends React.Component<Props> {
       </>
     );
   }
-}
+});
