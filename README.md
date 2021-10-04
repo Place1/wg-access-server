@@ -35,6 +35,8 @@ docker run \
   --rm \
   --cap-add NET_ADMIN \
   --device /dev/net/tun:/dev/net/tun \
+  --sysctl net.ipv6.conf.all.disable_ipv6=0 \
+  --sysctl net.ipv6.conf.all.forwarding=1 \
   -v wg-access-server-data:/data \
   -e "WG_ADMIN_PASSWORD=$WG_ADMIN_PASSWORD" \
   -e "WG_WIREGUARD_PRIVATE_KEY=$WG_WIREGUARD_PRIVATE_KEY" \
