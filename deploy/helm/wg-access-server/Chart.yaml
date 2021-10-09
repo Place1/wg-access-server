@@ -2,4 +2,4 @@ apiVersion: v2
 appVersion: v0.4.6
 description: A Wireguard VPN Access Server
 name: wg-access-server
-version: v0.4.6
+version: v0.4.7
