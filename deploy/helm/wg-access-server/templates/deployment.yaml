@@ -42,6 +42,9 @@ spec:
               containerPort: 51820
               protocol: UDP
           env:
+            {{- with .Values.additionalEnv }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
             {{- if .Values.wireguard.config.privateKey }}
             - name: WG_WIREGUARD_PRIVATE_KEY
               valueFrom:
