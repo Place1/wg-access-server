@@ -12,7 +12,7 @@ RUN npm run codegen
 RUN npm run build
 
 ### Build stage for the website backend server
-FROM golang:1.17.1-alpine as server
+FROM golang:1.17.2-alpine as server
 RUN apk add gcc musl-dev
 RUN apk add protobuf
 RUN apk add protobuf-dev
@@ -44,3 +44,14 @@ ENV WG_STORAGE="sqlite3:///data/db.sqlite3"
 COPY --from=server /code/wg-access-server /usr/local/bin/wg-access-server
 COPY --from=website /code/build /website/build
 CMD ["wg-access-server", "serve"]
+
+# Set labels
+# Now we DO need these, for the auto-labeling of the image
+ARG BUILD_DATE
+ARG VCS_REF
+
+# Good docker practice, plus we get microbadger badges
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/freifunkMUC/wg-access-server.git" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.schema-version="1.0"
