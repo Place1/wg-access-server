@@ -25,6 +25,7 @@ RUN go get github.com/golang/protobuf/protoc-gen-go@v1.5.2
 COPY ./go.mod ./
 COPY ./go.sum ./
 RUN go mod download
+RUN go mod verify
 COPY ./proto/ ./proto/
 COPY ./codegen.sh ./
 RUN ./codegen.sh
