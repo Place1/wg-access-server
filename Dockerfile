@@ -50,8 +50,8 @@ CMD ["wg-access-server", "serve"]
 ARG BUILD_DATE
 ARG VCS_REF
 
-# Good docker practice, plus we get microbadger badges
-LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-url="https://github.com/freifunkMUC/wg-access-server.git" \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.schema-version="1.0"
+# Good docker practice
+LABEL org.opencontainers.image.created=$BUILD_DATE \
+      org.opencontainers.image.authors="Freifunk München" \
+      org.opencontainers.image.source="https://github.com/freifunkMUC/wg-access-server.git" \
+      org.opencontainers.image.revision=$VCS_REF
