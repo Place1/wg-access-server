@@ -51,7 +51,7 @@ func Register(app *kingpin.Application) *servecmd {
 	cli.Flag("vpn-gateway-interface", "The gateway network interface (i.e. eth0)").Envar("WG_VPN_GATEWAY_INTERFACE").Default(detectDefaultInterface()).StringVar(&cmd.AppConfig.VPN.GatewayInterface)
 	cli.Flag("vpn-allowed-ips", "A list of networks that VPN clients will be allowed to connect to via the VPN").Envar("WG_VPN_ALLOWED_IPS").Default("0.0.0.0/0", "::/0").StringsVar(&cmd.AppConfig.VPN.AllowedIPs)
 	cli.Flag("dns-enabled", "Enable or disable the embedded dns proxy server (useful for development)").Envar("WG_DNS_ENABLED").Default("true").BoolVar(&cmd.AppConfig.DNS.Enabled)
-	cli.Flag("dns-upstream", "An upstream DNS server to proxy DNS traffic to. Defaults to resolveconf with Cloudflare DNS as fallback").Envar("WG_DNS_UPSTREAM").Default(detectDNSUpstream()).StringsVar(&cmd.AppConfig.DNS.Upstream)
+	cli.Flag("dns-upstream", "An upstream DNS server to proxy DNS traffic to. Defaults to resolveconf with Cloudflare DNS as fallback").Envar("WG_DNS_UPSTREAM").StringsVar(&cmd.AppConfig.DNS.Upstream)
 	return cmd
 }
 
@@ -124,6 +124,9 @@ func (cmd *servecmd) Run() {
 
 	// DNS Server
 	if conf.DNS.Enabled {
+		if conf.DNS.Upstream == nil {
+			conf.DNS.Upstream = detectDNSUpstream(conf.VPN.CIDR != "",  conf.VPN.CIDRv6 != "")
+		}
 		dns, err := dnsproxy.New(dnsproxy.DNSServerOpts{
 			Upstream: conf.DNS.Upstream,
 		})
@@ -264,7 +267,7 @@ func claimsMiddleware(conf *config.AppConfig) authsession.ClaimsMiddleware {
 	}
 }
 
-func detectDNSUpstream() string {
+func detectDNSUpstream(ipv4Enabled, ipv6Enabled bool) []string {
 	upstream := []string{}
 	if r, err := resolvconf.Get(); err == nil {
 		upstream = resolvconf.GetNameservers(r.Content, types.IP)
@@ -272,9 +275,14 @@ func detectDNSUpstream() string {
 	if len(upstream) == 0 {
 		logrus.Warn("failed to get nameservers from /etc/resolv.conf defaulting to Cloudflare DNS instead")
 		// If there's no default route for IPv6, lookup fails immediately without delay and we retry using IPv4
-		upstream = []string{"2606:4700:4700::1111", "1.1.1.1"}
+		if ipv6Enabled {
+			upstream = append(upstream, "2606:4700:4700::1111")
+		}
+		if ipv4Enabled {
+			upstream = append(upstream, "1.1.1.1")
+		}
 	}
-	return upstream[0]
+	return upstream
 }
 
 func detectDefaultInterface() string {
