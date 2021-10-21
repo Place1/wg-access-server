@@ -44,14 +44,3 @@ ENV WG_STORAGE="sqlite3:///data/db.sqlite3"
 COPY --from=server /code/wg-access-server /usr/local/bin/wg-access-server
 COPY --from=website /code/build /website/build
 CMD ["wg-access-server", "serve"]
-
-# Set labels
-# Now we DO need these, for the auto-labeling of the image
-ARG BUILD_DATE
-ARG VCS_REF
-
-# Good docker practice
-LABEL org.opencontainers.image.created=$BUILD_DATE \
-      org.opencontainers.image.authors="Freifunk München" \
-      org.opencontainers.image.source="https://github.com/freifunkMUC/wg-access-server.git" \
-      org.opencontainers.image.revision=$VCS_REF

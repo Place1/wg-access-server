@@ -28,9 +28,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - id: read-docker-image-identifiers
-        name: Read Docker Image Identifiers
-        run: echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+      - name: Get Docker image metadata
+        run: |
+          echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+          echo DATE=$(date --rfc-3339=seconds) >> $GITHUB_ENV
+          echo AUTHOR=$(curl -sSL ${{ github.event.repository.owner.url }} | jq -r '.name') >> $GITHUB_ENV
       - name: Build container image
         uses: docker/build-push-action@v2
         with:
@@ -39,3 +41,8 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ env.IMAGE_REPOSITORY }}:latest
+          labels: |
+            org.opencontainers.image.created=${{ env.DATE }}
+            org.opencontainers.image.authors=${{ env.AUTHOR }}
+            org.opencontainers.image.source=${{ github.event.repository.clone_url }}
+            org.opencontainers.image.revision=${{ github.sha }}
