@@ -1,0 +1,28 @@
+# Docs: <https://docs.github.com/en/free-pro-team@latest/github/administering-a-repository/customizing-dependency-updates>
+
+version: 2
+
+updates:
+  - package-ecosystem: gomod
+    directory: /
+    schedule: {interval: monthly}
+    reviewers: [@freifunkMUC/salt-stack]
+    assignees: [@freifunkMUC/salt-stack]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: {interval: monthly}
+    reviewers: [@freifunkMUC/salt-stack]
+    assignees: [@freifunkMUC/salt-stack]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule: {interval: monthly}
+    reviewers: [@freifunkMUC/salt-stack]
+    assignees: [@freifunkMUC/salt-stack]
+
+  - package-ecosystem: npm
+    directory: /website
+    schedule: {interval: monthly}
+    reviewers: [@freifunkMUC/salt-stack]
+    assignees: [@freifunkMUC/salt-stack]
