@@ -8,8 +8,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type traceContextKey string
+
 const (
-	TraceIDKey = "trace.id"
+	TraceIDKey traceContextKey = "trace.id"
 )
 
 func WithTraceID(ctx context.Context) context.Context {

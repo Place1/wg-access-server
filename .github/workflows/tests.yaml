@@ -1,0 +1,31 @@
+name: tests
+
+on:
+  push:
+    branches: [master, main]
+    tags-ignore: ['**']
+    paths-ignore: ['**.md']
+  pull_request:
+    paths-ignore: ['**.md']
+
+jobs: # Docs: <https://git.io/JvxXE>
+  gitleaks:
+    name: Gitleaks
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with: {fetch-depth: 0}
+
+      - uses: zricethezav/gitleaks-action@v1 # Action page: <https://github.com/zricethezav/gitleaks-action>
+
+  golangci-lint:
+    name: Golang-CI (lint)
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run linter
+        uses: golangci/golangci-lint-action@v2 # Action page: <https://github.com/golangci/golangci-lint-action>
+        with:
+          version: v1.42 # without patch version
+          only-new-issues: false # show only new issues if it's a pull request

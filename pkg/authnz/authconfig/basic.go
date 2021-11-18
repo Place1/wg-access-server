@@ -30,30 +30,27 @@ func (c *BasicAuthConfig) Provider() *authruntime.Provider {
 func basicAuthLogin(c *BasicAuthConfig, runtime *authruntime.ProviderRuntime) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		u, p, ok := r.BasicAuth()
-		if !ok {
-			w.Header().Set("WWW-Authenticate", `Basic realm="site"`)
-			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprintln(w, "unauthorized")
-			return
+		if ok {
+			if ok := checkCreds(c.Users, u, p); ok {
+				err := runtime.SetSession(w, r, &authsession.AuthSession{
+					Identity: &authsession.Identity{
+						Provider: "basic",
+						Subject:  u,
+						Name:     u,
+						Email:    "", // basic auth has no email
+					},
+				})
+				if err == nil {
+					runtime.Done(w, r)
+					return
+				}
+			}
 		}
 
-		if ok := checkCreds(c.Users, u, p); ok {
-			runtime.SetSession(w, r, &authsession.AuthSession{
-				Identity: &authsession.Identity{
-					Provider: "basic",
-					Subject:  u,
-					Name:     u,
-					Email:    "", // basic auth has no email
-				},
-			})
-			runtime.Done(w, r)
-			return
-		}
-
+		// If we're here something went wrong, return StatusUnauthorized
 		w.Header().Set("WWW-Authenticate", `Basic realm="site"`)
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprintln(w, "unauthorized")
-		return
 	}
 }
 

@@ -54,6 +54,5 @@ func ApiRouter(deps *ApiServices) http.Handler {
 
 		w.WriteHeader(400)
 		fmt.Fprintln(w, "expected grpc request")
-		return
 	})
 }

@@ -114,7 +114,7 @@ func (cmd *servecmd) Run() {
 
 		logrus.Infof("wireguard VPN network is %s", network.StringJoinIPNets(vpnip, vpnipv6))
 
-		if err := network.ConfigureForwarding(conf.WireGuard.Interface, conf.VPN.GatewayInterface, conf.VPN.CIDR, conf.VPN.CIDRv6, conf.VPN.NAT66, conf.VPN.AllowedIPs); err != nil {
+		if err := network.ConfigureForwarding(conf.VPN.GatewayInterface, conf.VPN.CIDR, conf.VPN.CIDRv6, conf.VPN.NAT66, conf.VPN.AllowedIPs); err != nil {
 			logrus.Fatal(err)
 		}
 	}
@@ -155,7 +155,11 @@ func (cmd *servecmd) Run() {
 
 	// Authentication middleware
 	if conf.Auth.IsEnabled() {
-		router.Use(authnz.NewMiddleware(conf.Auth, claimsMiddleware(conf)))
+		middleware, err := authnz.NewMiddleware(conf.Auth, claimsMiddleware(conf))
+		if err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to set up authnz middleware"))
+		}
+		router.Use(middleware)
 	} else {
 		logrus.Warn("[DEPRECATION NOTICE] using wg-access-server without an admin user is deprecated and will be removed in an upcoming minor release.")
 		router.Use(func(next http.Handler) http.Handler {

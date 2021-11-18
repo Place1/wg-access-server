@@ -74,17 +74,33 @@ func (d *DNSServer) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 		m, err := d.Lookup(r)
 		if err != nil {
 			logrus.Errorf("failed lookup record with error: %s\n%s", err.Error(), r)
-			dns.HandleFailed(w, r)
+			HandleFailed(w, r)
 			return
 		}
 		m.SetReply(r)
-		w.WriteMsg(m)
+		err = w.WriteMsg(m)
+		if err != nil {
+			logrus.Errorf("failed write response for client with error: %s\n%s", err.Error(), r)
+			return
+		}
 	default:
 		m := &dns.Msg{}
 		m.SetReply(r)
-		w.WriteMsg(m)
+		err := w.WriteMsg(m)
+		if err != nil {
+			logrus.Errorf("failed write response for client with error: %s\n%s", err.Error(), r)
+			return
+		}
 	}
 
+}
+
+// HandleFailed returns a HandlerFunc that returns SERVFAIL for every request it gets.
+func HandleFailed(w dns.ResponseWriter, r *dns.Msg) {
+	m := new(dns.Msg)
+	m.SetRcode(r, dns.RcodeServerFailure)
+	// does not matter if this write fails
+	_ = w.WriteMsg(m)
 }
 
 func (d *DNSServer) Lookup(m *dns.Msg) (*dns.Msg, error) {

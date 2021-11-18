@@ -56,7 +56,7 @@ func StringJoinIPs(a, b *net.IPNet) string {
 	return ""
 }
 
-func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, cidrv6 string, nat66 bool, allowedIPs []string) error {
+func ConfigureForwarding(gatewayIface string, cidr string, cidrv6 string, nat66 bool, allowedIPs []string) error {
 	// Networking configuration (iptables) configuration
 	// to ensure that traffic from clients of the wireguard interface
 	// is sent to the provided network interface
@@ -79,7 +79,7 @@ func ConfigureForwarding(wgIface string, gatewayIface string, cidr string, cidrv
 	}
 
 	if cidr != ""{
-		if err := configureForwardingv4( gatewayIface, cidr, allowedIPv4s); err != nil {
+		if err := configureForwardingv4(gatewayIface, cidr, allowedIPv4s); err != nil {
 			return err
 		}
 	}
@@ -99,16 +99,34 @@ func configureForwardingv4(gatewayIface string, cidr string, allowedIPs []string
 
 	// Cleanup our chains first so that we don't leak
 	// iptable rules when the network configuration changes.
-	ipt.ClearChain("filter", "WG_ACCESS_SERVER_FORWARD")
-	ipt.ClearChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
+	err = ipt.ClearChain("filter", "WG_ACCESS_SERVER_FORWARD")
+	if err != nil {
+		return errors.Wrap(err, "failed to clear filter chain")
+	}
+	err = ipt.ClearChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
+	if err != nil {
+		return errors.Wrap(err, "failed to clear nat chain")
+	}
 
 	// Create our own chain for forwarding rules
-	ipt.NewChain("filter", "WG_ACCESS_SERVER_FORWARD")
-	ipt.AppendUnique("filter", "FORWARD", "-j", "WG_ACCESS_SERVER_FORWARD")
+	err = ipt.NewChain("filter", "WG_ACCESS_SERVER_FORWARD")
+	if err != nil {
+		return errors.Wrap(err, "failed to create filter chain")
+	}
+	err = ipt.AppendUnique("filter", "FORWARD", "-j", "WG_ACCESS_SERVER_FORWARD")
+	if err != nil {
+		return errors.Wrap(err, "failed to append FORWARD rule to filter chain")
+	}
 
 	// Create our own chain for postrouting rules
-	ipt.NewChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
-	ipt.AppendUnique("nat", "POSTROUTING", "-j", "WG_ACCESS_SERVER_POSTROUTING")
+	err = ipt.NewChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
+	if err != nil {
+		return errors.Wrap(err, "failed to create nat chain")
+	}
+	err = ipt.AppendUnique("nat", "POSTROUTING", "-j", "WG_ACCESS_SERVER_POSTROUTING")
+	if err != nil {
+		return errors.Wrap(err, "failed to append POSTROUTING rule to nat chain")
+	}
 
 	for _, allowedCIDR := range allowedIPs {
 		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-d", allowedCIDR, "-j", "ACCEPT"); err != nil {
@@ -134,14 +152,32 @@ func configureForwardingv6(gatewayIface string, cidrv6 string, nat66 bool, allow
 		return errors.Wrap(err, "failed to init ip6tables")
 	}
 
-	ipt.ClearChain("filter", "WG_ACCESS_SERVER_FORWARD")
-	ipt.ClearChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
+	err = ipt.ClearChain("filter", "WG_ACCESS_SERVER_FORWARD")
+	if err != nil {
+		return errors.Wrap(err, "failed to clear filter chain")
+	}
+	err = ipt.ClearChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
+	if err != nil {
+		return errors.Wrap(err, "failed to clear nat chain")
+	}
 
-	ipt.NewChain("filter", "WG_ACCESS_SERVER_FORWARD")
-	ipt.AppendUnique("filter", "FORWARD", "-j", "WG_ACCESS_SERVER_FORWARD")
+	err = ipt.NewChain("filter", "WG_ACCESS_SERVER_FORWARD")
+	if err != nil {
+		return errors.Wrap(err, "failed to create filter chain")
+	}
+	err = ipt.AppendUnique("filter", "FORWARD", "-j", "WG_ACCESS_SERVER_FORWARD")
+	if err != nil {
+		return errors.Wrap(err, "failed to append FORWARD rule to filter chain")
+	}
 
-	ipt.NewChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
-	ipt.AppendUnique("nat", "POSTROUTING", "-j", "WG_ACCESS_SERVER_POSTROUTING")
+	err = ipt.NewChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
+	if err != nil {
+		return errors.Wrap(err, "failed to create nat chain")
+	}
+	err = ipt.AppendUnique("nat", "POSTROUTING", "-j", "WG_ACCESS_SERVER_POSTROUTING")
+	if err != nil {
+		return errors.Wrap(err, "failed to append POSTROUTING rule to nat chain")
+	}
 
 	// Accept client traffic for given allowed ips
 	for _, allowedCIDR := range allowedIPs {
@@ -174,11 +210,4 @@ func nextIP(ip net.IP) net.IP {
 		}
 	}
 	return next
-}
-
-func boolToRule(accept bool) string {
-	if accept {
-		return "ACCEPT"
-	}
-	return "REJECT"
 }
