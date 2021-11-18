@@ -3,10 +3,10 @@ package services
 import (
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TimestampToTime(value *timestamp.Timestamp) time.Time {
@@ -17,10 +17,10 @@ func TimeToTimestamp(value *time.Time) *timestamp.Timestamp {
 	if value == nil {
 		return nil
 	}
-	t, err := ptypes.TimestampProto(*value)
-	if err != nil {
+	t := timestamppb.New(*value)
+	if t == nil {
 		logrus.Error("bad time value")
-		t = ptypes.TimestampNow()
+		t = timestamppb.Now()
 	}
 	return t
 }

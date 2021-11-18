@@ -25,7 +25,7 @@ type AuthMiddleware struct {
 	runtime          *authruntime.ProviderRuntime
 }
 
-func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddleware) *AuthMiddleware {
+func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddleware) (*AuthMiddleware, error) {
 	router := mux.NewRouter()
 	store := sessions.NewCookieStore([]byte(authutil.RandomString(32)))
 	runtime := authruntime.NewProviderRuntime(store)
@@ -33,13 +33,16 @@ func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddle
 
 	for _, p := range providers {
 		if p.RegisterRoutes != nil {
-			p.RegisterRoutes(router, runtime)
+			err := p.RegisterRoutes(router, runtime)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
 	router.HandleFunc("/signin", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, authtemplates.RenderLoginPage(w, authtemplates.LoginPage{
+		_, _ = fmt.Fprint(w, authtemplates.RenderLoginPage(w, authtemplates.LoginPage{
 			Providers: providers,
 		}))
 	})
@@ -48,7 +51,7 @@ func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddle
 		index, err := strconv.Atoi(mux.Vars(r)["index"])
 		if err != nil || index < 0 || len(providers) <= index {
 			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintf(w, "unknown provider")
+			_, _ = fmt.Fprintf(w, "unknown provider")
 			return
 		}
 		provider := providers[index]
@@ -56,7 +59,7 @@ func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddle
 	})
 
 	router.HandleFunc("/signout", func(w http.ResponseWriter, r *http.Request) {
-		runtime.ClearSession(w, r)
+		_ = runtime.ClearSession(w, r)
 		runtime.Restart(w, r)
 	})
 
@@ -65,11 +68,15 @@ func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddle
 		claimsMiddleware,
 		router,
 		runtime,
-	}
+	}, nil
 }
 
-func NewMiddleware(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddleware) mux.MiddlewareFunc {
-	return New(config, claimsMiddleware).Middleware
+func NewMiddleware(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddleware) (mux.MiddlewareFunc, error) {
+	authMiddleware, err := New(config, claimsMiddleware)
+	if err != nil {
+		return nil, err
+	}
+	return authMiddleware.Middleware, nil
 }
 
 func (m *AuthMiddleware) Middleware(next http.Handler) http.Handler {

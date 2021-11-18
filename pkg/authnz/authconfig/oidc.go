@@ -71,9 +71,13 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 func (c *OIDCConfig) loginHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		oauthStateString := authutil.RandomString(32)
-		runtime.SetSession(w, r, &authsession.AuthSession{
+		err := runtime.SetSession(w, r, &authsession.AuthSession{
 			Nonce: &oauthStateString,
 		})
+		if err != nil {
+			http.Error(w, "no session", http.StatusUnauthorized)
+			return
+		}
 		url := oauthConfig.AuthCodeURL(oauthStateString)
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
@@ -107,7 +111,11 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 		}
 
 		oidcProfileData := make(map[string]interface{})
-		info.Claims(&oidcProfileData)
+		err = info.Claims(&oidcProfileData)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
 
 		claims := &authsession.Claims{}
 		for claimName, rule := range c.ClaimMapping {
@@ -126,7 +134,7 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 			}
 		}
 
-		runtime.SetSession(w, r, &authsession.AuthSession{
+		err = runtime.SetSession(w, r, &authsession.AuthSession{
 			Identity: &authsession.Identity{
 				Provider: c.Name,
 				Subject:  info.Subject,
@@ -135,6 +143,10 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 				Claims:   *claims,
 			},
 		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
 
 		runtime.Done(w, r)
 	}
