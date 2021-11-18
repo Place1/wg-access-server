@@ -92,7 +92,7 @@ func pgconn(u *url.URL) string {
 func mysqlconn(u *url.URL) string {
 	password, _ := u.User.Password()
 	return fmt.Sprintf(
-		"%s:%s@%s/%s?%s",
+		"%s:%s@tcp(%s)/%s?%s",
 		u.User.Username(),
 		password,
 		u.Host,
