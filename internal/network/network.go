@@ -99,30 +99,21 @@ func configureForwardingv4(gatewayIface string, cidr string, allowedIPs []string
 
 	// Cleanup our chains first so that we don't leak
 	// iptable rules when the network configuration changes.
-	err = ipt.ClearChain("filter", "WG_ACCESS_SERVER_FORWARD")
+	err = clearOrCreateChain(ipt, "filter", "WG_ACCESS_SERVER_FORWARD")
 	if err != nil {
-		return errors.Wrap(err, "failed to clear filter chain")
-	}
-	err = ipt.ClearChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
-	if err != nil {
-		return errors.Wrap(err, "failed to clear nat chain")
+		return err
 	}
 
-	// Create our own chain for forwarding rules
-	err = ipt.NewChain("filter", "WG_ACCESS_SERVER_FORWARD")
+	err = clearOrCreateChain(ipt, "nat", "WG_ACCESS_SERVER_POSTROUTING")
 	if err != nil {
-		return errors.Wrap(err, "failed to create filter chain")
+		return err
 	}
+
 	err = ipt.AppendUnique("filter", "FORWARD", "-j", "WG_ACCESS_SERVER_FORWARD")
 	if err != nil {
 		return errors.Wrap(err, "failed to append FORWARD rule to filter chain")
 	}
 
-	// Create our own chain for postrouting rules
-	err = ipt.NewChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
-	if err != nil {
-		return errors.Wrap(err, "failed to create nat chain")
-	}
 	err = ipt.AppendUnique("nat", "POSTROUTING", "-j", "WG_ACCESS_SERVER_POSTROUTING")
 	if err != nil {
 		return errors.Wrap(err, "failed to append POSTROUTING rule to nat chain")
@@ -152,28 +143,21 @@ func configureForwardingv6(gatewayIface string, cidrv6 string, nat66 bool, allow
 		return errors.Wrap(err, "failed to init ip6tables")
 	}
 
-	err = ipt.ClearChain("filter", "WG_ACCESS_SERVER_FORWARD")
+	err = clearOrCreateChain(ipt, "filter", "WG_ACCESS_SERVER_FORWARD")
 	if err != nil {
-		return errors.Wrap(err, "failed to clear filter chain")
-	}
-	err = ipt.ClearChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
-	if err != nil {
-		return errors.Wrap(err, "failed to clear nat chain")
+		return err
 	}
 
-	err = ipt.NewChain("filter", "WG_ACCESS_SERVER_FORWARD")
+	err = clearOrCreateChain(ipt, "nat", "WG_ACCESS_SERVER_POSTROUTING")
 	if err != nil {
-		return errors.Wrap(err, "failed to create filter chain")
+		return err
 	}
+
 	err = ipt.AppendUnique("filter", "FORWARD", "-j", "WG_ACCESS_SERVER_FORWARD")
 	if err != nil {
 		return errors.Wrap(err, "failed to append FORWARD rule to filter chain")
 	}
 
-	err = ipt.NewChain("nat", "WG_ACCESS_SERVER_POSTROUTING")
-	if err != nil {
-		return errors.Wrap(err, "failed to create nat chain")
-	}
 	err = ipt.AppendUnique("nat", "POSTROUTING", "-j", "WG_ACCESS_SERVER_POSTROUTING")
 	if err != nil {
 		return errors.Wrap(err, "failed to append POSTROUTING rule to nat chain")
@@ -196,6 +180,26 @@ func configureForwardingv6(gatewayIface string, cidrv6 string, nat66 bool, allow
 
 	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidrv6, "-j", "REJECT"); err != nil {
 		return errors.Wrap(err, "failed to set ip tables rule")
+	}
+	return nil
+}
+
+func clearOrCreateChain(ipt *iptables.IPTables, table, chain string) error {
+	exists, err := ipt.ChainExists(table, chain)
+	if err != nil {
+		return errors.Wrapf(err, "failed to read table %s", table)
+	}
+	if exists {
+		err = ipt.ClearChain(table, chain)
+		if err != nil {
+			return errors.Wrapf(err, "failed to clear chain %s in table %s", chain, table)
+		}
+	} else {
+		// Create our own chain for forwarding rules
+		err = ipt.NewChain(table, chain)
+		if err != nil {
+			return errors.Wrapf(err, "failed to create chain %s in table %s", chain, table)
+		}
 	}
 	return nil
 }
