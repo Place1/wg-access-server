@@ -1,3 +1,11 @@
 .git/
+.github/
+.vscode/
+docs/
+
+# Common artifacts from building and running locally
+config.yaml
+db.sqlite3
+wg-access-server
 **/node_modules/
 **/build/
