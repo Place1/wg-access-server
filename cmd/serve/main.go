@@ -46,12 +46,12 @@ func Register(app *kingpin.Application) *servecmd {
 	cli.Flag("wireguard-private-key", "Wireguard private key").Envar("WG_WIREGUARD_PRIVATE_KEY").StringVar(&cmd.AppConfig.WireGuard.PrivateKey)
 	cli.Flag("wireguard-port", "The port that the Wireguard server will listen on").Envar("WG_WIREGUARD_PORT").Default("51820").IntVar(&cmd.AppConfig.WireGuard.Port)
 	cli.Flag("vpn-cidr", "The network CIDR for the VPN").Envar("WG_VPN_CIDR").Default("10.44.0.0/24").StringVar(&cmd.AppConfig.VPN.CIDR)
-	cli.Flag("vpn-cidrv6", "The IPv6 network CIDR for the VPN").Envar("WG_VPN_CIDRv6").Default("fd48:04c4:7aa9::/64").StringVar(&cmd.AppConfig.VPN.CIDRv6)
+	cli.Flag("vpn-cidrv6", "The IPv6 network CIDR for the VPN").Envar("WG_VPN_CIDRV6").Default("fd48:4c4:7aa9::/64").StringVar(&cmd.AppConfig.VPN.CIDRv6)
 	cli.Flag("vpn-nat66-enabled", "Enable or disable NAT of IPv6 traffic leaving through the gateway").Envar("WG_IPv6_NAT_ENABLED").Default("true").BoolVar(&cmd.AppConfig.VPN.NAT66)
 	cli.Flag("vpn-gateway-interface", "The gateway network interface (i.e. eth0)").Envar("WG_VPN_GATEWAY_INTERFACE").Default(detectDefaultInterface()).StringVar(&cmd.AppConfig.VPN.GatewayInterface)
 	cli.Flag("vpn-allowed-ips", "A list of networks that VPN clients will be allowed to connect to via the VPN").Envar("WG_VPN_ALLOWED_IPS").Default("0.0.0.0/0", "::/0").StringsVar(&cmd.AppConfig.VPN.AllowedIPs)
 	cli.Flag("dns-enabled", "Enable or disable the embedded dns proxy server (useful for development)").Envar("WG_DNS_ENABLED").Default("true").BoolVar(&cmd.AppConfig.DNS.Enabled)
-	cli.Flag("dns-upstream", "An upstream DNS server to proxy DNS traffic to. Defaults to resolveconf with Cloudflare DNS as fallback").Envar("WG_DNS_UPSTREAM").Default(detectDNSUpstream()).StringsVar(&cmd.AppConfig.DNS.Upstream)
+	cli.Flag("dns-upstream", "An upstream DNS server to proxy DNS traffic to. Defaults to resolveconf with Cloudflare DNS as fallback").Envar("WG_DNS_UPSTREAM").StringsVar(&cmd.AppConfig.DNS.Upstream)
 	return cmd
 }
 
@@ -67,6 +67,13 @@ func (cmd *servecmd) Name() string {
 func (cmd *servecmd) Run() {
 	conf := cmd.ReadConfig()
 
+	if conf.VPN.CIDR == "0" {
+		conf.VPN.CIDR = ""
+	}
+	if conf.VPN.CIDRv6 == "0" {
+		conf.VPN.CIDRv6 = ""
+	}
+
 	// Get the server's IP addresses within the VPN
 	var vpnip, vpnipv6 *net.IPNet
 	var err error
@@ -81,11 +88,14 @@ func (cmd *servecmd) Run() {
 	// Allow traffic to wg-access-server's peer endpoint.
 	// This is important because clients will send traffic
 	// to the embedded DNS proxy using the VPN IP
+	vpnipstrings := make([]string, 0, 2)
 	if vpnip != nil {
 		conf.VPN.AllowedIPs = append(conf.VPN.AllowedIPs, fmt.Sprintf("%s/32", vpnip.IP.String()))
+		vpnipstrings = append(vpnipstrings, vpnip.String())
 	}
 	if vpnipv6 != nil {
 		conf.VPN.AllowedIPs = append(conf.VPN.AllowedIPs, fmt.Sprintf("%s/128", vpnipv6.IP.String()))
+		vpnipstrings = append(vpnipstrings, vpnipv6.String())
 	}
 
 	// WireGuard Server
@@ -103,7 +113,7 @@ func (cmd *servecmd) Run() {
 		wgconfig := &wgembed.ConfigFile{
 			Interface: wgembed.IfaceConfig{
 				PrivateKey: conf.WireGuard.PrivateKey,
-				Address:    network.StringJoinIPNets(vpnip, vpnipv6),
+				Address:    vpnipstrings,
 				ListenPort: &conf.WireGuard.Port,
 			},
 		}
@@ -121,6 +131,9 @@ func (cmd *servecmd) Run() {
 
 	// DNS Server
 	if conf.DNS.Enabled {
+		if conf.DNS.Upstream == nil {
+			conf.DNS.Upstream = detectDNSUpstream(conf.VPN.CIDR != "",  conf.VPN.CIDRv6 != "")
+		}
 		dns, err := dnsproxy.New(dnsproxy.DNSServerOpts{
 			Upstream: conf.DNS.Upstream,
 		})
@@ -261,7 +274,7 @@ func claimsMiddleware(conf *config.AppConfig) authsession.ClaimsMiddleware {
 	}
 }
 
-func detectDNSUpstream() string {
+func detectDNSUpstream(ipv4Enabled, ipv6Enabled bool) []string {
 	upstream := []string{}
 	if r, err := resolvconf.Get(); err == nil {
 		upstream = resolvconf.GetNameservers(r.Content, types.IP)
@@ -269,9 +282,14 @@ func detectDNSUpstream() string {
 	if len(upstream) == 0 {
 		logrus.Warn("failed to get nameservers from /etc/resolv.conf defaulting to Cloudflare DNS instead")
 		// If there's no default route for IPv6, lookup fails immediately without delay and we retry using IPv4
-		upstream = []string{"2606:4700:4700::1111", "1.1.1.1"}
+		if ipv6Enabled {
+			upstream = append(upstream, "2606:4700:4700::1111")
+		}
+		if ipv4Enabled {
+			upstream = append(upstream, "1.1.1.1")
+		}
 	}
-	return upstream[0]
+	return upstream
 }
 
 func detectDefaultInterface() string {

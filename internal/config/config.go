@@ -62,7 +62,7 @@ type AppConfig struct {
 		// CIDRv6 configures an IPv6 network address space
 		// that client (WireGuard peers) will be allocated
 		// an IP address from
-		// defaults to none
+		// defaults to fd48:4c4:7aa9::/64
 		CIDRv6 string `yaml:"cidrv6"`
 		// NAT66 configures whether IPv6 traffic leaving
 		// through the GatewayInterface should be
@@ -78,7 +78,7 @@ type AppConfig struct {
 		// This value will be included in client config
 		// files and in server-side iptable rules
 		// to enforce network access.
-		// defaults to ["0.0.0.0/0"]
+		// defaults to ["0.0.0.0/0", "::/0"]
 		AllowedIPs []string `yaml:"allowedIPs"`
 	} `yaml:"vpn"`
 	// Configure the embeded DNS server
