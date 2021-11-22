@@ -122,8 +122,8 @@ github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5Kwzbycv
 github.com/franela/goblin v0.0.0-20200105215937-c9ffbefa60db/go.mod h1:7dvUGVsVBjqR7JHJk0brhHOZYGmfBYOrK0ZhYMEtBr4=
 github.com/franela/goreq v0.0.0-20171204163338-bcd34c9993f8/go.mod h1:ZhphrRTfi2rbfLwlschooIH4+wKKDR4Pdxhh+TRoA20=
 github.com/frankban/quicktest v1.11.3/go.mod h1:wRf/ReqHper53s+kmmSZizM8NamnL3IM0I9ntUbOk+k=
-github.com/freifunkMUC/wg-embed v0.5.0 h1:r155Y+RmU3/0cXELqQmmeHJvlRCUUd3WMe0ZJJUwFdc=
-github.com/freifunkMUC/wg-embed v0.5.0/go.mod h1:i09dm8AEkurC4oATFxjvyH0+e1pdmtZoNk2FfPupROI=
+github.com/freifunkMUC/wg-embed v0.5.1 h1:uynHoVOD863Dat60dIRdiRdybLUDiFXZkljx8bmkPn4=
+github.com/freifunkMUC/wg-embed v0.5.1/go.mod h1:i09dm8AEkurC4oATFxjvyH0+e1pdmtZoNk2FfPupROI=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
