@@ -3,7 +3,6 @@ package devices
 import (
 	"fmt"
 	"net"
-	"strings"
 	"sync"
 	"time"
 
@@ -168,9 +167,9 @@ func (d *DeviceManager) nextClientAddress() (string, error) {
 
 	// Check what IP addresses are already occupied
 	for _, device := range devices {
-		addresses := strings.Split(device.Address, ",")
+		addresses := network.SplitAddresses(device.Address)
 		for _, addr := range addresses {
-			ip, _ := MustParseCIDR(strings.TrimSpace(addr))
+			ip, _ := MustParseCIDR(addr)
 			if as4 := ip.To4(); as4 != nil {
 				usedIPv4s = append(usedIPv4s, as4)
 			} else {
