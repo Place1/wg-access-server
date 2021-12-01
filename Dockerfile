@@ -36,7 +36,7 @@ COPY ./internal/ ./internal/
 RUN go build -o wg-access-server
 
 ### Server
-FROM alpine:3.14
+FROM alpine:3.15.0
 RUN apk add iptables ip6tables
 RUN apk add wireguard-tools
 RUN apk add curl
