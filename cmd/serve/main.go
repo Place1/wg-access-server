@@ -132,7 +132,7 @@ func (cmd *servecmd) Run() {
 	// DNS Server
 	if conf.DNS.Enabled {
 		if conf.DNS.Upstream == nil {
-			conf.DNS.Upstream = detectDNSUpstream(conf.VPN.CIDR != "",  conf.VPN.CIDRv6 != "")
+			conf.DNS.Upstream = detectDNSUpstream(conf.VPN.CIDR != "", conf.VPN.CIDRv6 != "")
 		}
 		dns, err := dnsproxy.New(dnsproxy.DNSServerOpts{
 			Upstream: conf.DNS.Upstream,

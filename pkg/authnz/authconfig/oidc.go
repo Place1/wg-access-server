@@ -125,7 +125,7 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-			
+
 			// If result is 'false' or an empty string then don't include the Claim
 			if val, ok := result.(bool); ok && val {
 				claims.Add(claimName, strconv.FormatBool(val))
