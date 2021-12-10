@@ -1,5 +1,5 @@
 ### Build stage for the website frontend
-FROM node:16 as website
+FROM node:16-bullseye as website
 RUN apt-get update
 RUN apt-get install -y protobuf-compiler libprotobuf-dev
 WORKDIR /code
@@ -12,7 +12,7 @@ RUN npm run codegen
 RUN npm run build
 
 ### Build stage for the website backend server
-FROM golang:1.17.3-alpine as server
+FROM golang:1.17.5-alpine as server
 RUN apk add gcc musl-dev
 RUN apk add protobuf
 RUN apk add protobuf-dev
