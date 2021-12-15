@@ -19,6 +19,9 @@ spec:
 {{- end }}
   ports:
     - port: 80
+    {{- if and (eq .Values.web.service.type "NodePort") ( .Values.web.service.port ) }}
+      nodePort: {{ .Values.web.service.port }}
+    {{- end }}
       targetPort: 8000
       protocol: TCP
       name: http
@@ -48,6 +51,9 @@ spec:
 {{- end }}
   ports:
     - port: 51820
+    {{- if and (eq .Values.wireguard.service.type "NodePort") ( .Values.wireguard.service.port ) }}
+      nodePort: {{ .Values.wireguard.service.port }}
+    {{- end }}
       targetPort: 51820
       protocol: UDP
       name: wireguard

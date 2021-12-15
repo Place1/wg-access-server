@@ -7,12 +7,16 @@ web:
     adminPassword: ""
   service:
     type: ClusterIP
+    # type: NodePort
+    # port: 32548
 
 wireguard:
   config:
     privateKey: ""
   service:
     type: ClusterIP
+    # type: NodePort
+    # port: 30392
 
 persistence:
   enabled: false
