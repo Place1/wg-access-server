@@ -62,8 +62,10 @@ ingress:
 |-----|------|---------|-------------|
 | config | object | `{}` | inline wg-access-server config (config.yaml) |
 | web.service.type | string | `"ClusterIP"` |  |
+| web.service.port | number | random | Port number if `web.service.type` is set to `NodePort` |
 | wireguard.config.privateKey | string | "" | A wireguard private key. You can generate one using `$ wg genkey` |
 | wireguard.service.type | string | `"ClusterIP"` |  |
+| wireguard.service.port | number | random | Port number if `wireguard.service.type` is set to `NodePort` |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts | string | `nil` |  |
 | ingress.tls | list | `[]` |  |
