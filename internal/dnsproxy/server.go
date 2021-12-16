@@ -121,8 +121,10 @@ func (d *DNSServer) Lookup(m *dns.Msg) (*dns.Msg, error) {
 		if err != nil && firstErr == nil {
 			logrus.Warnf(errors.Wrap(err, fmt.Sprintf("DNS lookup failed for upstream %s", upstream)).Error())
 			firstErr = err
+		} else if err == nil {
+			response = resp
+			break
 		}
-		response = resp
 	}
 	if response == nil {
 		return nil, firstErr
