@@ -18,14 +18,14 @@ Homelab enthusiasts, and anyone else who is adventurous.
 
 **The links in the documentation section currently point to our new home page and not to the documentation of the wg-access-server project. We'll get things sorted out soon and provide you with more up-to-date documentation on our changes and deployment. In the meantime, you can use the documentation listed upstream of Place1 as a first reference.**
 
-[See our documentation website](https://wg-access-server.github.io/wg-access-server/)
+[See our documentation website](https://www.freie-netze.org/wg-access-server/)
 
 Quick Links:
 
-- [Configuration Overview](https://wg-access-server.github.io/wg-access-server/2-configuration/)
-- [Deploy With Docker](https://wg-access-server.github.io/wg-access-server/deployment/1-docker/)
-- [Deploy With Helm](https://wg-access-server.github.io/wg-access-server/deployment/2-docker-compose/)
-- [Deploy With Docker-Compose](https://wg-access-server.github.io/wg-access-server/deployment/2-docker-compose/)
+- [Configuration Overview](https://www.freie-netze.org/wg-access-server/2-configuration)
+- [Deploy With Docker](https://www.freie-netze.org/wg-access-server/deployment/1-docker)
+- [Deploy With Helm](https://www.freie-netze.org/wg-access-server/deployment/2-docker-compose)
+- [Deploy With Docker-Compose](https://www.freie-netze.org/wg-access-server/deployment/2-docker-compose)
 
 ## Running with Docker
 
