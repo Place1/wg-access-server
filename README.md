@@ -10,7 +10,7 @@ This project aims to provide a simple VPN solution for developers,
 Homelab enthusiasts, and anyone else who is adventurous.
 
 
-**This is a fork of the original work of freifunkMUC. Since the upstream is currently poorly maintained, we try to add new features and keep the project up to date and in a working state.**
+**This is a fork of the original work of place1. Since the upstream is currently poorly maintained, we try to add new features and keep the project up to date and in a working state.**
 
 **Contributions are always welcome so that we can offer new bug fixes, features and improvements to the users of this project**.
 
