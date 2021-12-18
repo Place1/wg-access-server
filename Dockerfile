@@ -13,15 +13,11 @@ RUN npm run build
 
 ### Build stage for the website backend server
 FROM golang:1.17.5-alpine as server
-RUN apk add gcc musl-dev
-RUN apk add protobuf
-RUN apk add protobuf-dev
+RUN apk add --no-cache gcc musl-dev protobuf protobuf-dev
 WORKDIR /code
-ENV GOOS=linux
-ENV GARCH=amd64
 ENV CGO_ENABLED=1
 ENV GO111MODULE=on
-RUN go get github.com/golang/protobuf/protoc-gen-go@v1.5.2
+RUN go install github.com/golang/protobuf/protoc-gen-go@v1.5.2
 COPY ./go.mod ./
 COPY ./go.sum ./
 RUN go mod download
@@ -37,9 +33,7 @@ RUN go build -o wg-access-server
 
 ### Server
 FROM alpine:3.15.0
-RUN apk add iptables ip6tables
-RUN apk add wireguard-tools
-RUN apk add curl
+RUN apk add --no-cache iptables ip6tables wireguard-tools curl
 ENV WG_CONFIG="/config.yaml"
 ENV WG_STORAGE="sqlite3:///data/db.sqlite3"
 COPY --from=server /code/wg-access-server /usr/local/bin/wg-access-server
