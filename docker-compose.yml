@@ -5,7 +5,7 @@ services:
     # build:
     #   dockerfile: Dockerfile
     #   context: .
-    image: ghcr.io/freifunkmuc/wg-access-server/wg-access-server:latest
+    image: ghcr.io/freifunkmuc/wg-access-server:latest
     container_name: wg-access-server
     cap_add:
       - NET_ADMIN
