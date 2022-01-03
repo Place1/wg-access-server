@@ -13,11 +13,12 @@ docker run \
   --sysctl net.ipv6.conf.all.disable_ipv6=0 \
   --sysctl net.ipv6.conf.all.forwarding=1 \
   -v wg-access-server-data:/data \
+  -v /lib/modules:/lib/modules \
   -e "WG_ADMIN_PASSWORD=$WG_ADMIN_PASSWORD" \
   -e "WG_WIREGUARD_PRIVATE_KEY=$WG_WIREGUARD_PRIVATE_KEY" \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
-  place1/wg-access-server
+  ghcr.io/freifunkmuc/wg-access-server:latest
 ```
 
 Make sure you have the `ip_tables` and `ip6_tables` kernel modules loaded on the host:
@@ -40,7 +41,7 @@ docker run \
   -e "WG_VPN_CIDRV6=0"
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
-  place1/wg-access-server
+  ghcr.io/freifunkmuc/wg-access-server:latest
 ```
 
 Likewise you can disable IPv4 by setting `WG_VPN_CIDR=0`.
