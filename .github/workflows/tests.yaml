@@ -29,3 +29,4 @@ jobs: # Docs: <https://git.io/JvxXE>
         with:
           version: v1.42 # without patch version
           only-new-issues: false # show only new issues if it's a pull request
+          args: --timeout 4m # the default of 1m didn't suffice occasionally
