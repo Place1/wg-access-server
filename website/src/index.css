@@ -6,8 +6,8 @@
   src:
     local('Roboto'),
     local('Roboto-Regular'),
-    url('/roboto/roboto-latin-400.woff2') format('woff2'),
-    url('/roboto/roboto-latin-400.woff') format('woff');;
+    url('../public/roboto/roboto-latin-400.woff2') format('woff2'),
+    url('../public/roboto/roboto-latin-400.woff') format('woff');
 }
 
 @font-face {
@@ -18,8 +18,8 @@
   src:
     local('Roboto Medium '),
     local('Roboto-Medium'),
-    url('/roboto/roboto-latin-500.woff2') format('woff2'),
-    url('/roboto/roboto-latin-500.woff') format('woff');
+    url('../public/roboto/roboto-latin-500.woff2') format('woff2'),
+    url('../public/roboto/roboto-latin-500.woff') format('woff');
 }
 
 body {
