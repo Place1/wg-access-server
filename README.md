@@ -43,11 +43,12 @@ docker run \
   --sysctl net.ipv6.conf.all.disable_ipv6=0 \
   --sysctl net.ipv6.conf.all.forwarding=1 \
   -v wg-access-server-data:/data \
+  -v /lib/modules:/lib/modules \
   -e "WG_ADMIN_PASSWORD=$WG_ADMIN_PASSWORD" \
   -e "WG_WIREGUARD_PRIVATE_KEY=$WG_WIREGUARD_PRIVATE_KEY" \
   -p 8000:8000/tcp \
   -p 51820:51820/udp \
-  ghcr.io/freifunkmuc/wg-access-server/wg-access-server:latest
+  ghcr.io/freifunkmuc/wg-access-server:latest
 ```
 
 If the wg-access-server is accessible via LAN or a network you are in, you can directly connect your phone to the VPN. You have to call the webfrontent of the project for this. Normally, this is done via the IP address of the device or server on which the wg-access-server is running followed by the standard port 8000, via which the web interface can be reached. For most deployments something like this should work: http://192.168.0.XX:8000
