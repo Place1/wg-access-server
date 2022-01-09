@@ -64,6 +64,10 @@ type AppConfig struct {
 		// an IP address from
 		// defaults to fd48:4c4:7aa9::/64
 		CIDRv6 string `yaml:"cidrv6"`
+		// NAT44 configures whether IPv4 traffic leaving
+		// through the GatewayInterface should be masqueraded
+		// defaults to true
+		NAT44 bool `yaml:"nat44"`
 		// NAT66 configures whether IPv6 traffic leaving
 		// through the GatewayInterface should be
 		// masqueraded like IPv4 traffic
