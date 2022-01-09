@@ -65,7 +65,7 @@ func SplitAddresses(addresses string) []string {
 	return split
 }
 
-func ConfigureForwarding(gatewayIface string, cidr string, cidrv6 string, nat66 bool, allowedIPs []string) error {
+func ConfigureForwarding(gatewayIface string, cidr, cidrv6 string, nat44, nat66 bool, allowedIPs []string) error {
 	// Networking configuration (iptables) configuration
 	// to ensure that traffic from clients of the wireguard interface
 	// is sent to the provided network interface
@@ -88,7 +88,7 @@ func ConfigureForwarding(gatewayIface string, cidr string, cidrv6 string, nat66 
 	}
 
 	if cidr != "" {
-		if err := configureForwardingv4(gatewayIface, cidr, allowedIPv4s); err != nil {
+		if err := configureForwardingv4(gatewayIface, cidr, nat44, allowedIPv4s); err != nil {
 			return err
 		}
 	}
@@ -100,7 +100,7 @@ func ConfigureForwarding(gatewayIface string, cidr string, cidrv6 string, nat66 
 	return nil
 }
 
-func configureForwardingv4(gatewayIface string, cidr string, allowedIPs []string) error {
+func configureForwardingv4(gatewayIface string, cidr string, nat44 bool, allowedIPs []string) error {
 	ipt, err := iptables.NewWithProtocol(iptables.ProtocolIPv4)
 	if err != nil {
 		return errors.Wrap(err, "failed to init iptables")
@@ -133,15 +133,17 @@ func configureForwardingv4(gatewayIface string, cidr string, allowedIPs []string
 			return errors.Wrap(err, "failed to set ip tables rule")
 		}
 	}
-
-	if gatewayIface != "" {
-		if err := ipt.AppendUnique("nat", "WG_ACCESS_SERVER_POSTROUTING", "-s", cidr, "-o", gatewayIface, "-j", "MASQUERADE"); err != nil {
-			return errors.Wrap(err, "failed to set ip tables rule")
-		}
-	}
-
+	// And reject everything else
 	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-j", "REJECT"); err != nil {
 		return errors.Wrap(err, "failed to set ip tables rule")
+	}
+
+	if gatewayIface != "" {
+		if nat44 {
+			if err := ipt.AppendUnique("nat", "WG_ACCESS_SERVER_POSTROUTING", "-s", cidr, "-o", gatewayIface, "-j", "MASQUERADE"); err != nil {
+				return errors.Wrap(err, "failed to set ip tables rule")
+			}
+		}
 	}
 	return nil
 }
@@ -178,6 +180,10 @@ func configureForwardingv6(gatewayIface string, cidrv6 string, nat66 bool, allow
 			return errors.Wrap(err, "failed to set ip tables rule")
 		}
 	}
+	// And reject everything else
+	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidrv6, "-j", "REJECT"); err != nil {
+		return errors.Wrap(err, "failed to set ip tables rule")
+	}
 
 	if gatewayIface != "" {
 		if nat66 {
@@ -185,10 +191,6 @@ func configureForwardingv6(gatewayIface string, cidrv6 string, nat66 bool, allow
 				return errors.Wrap(err, "failed to set ip tables rule")
 			}
 		}
-	}
-
-	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidrv6, "-j", "REJECT"); err != nil {
-		return errors.Wrap(err, "failed to set ip tables rule")
 	}
 	return nil
 }
