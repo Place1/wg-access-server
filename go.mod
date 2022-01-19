@@ -13,7 +13,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/jinzhu/gorm v1.9.16
-	github.com/miekg/dns v1.1.43
+	github.com/miekg/dns v1.1.45
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/place1/pg-events v0.2.0
@@ -57,9 +57,12 @@ require (
 	github.com/pquerna/cachecontrol v0.1.0 // indirect
 	github.com/rs/cors v1.8.0 // indirect
 	github.com/vishvananda/netns v0.0.0-20210104183010-2eb08e3e575f // indirect
+	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/net v0.0.0-20211123203042-d83791d6bcd9 // indirect
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
 	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/tools v0.1.6-0.20210726203631-07bc1bf47fb2 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	golang.zx2c4.com/go118/netip v0.0.0-20211111135330-a4a02eeacf9d // indirect
 	golang.zx2c4.com/wintun v0.0.0-20211104114900-415007cec224 // indirect
 	golang.zx2c4.com/wireguard v0.0.0-20211129173154-2dd424e2d808 // indirect
