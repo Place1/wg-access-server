@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Latest]
+
+- Added initial support for IPv6
+- Allow disabling of IPv4 or IPv6
+- Added NAT66
+- Added dependabot for easier updates of dependencies
+- Added gh-actions for the build process of the image itself
+- Utilizing GitHub Cache for faster image building
+- Added support for arm64, arm/v7
+- Added OpenContainers labels to the build process (gh-actions)
+- Added proper go linter
+- Fixed DNS proxy upstream lookup loop
+- Updated the documentation to reflect the changes regarding IPv6
+
 ## [v0.4.6]
 
 - The docker compose file now works without a config file (it's optional)
