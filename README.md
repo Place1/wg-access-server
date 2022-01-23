@@ -33,10 +33,10 @@ NAT can be disabled separately for IPv4 and IPv6.
 
 Quick Links:
 
-- [Configuration Overview](https://www.freie-netze.org/wg-access-server/2-configuration)
-- [Deploy With Docker](https://www.freie-netze.org/wg-access-server/deployment/1-docker)
-- [Deploy With Helm](https://www.freie-netze.org/wg-access-server/deployment/2-docker-compose)
-- [Deploy With Docker-Compose](https://www.freie-netze.org/wg-access-server/deployment/2-docker-compose)
+- [Configuration Overview](https://www.freie-netze.org/wg-access-server/2-configuration/)
+- [Deploy With Docker](https://www.freie-netze.org/wg-access-server/deployment/1-docker/)
+- [Deploy With Docker-Compose](https://www.freie-netze.org/wg-access-server/deployment/2-docker-compose/)
+- [Deploy With Helm](https://www.freie-netze.org/wg-access-server/deployment/3-kubernetes/)
 
 ## Running with Docker
 
