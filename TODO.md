@@ -15,11 +15,14 @@
   - [ ] raspberry-pi + pihole dns
 
 ## Features
-- [ ] ARM docker image for raspberry-pi
+- [x] ARM docker image for raspberry-pi
 - [ ] admin
   - [x] list all devices
   - [ ] remove device
 - [x] networking
+  - [x] IPv6 support
+  - [x] NAT66 support
+  - [x] option to disable IPv4 NAT
   - [x] isolate clients
   - [x] forward to internet only (isolate LAN/WAN)
   - [x] allowed networks (configure forwarding to specific CIDRs)
@@ -28,4 +31,4 @@
 
 ## Reading This?
 
-What do you want to see? Open an issue and let me know 😀
+What do you want to see? Open an issue and let us know 😀
