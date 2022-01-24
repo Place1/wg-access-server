@@ -12,6 +12,7 @@ wireguard:
   config:
     privateKey: ""
   service:
+    sessionAffinity: ClientIP
     type: ClusterIP
 
 persistence:
