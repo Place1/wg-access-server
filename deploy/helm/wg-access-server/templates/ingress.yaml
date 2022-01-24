@@ -1,6 +1,13 @@
+{{- $kubeTargetVersion := default .Capabilities.KubeVersion.GitVersion .Values.kubeTargetVersionOverride }}
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "wg-access-server.fullname" . -}}
+{{- if semverCompare ">=1.19-0" $kubeTargetVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" $kubeTargetVersion -}}
 apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: {{ .Values.controller.ingress.apiVersion }}
+{{- end }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -11,6 +18,9 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+{{- with .Values.ingress.ingressClassName }}
+  ingressClassName: {{ . }}
+{{- end }}
 {{- if .Values.ingress.tls }}
   tls:
   {{- range .Values.ingress.tls }}
@@ -28,7 +38,15 @@ spec:
         paths:
           - path: /
             backend:
+            {{- if semverCompare ">=1.19-0" $kubeTargetVersion }}
+              service:
+                name: {{ $fullName }}-web
+                port:
+                  number: 80
+            pathType: Prefix
+            {{- else -}}
               serviceName: {{ $fullName }}-web
-              servicePort: 80
+              servicePort: http
+            {{- end }}
   {{- end }}
 {{- end }}
