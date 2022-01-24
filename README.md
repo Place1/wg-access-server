@@ -3,29 +3,40 @@
 wg-access-server is a single binary file that contains a WireGuard
 VPN server and a web user interface for device management. We support user authentication,
 _1-click_ device enrollment that works with macOS, Linux, Windows, iOS/iPadOS and Android
-including QR codes. We from Freifunk Munich have also added IPv6 network support, since the upstream seems to be stuck in a dead end. Furthermore you can choose from different network isolation modes for a
-better control over connected devices. Generally speaking you can customize the project to your use-case with relative ease.
+including QR codes. Furthermore, you can choose from different network isolation modes for a
+better control over connected devices. Generally speaking you can customize the project
+to your use-case with relative ease.
 
 This project aims to provide a simple VPN solution for developers,
-Homelab enthusiasts, and anyone else who is adventurous.
+homelab enthusiasts, and anyone else who is adventurous.
 
+**This is a fork of the original work of place1, maintained by [Freifunk Munich](https://ffmuc.net/).
+Since the upstream is currently unmaintained, we try to add new features and keep the project up to date and in a working state.**
 
-**This is a fork of the original work of place1. Since the upstream is currently poorly maintained, we try to add new features and keep the project up to date and in a working state.**
+This fork supports IPv6. The VPN can run in dual-stack, IPv6-only or IPv4-only mode.
+NAT can be disabled separately for IPv4 and IPv6.
 
 **Contributions are always welcome so that we can offer new bug fixes, features and improvements to the users of this project**.
 
-## Documentation
+## Features
 
-**The links in the documentation section currently point to our new home page and not to the documentation of the wg-access-server project. We'll get things sorted out soon and provide you with more up-to-date documentation on our changes and deployment. In the meantime, you can use the documentation listed upstream of Place1 as a first reference.**
+- Pluggable authentication using OpenID Connect
+- Authentication using GitLab
+- IPv6 support in tunnel
+- Caching DNS proxy (stub resolver)
+- WireGuard client configuration QR codes
+- PostgreSQL, MySQL or SQLite3 storage backend
+
+## Documentation
 
 [See our documentation website](https://www.freie-netze.org/wg-access-server/)
 
 Quick Links:
 
-- [Configuration Overview](https://www.freie-netze.org/wg-access-server/2-configuration)
-- [Deploy With Docker](https://www.freie-netze.org/wg-access-server/deployment/1-docker)
-- [Deploy With Helm](https://www.freie-netze.org/wg-access-server/deployment/2-docker-compose)
-- [Deploy With Docker-Compose](https://www.freie-netze.org/wg-access-server/deployment/2-docker-compose)
+- [Configuration Overview](https://www.freie-netze.org/wg-access-server/2-configuration/)
+- [Deploy With Docker](https://www.freie-netze.org/wg-access-server/deployment/1-docker/)
+- [Deploy With Docker-Compose](https://www.freie-netze.org/wg-access-server/deployment/2-docker-compose/)
+- [Deploy With Helm](https://www.freie-netze.org/wg-access-server/deployment/3-kubernetes/)
 
 ## Running with Docker
 
