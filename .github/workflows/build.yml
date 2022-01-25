@@ -42,7 +42,6 @@ jobs:
           cache-to: type=gha,mode=max
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          org.opencontainers.image.authors: ${{ env.AUTHOR }}
-          
+
       - name: Inspect Docker image
         run: docker image inspect ${{ steps.meta.outputs.tags }}
