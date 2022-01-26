@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed DNS proxy upstream lookup loop
 - Updated the documentation to reflect the changes regarding IPv6
 
-## [v0.5.1]
+## [v0.4.6]
 
 - The docker compose file now works without a config file (it's optional)
 
