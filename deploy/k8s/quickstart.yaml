@@ -5,11 +5,11 @@ kind: ConfigMap
 metadata:
   name: quickstart-wg-access-server
   labels:
-    helm.sh/chart: wg-access-server-v0.4.6
+    helm.sh/chart: wg-access-server-v0.5.1
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "v0.4.6"
+    app.kubernetes.io/version: "v0.5.1"
     app.kubernetes.io/managed-by: Helm
 data:
   config.yaml: |-
@@ -20,11 +20,11 @@ kind: Service
 metadata:
   name: quickstart-wg-access-server-web
   labels:
-    helm.sh/chart: wg-access-server-v0.4.6
+    helm.sh/chart: wg-access-server-v0.5.1
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "v0.4.6"
+    app.kubernetes.io/version: "v0.5.1"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -44,11 +44,11 @@ kind: Service
 metadata:
   name: quickstart-wg-access-server-wireguard
   labels:
-    helm.sh/chart: wg-access-server-v0.4.6
+    helm.sh/chart: wg-access-server-v0.5.1
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "v0.4.6"
+    app.kubernetes.io/version: "v0.5.1"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -69,11 +69,11 @@ kind: Deployment
 metadata:
   name: quickstart-wg-access-server
   labels:
-    helm.sh/chart: wg-access-server-v0.4.6
+    helm.sh/chart: wg-access-server-v0.5.1
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "v0.4.6"
+    app.kubernetes.io/version: "v0.5.1"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -98,7 +98,7 @@ spec:
           securityContext:
             capabilities:
               add: ['NET_ADMIN']
-          image: "place1/wg-access-server:v0.4.6"
+          image: "ghcr.io/freifunkmuc/wg-access-server:v0.5.1"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

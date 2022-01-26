@@ -51,7 +51,7 @@ fullnameOverride: ""
 imagePullSecrets: []
 
 image:
-  repository: ghcr.io/freifunkMUC/wg-access-server
+  repository: ghcr.io/freifunkmuc/wg-access-server
   pullPolicy: IfNotPresent
 
 # multiple replicas is only supported when using
