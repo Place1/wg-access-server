@@ -48,7 +48,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/josharian/native v0.0.0-20200817173448-b6b71def0850 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
-	github.com/lib/pq v1.10.3 // indirect
+	github.com/lib/pq v1.10.4 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/mdlayher/genetlink v1.0.0 // indirect
 	github.com/mdlayher/netlink v1.4.1 // indirect
@@ -76,4 +76,7 @@ require (
 	nhooyr.io/websocket v1.8.7 // indirect
 )
 
-replace github.com/place1/wg-embed => github.com/freifunkMUC/wg-embed v0.5.2
+replace (
+	github.com/place1/pg-events => github.com/freifunkMUC/pg-events v0.3.0
+	github.com/place1/wg-embed => github.com/freifunkMUC/wg-embed v0.5.2
+)
