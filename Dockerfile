@@ -1,5 +1,5 @@
 ### Build stage for the website frontend
-FROM --platform=$BUILDPLATFORM node:17-bullseye as website
+FROM --platform=$BUILDPLATFORM node:17.4.0-bullseye as website
 RUN apt-get update
 RUN apt-get install -y protobuf-compiler libprotobuf-dev
 WORKDIR /code
@@ -12,7 +12,7 @@ RUN npm run codegen
 RUN npm run build
 
 ### Build stage for the website backend server
-FROM golang:1.17.5-alpine as server
+FROM golang:1.17.6-alpine as server
 RUN apk add --no-cache gcc musl-dev protobuf protobuf-dev
 WORKDIR /code
 ENV CGO_ENABLED=1
