@@ -12,7 +12,7 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.60",
     "common-tags": "^1.8.2",
-    "date-fns": "^2.27.0",
+    "date-fns": "^2.28.0",
     "google-protobuf": "^4.0.0-rc.1",
     "mobx": "^6.3.6",
     "mobx-react": "^7.2.1",
