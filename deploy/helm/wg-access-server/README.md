@@ -11,6 +11,10 @@ The command deploys wg-access-server on the Kubernetes cluster in the default co
 By default an in-memory wireguard private key will be generated and devices will not persist
 between pod restarts.
 
+Because IPv6 on Kubernetes is disabled by default in most clusters and can't be enabled on a per-pod basis, the default `values.yaml` disables it for the VPN as well. If you have a cluster with working IPv6, set `config: {}` in your `values.yaml` or specify a custom VPN-internal prefix under `config.vpn.cidrv6`.
+
+If no admin password is set, the Chart generates a random one. You can retrieve it using `kubectl get secret ...` as prompted by helm after installing the Chart.
+
 ## Uninstalling the Chart
 
 To uninstall/delete the my-release deployment:

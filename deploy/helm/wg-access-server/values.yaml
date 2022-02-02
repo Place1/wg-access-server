@@ -1,5 +1,9 @@
 # wg-access-server config
-config: {}
+config:
+  # IPv6 is disabled by default, since it leads to the pod failing if the
+  # k8s-cluster is not configured with IPv6 support
+  vpn:
+    cidrv6: 0
 
 web:
   config:

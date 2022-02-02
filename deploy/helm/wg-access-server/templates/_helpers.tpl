@@ -62,3 +62,19 @@ Create the name of the service account to use
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Create a randomly generated admin password if none is supplied
+*/}}
+{{- define "wg-access-server.adminPassword" -}}
+{{- if .Values.web.config.adminPassword -}}
+    {{ .Values.web.config.adminPassword }}
+{{- else -}}
+{{- $secret := (lookup "v1" "Secret" .Release.Namespace (include "wg-access-server.fullname" .)) -}}
+{{- if $secret -}}
+    {{-  $secret.data.adminPassword | b64dec -}}
+{{- else -}}
+    {{- randAlphaNum 20 -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
