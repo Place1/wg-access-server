@@ -16,7 +16,7 @@
 
 ## Features
 - [x] ARM docker image for raspberry-pi
-- [ ] admin
+- [x] admin
   - [x] list all devices
   - [x] remove device
 - [x] networking
