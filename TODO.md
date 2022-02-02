@@ -18,7 +18,7 @@
 - [x] ARM docker image for raspberry-pi
 - [ ] admin
   - [x] list all devices
-  - [ ] remove device
+  - [x] remove device
 - [x] networking
   - [x] IPv6 support
   - [x] NAT66 support
