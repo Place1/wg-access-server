@@ -43,8 +43,9 @@ Quick Links:
 Here is a quick command to start the wg-access-server for the first time and try it out.
 
 ```bash
-export WG_ADMIN_PASSWORD=$(pwgen -s 64 1)
+export WG_ADMIN_PASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1)
 export WG_WIREGUARD_PRIVATE_KEY="$(wg genkey)"
+echo "Your admin password for the wg-access-server: $WG_ADMIN_PASSWORD"
 
 docker run \
   -it \
