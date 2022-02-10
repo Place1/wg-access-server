@@ -2,11 +2,10 @@ name: Linting
 
 on:
   push:
-    branches: [master, main]
+    branches:
+      - master
     tags-ignore: ['**']
-    paths-ignore: ['**.md']
   pull_request:
-    paths-ignore: ['**.md']
 
 jobs: # Docs: <https://git.io/JvxXE>
   gitleaks:
