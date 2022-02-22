@@ -9,10 +9,11 @@ import (
 	"github.com/place1/wg-embed/pkg/wgembed"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+
 	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz/authsession"
-	"github.com/sirupsen/logrus"
 )
 
 type DeviceManager struct {

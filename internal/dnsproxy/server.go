@@ -2,9 +2,8 @@ package dnsproxy
 
 import (
 	"fmt"
-	"net"
-	"runtime/debug"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/miekg/dns"
@@ -14,14 +13,15 @@ import (
 )
 
 type DNSServerOpts struct {
-	Upstream []string
+	Domain     string
+	ListenAddr []string
+	Upstream   []string
 }
 
 type DNSServer struct {
-	server   *dns.Server
-	client   *dns.Client
-	cache    *cache.Cache
-	upstream []string
+	servers []*dns.Server
+	proxy   *DNSProxy
+	auth    *DNSAuth
 }
 
 func New(opts DNSServerOpts) (*DNSServer, error) {
@@ -29,73 +29,79 @@ func New(opts DNSServerOpts) (*DNSServer, error) {
 		return nil, errors.New("at least 1 upstream dns server is required for the dns proxy server to function")
 	}
 
-	addr := ":53"
-	logrus.Infof("starting dns server on %s with upstreams: %s", addr, strings.Join(opts.Upstream, ", "))
+	logrus.Infof("starting dns server on %s with upstreams: %s", strings.Join(opts.ListenAddr, ", "), strings.Join(opts.Upstream, ", "))
 
 	dnsServer := &DNSServer{
-		server: &dns.Server{
+		servers: []*dns.Server{},
+		proxy: &DNSProxy{
+			client: &dns.Client{
+				SingleInflight: true,
+				Timeout:        5 * time.Second,
+			},
+			cache:    cache.New(10*time.Minute, 10*time.Minute),
+			upstream: opts.Upstream,
+		},
+		auth: &DNSAuth{
+			Domain:   dns.Fqdn(opts.Domain),
+			zoneLock: new(sync.RWMutex),
+		},
+	}
+
+	// Send queries for VPN search domain to the authoritative server and everything else to the proxy
+	serveMux := dns.NewServeMux()
+	if opts.Domain != "" {
+		serveMux.Handle(dnsServer.auth.Domain, dnsServer.auth)
+	}
+	serveMux.Handle(".", dnsServer.proxy)
+
+	// Create one UDP and one TCP server per listen address
+	for _, addr := range opts.ListenAddr {
+		udpServer := &dns.Server{
 			Addr: addr,
 			Net:  "udp",
-		},
-		client: &dns.Client{
-			SingleInflight: true,
-			Timeout:        5 * time.Second,
-		},
-		cache:    cache.New(10*time.Minute, 10*time.Minute),
-		upstream: opts.Upstream,
-	}
-	dnsServer.server.Handler = dnsServer
-
-	go func() {
-		if err := dnsServer.server.ListenAndServe(); err != nil {
-			logrus.Error(errors.Wrap(err, "failed to start dns server"))
+			// https://dnsflagday.net/2020/
+			UDPSize: 1232,
+			Handler: serveMux,
 		}
-	}()
+		tcpServer := &dns.Server{
+			Addr:    addr,
+			Net:     "tcp",
+			Handler: serveMux,
+		}
+		dnsServer.servers = append(dnsServer.servers, udpServer)
+		dnsServer.servers = append(dnsServer.servers, tcpServer)
+	}
+
+	for _, server := range dnsServer.servers {
+		go func(server *dns.Server) {
+			if err := server.ListenAndServe(); err != nil {
+				logrus.Error(errors.Errorf("failed to start DNS server on %s/%s: %s", server.Addr, server.Net, err))
+			}
+		}(server)
+	}
 
 	return dnsServer, nil
 }
 
 func (d *DNSServer) Close() error {
-	return d.server.Shutdown()
-}
-
-func (d *DNSServer) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
-	defer func() {
-		if err := recover(); err != nil {
-			logrus.Errorf("dns server panic handled: %v\n%s", err, string(debug.Stack()))
-			dns.HandleFailed(w, r)
-		}
-	}()
-
-	logrus.Debugf("dns query: %s", prettyPrintMsg(r))
-
-	switch r.Opcode {
-	case dns.OpcodeQuery:
-		m, err := d.Lookup(r)
-		if err != nil {
-			logrus.Errorf("failed lookup record with error: %s\n%s", err.Error(), r)
-			HandleFailed(w, r)
-			return
-		}
-		m.SetReply(r)
-		err = w.WriteMsg(m)
-		if err != nil {
-			logrus.Errorf("failed write response for client with error: %s\n%s", err.Error(), r)
-			return
-		}
-	default:
-		m := &dns.Msg{}
-		m.SetReply(r)
-		err := w.WriteMsg(m)
-		if err != nil {
-			logrus.Errorf("failed write response for client with error: %s\n%s", err.Error(), r)
-			return
+	var firstErr error
+	for _, server := range d.servers {
+		err := server.Shutdown()
+		if err != nil && firstErr == nil {
+			firstErr = err
 		}
 	}
-
+	if firstErr != nil {
+		return errors.Wrap(firstErr, "DNS server shutdown failed")
+	}
+	return nil
 }
 
-// HandleFailed returns a HandlerFunc that returns SERVFAIL for every request it gets.
+func (d *DNSServer) PushAuthZone(zone Zone) {
+	d.auth.PushZone(zone)
+}
+
+// HandleFailed is a HandlerFunc that returns SERVFAIL for every request it gets.
 func HandleFailed(w dns.ResponseWriter, r *dns.Msg) {
 	m := new(dns.Msg)
 	m.SetRcode(r, dns.RcodeServerFailure)
@@ -103,45 +109,22 @@ func HandleFailed(w dns.ResponseWriter, r *dns.Msg) {
 	_ = w.WriteMsg(m)
 }
 
-func (d *DNSServer) Lookup(m *dns.Msg) (*dns.Msg, error) {
-	key := makekey(m)
-
-	// check the cache first
-	if item, found := d.cache.Get(key); found {
-		logrus.Debugf("dns cache hit %s", prettyPrintMsg(m))
-		return item.(*dns.Msg), nil
-	}
-
-	// fallback to upstream exchange
-	// TODO disable upstream after certain amount of failures?
-	var response *dns.Msg
-	var firstErr error
-	for _, upstream := range d.upstream {
-		resp, _, err := d.client.Exchange(m, net.JoinHostPort(upstream, "53"))
-		if err != nil && firstErr == nil {
-			logrus.Warnf(errors.Wrap(err, fmt.Sprintf("DNS lookup failed for upstream %s", upstream)).Error())
-			firstErr = err
-		} else if err == nil {
-			response = resp
-			break
-		}
-	}
-	if response == nil {
-		return nil, firstErr
-	}
-
-	if len(response.Answer) > 0 {
-		ttl := time.Duration(response.Answer[0].Header().Ttl) * time.Second
-		logrus.Debugf("caching dns response for %s for %v seconds", prettyPrintMsg(m), ttl)
-		d.cache.Set(key, response, ttl)
-	}
-
-	return response, nil
-}
-
 func makekey(m *dns.Msg) string {
 	q := m.Question[0]
-	return fmt.Sprintf("%s:%d:%d", q.Name, q.Qtype, q.Qclass)
+	// Definitely not standard compliant, but better than nothing
+	// A proper security-aware caching stub resolver always sets the DO bit to upstream
+	// and customizes the client response based on the query, leaving out DNSSEC RRs if DO wasn't set
+	var flags uint8
+	if m.AuthenticatedData {
+		flags |= 1 << 0
+	}
+	if m.CheckingDisabled {
+		flags |= 1 << 1
+	}
+	if opt := m.IsEdns0(); opt != nil && opt.Do() {
+		flags |= 1 << 2
+	}
+	return fmt.Sprintf("%s:%d:%d:%d", q.Name, q.Qtype, q.Qclass, flags)
 }
 
 func prettyPrintMsg(m *dns.Msg) string {
