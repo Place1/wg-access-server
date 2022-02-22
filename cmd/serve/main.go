@@ -9,30 +9,30 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
-	"github.com/docker/libnetwork/resolvconf"
-	"github.com/docker/libnetwork/types"
+	"github.com/place1/wg-access-server/internal/config"
+	"github.com/place1/wg-access-server/internal/devices"
+	"github.com/place1/wg-access-server/internal/dnsproxy"
+	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/internal/services"
 	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz"
 	"github.com/place1/wg-access-server/pkg/authnz/authconfig"
 	"github.com/place1/wg-access-server/pkg/authnz/authsession"
+
+	"github.com/docker/libnetwork/resolvconf"
+	"github.com/docker/libnetwork/types"
+	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
+	"github.com/place1/wg-embed/pkg/wgembed"
+	"github.com/sirupsen/logrus"
 	"github.com/vishvananda/netlink"
 	"golang.org/x/crypto/bcrypt"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/yaml.v2"
-
-	"github.com/gorilla/mux"
-	"github.com/place1/wg-embed/pkg/wgembed"
-
-	"github.com/pkg/errors"
-	"github.com/place1/wg-access-server/internal/config"
-	"github.com/place1/wg-access-server/internal/devices"
-	"github.com/place1/wg-access-server/internal/dnsproxy"
-	"github.com/place1/wg-access-server/internal/network"
-	"github.com/sirupsen/logrus"
 )
 
 func Register(app *kingpin.Application) *servecmd {
@@ -251,6 +251,10 @@ func (cmd *servecmd) Run() {
 
 	publicRouter := router
 
+	signalChan := make(chan os.Signal, 2)
+	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
+	errChan := make(chan error)
+
 	// Listen
 	address := fmt.Sprintf(":%d", conf.Port)
 	srv := &http.Server{
@@ -258,10 +262,27 @@ func (cmd *servecmd) Run() {
 		Handler: publicRouter,
 	}
 
-	// Start Web server
-	logrus.Infof("web ui listening on %v", address)
-	if err := srv.ListenAndServe(); err != nil {
-		logrus.Fatal(errors.Wrap(err, "unable to start http server"))
+	go func() {
+		// Start Web server
+		logrus.Infof("web ui listening on %v", address)
+		err := srv.ListenAndServe()
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errChan <- errors.Wrap(err, "unable to start http server")
+		}
+	}()
+
+	select {
+	case <-signalChan:
+		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		err = srv.Shutdown(ctx)
+		if err != nil {
+			logrus.Error(err)
+		}
+		cancel() // always call cancel to clean up the context
+	case err = <-errChan:
+		logrus.Error(err)
+		return
 	}
 }
 
