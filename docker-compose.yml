@@ -9,10 +9,12 @@ services:
     container_name: wg-access-server
     cap_add:
       - NET_ADMIN
+      - SYS_MODULE
     sysctls:
       net.ipv6.conf.all.disable_ipv6: 0
       net.ipv6.conf.all.forwarding: 1
     volumes:
+      - "/lib/modules:/lib/modules:ro"
       - "wg-access-server-data:/data"
     #   - "./config.yaml:/config.yaml" # if you have a custom config file
     environment:

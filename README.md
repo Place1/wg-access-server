@@ -51,11 +51,12 @@ docker run \
   -it \
   --rm \
   --cap-add NET_ADMIN \
+  --cap-add SYS_MODULE \
   --device /dev/net/tun:/dev/net/tun \
   --sysctl net.ipv6.conf.all.disable_ipv6=0 \
   --sysctl net.ipv6.conf.all.forwarding=1 \
   -v wg-access-server-data:/data \
-  -v /lib/modules:/lib/modules \
+  -v /lib/modules:/lib/modules:ro \
   -e "WG_ADMIN_PASSWORD=$WG_ADMIN_PASSWORD" \
   -e "WG_WIREGUARD_PRIVATE_KEY=$WG_WIREGUARD_PRIVATE_KEY" \
   -p 8000:8000/tcp \
@@ -87,8 +88,9 @@ helm delete my-release
 Download the the docker-compose.yml file from the repo and run the following command.
 
 ```bash
-export WG_ADMIN_PASSWORD="example"
+export WG_ADMIN_PASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1)
 export WG_WIREGUARD_PRIVATE_KEY="$(wg genkey)"
+echo "Your automatically generated admin password for the wg-access-server's web interface: $WG_ADMIN_PASSWORD"
 
 docker-compose up
 ```
