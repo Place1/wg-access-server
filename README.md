@@ -64,26 +64,15 @@ docker run \
   ghcr.io/freifunkmuc/wg-access-server:latest
 ```
 
+**Note:** This command includes the `SYS_MODULE` capability which essentially gives the container root privileges over the host system and an attacker could easily break out of the container. See the [Docker instructions](https://www.freie-netze.org/wg-access-server/deployment/1-docker/) for the recommended way to run the container.
+
 If the wg-access-server is accessible via LAN or a network you are in, you can directly connect your phone to the VPN. You have to call the webfrontent of the project for this. Normally, this is done via the IP address of the device or server on which the wg-access-server is running followed by the standard port 8000, via which the web interface can be reached. For most deployments something like this should work: http://192.168.0.XX:8000
 
 If the project is running locally on the computer, you can easily connect to the web interface by connecting to http://localhost:8000 in the browser.
 
-## Running on Kubernetes via Helm
-
-wg-access-server ships a Helm chart to make it easy to get started on
-Kubernetes.
-
-Here's a quick start, but you can read more at the [Helm Chart Deployment Docs](https://freifunkMUC.github.io/wg-access-server/deployment/3-kubernetes/)
-
-```bash
-# deploy
-helm install my-release --repo https://freifunkMUC.github.io/wg-access-server wg-access-server
-
-# cleanup
-helm delete my-release
-```
-
 ## Running with Docker-Compose
+
+Please also read the [Docker instructions](https://www.freie-netze.org/wg-access-server/deployment/1-docker/) for general information regarding Docker deployments.
 
 Download the the docker-compose.yml file from the repo and run the following command.
 
@@ -99,6 +88,21 @@ You can connect to the web server on the local machine browser at http://localho
 
 If you open your browser to your machine's LAN IP address you'll be able
 to connect your phone using the UI and QR code!
+
+## Running on Kubernetes via Helm
+
+wg-access-server ships a Helm chart to make it easy to get started on
+Kubernetes.
+
+Here's a quick start, but you can read more at the [Helm Chart Deployment Docs](https://freifunkMUC.github.io/wg-access-server/deployment/3-kubernetes/)
+
+```bash
+# deploy
+helm install my-release --repo https://freifunkMUC.github.io/wg-access-server wg-access-server
+
+# cleanup
+helm delete my-release
+```
 
 ## Screenshots
 

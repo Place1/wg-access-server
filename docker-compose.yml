@@ -9,16 +9,13 @@ services:
     container_name: wg-access-server
     cap_add:
       - NET_ADMIN
-      - SYS_MODULE
     sysctls:
       net.ipv6.conf.all.disable_ipv6: 0
       net.ipv6.conf.all.forwarding: 1
     volumes:
-      - "/lib/modules:/lib/modules:ro"
       - "wg-access-server-data:/data"
     #   - "./config.yaml:/config.yaml" # if you have a custom config file
     environment:
-      - "WG_ADMIN_USERNAME=admin"
       - "WG_ADMIN_PASSWORD=${WG_ADMIN_PASSWORD:?\n\nplease set the WG_ADMIN_PASSWORD environment variable:\n    export WG_ADMIN_PASSWORD=example\n}"
       - "WG_WIREGUARD_PRIVATE_KEY=${WG_WIREGUARD_PRIVATE_KEY:?\n\nplease set the WG_WIREGUARD_PRIVATE_KEY environment variable:\n    export WG_WIREGUARD_PRIVATE_KEY=$(wg genkey)\n}"
     #  - "WG_VPN_CIDRV6=0" # to disable IPv6
@@ -27,8 +24,3 @@ services:
       - "51820:51820/udp"
     devices:
       - "/dev/net/tun:/dev/net/tun"
-
-# shared volumes with the host
-volumes:
-  wg-access-server-data:
-    driver: local
