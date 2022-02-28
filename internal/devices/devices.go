@@ -6,14 +6,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/place1/wg-embed/pkg/wgembed"
-
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-
 	"github.com/place1/wg-access-server/internal/network"
 	"github.com/place1/wg-access-server/internal/storage"
 	"github.com/place1/wg-access-server/pkg/authnz/authsession"
+
+	"github.com/pkg/errors"
+	"github.com/place1/wg-embed/pkg/wgembed"
+	"github.com/sirupsen/logrus"
 )
 
 type DeviceManager struct {
@@ -278,4 +277,11 @@ func deviceListContains(devices []*storage.Device, publicKey string) bool {
 		}
 	}
 	return false
+}
+
+func IsConnected(lastHandshake time.Time) bool {
+	// if lastHandshake == nil {
+	// 	return false
+	// }
+	return lastHandshake.After(time.Now().Add(-3 * time.Minute))
 }
