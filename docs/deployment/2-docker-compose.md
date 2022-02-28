@@ -31,4 +31,8 @@ services:
       - "51820:51820/udp"
     devices:
       - "/dev/net/tun:/dev/net/tun"
+
+volumes:
+  wg-access-server-data:
+    driver: local
 ```
