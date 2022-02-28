@@ -1,20 +1,23 @@
 # Docker
 
-## TL;DR;
+Load the `ip_tables` and `ip6_tables` kernel modules on the host.
 
-Here's a one-liner to run wg-access-server:
+```bash
+modprobe ip_tables && modprobe ip6_tables
+# Load modules on boot
+echo ip_tables >> /etc/modules
+echo ip6_tables >> /etc/modules
+```
 
 ```bash
 docker run \
   -it \
   --rm \
   --cap-add NET_ADMIN \
-  --cap-add SYS_MODULE \
   --device /dev/net/tun:/dev/net/tun \
   --sysctl net.ipv6.conf.all.disable_ipv6=0 \
   --sysctl net.ipv6.conf.all.forwarding=1 \
   -v wg-access-server-data:/data \
-  -v /lib/modules:/lib/modules:ro \
   -e "WG_ADMIN_PASSWORD=$WG_ADMIN_PASSWORD" \
   -e "WG_WIREGUARD_PRIVATE_KEY=$WG_WIREGUARD_PRIVATE_KEY" \
   -p 8000:8000/tcp \
@@ -24,16 +27,9 @@ docker run \
 
 ## Modules
 
-If you load the kernel modules `ip_tables` and `ip6_tables` on the host,
-you can drop the `SYS_MODULE` capability and remove the `/lib/modules` mount:
-```bash
-modprobe ip_tables && modprobe ip6_tables
-# Load modules on boot
-echo ip_tables >> /etc/modules
-echo ip6_tables >> /etc/modules
-```
-This is highly recommended, as a container with CAP_SYS_MODULE essentially has root privileges
-over the host system and attacker could easily break out of the container.
+If you are unable to load the kernel modules, you can add the `SYS_MODULE` capability instead: `--cap-add SYS_MODULE`. You must also add the following mount: `-v /lib/modules:/lib/modules:ro`.
+
+This is not recommended as it essentially gives the container root privileges over the host system and an attacker could easily break out of the container.
 
 ## IPv4-only (without IPv6)
 
