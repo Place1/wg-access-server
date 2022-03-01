@@ -124,6 +124,8 @@ func (s *SQLStorage) Open() error {
 			return errors.Wrap(err, "failed to create pg watcher")
 		}
 		s.Watcher = watcher
+	} else if s.sqlType == "mysql" || s.sqlType == "sqlite3" {
+		s.Watcher = NewGormWatcher(db, db.NewScope(&Device{}).TableName())
 	} else {
 		s.Watcher = NewInProcessWatcher()
 	}
