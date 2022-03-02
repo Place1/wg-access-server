@@ -13,6 +13,7 @@ type PgWatcher struct {
 }
 
 func NewPgWatcher(connectionString string, table string) (*PgWatcher, error) {
+	logrus.Debug("creating postgres watcher")
 	listener, err := pgevents.OpenListener(connectionString)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to open pg listener")

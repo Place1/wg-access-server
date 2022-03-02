@@ -85,7 +85,7 @@ type AppConfig struct {
 		// defaults to ["0.0.0.0/0", "::/0"]
 		AllowedIPs []string `yaml:"allowedIPs"`
 	} `yaml:"vpn"`
-	// Configure the embeded DNS server
+	// Configure the embedded DNS server
 	DNS struct {
 		// Enabled allows you to turn on/off
 		// the VPN DNS proxy feature.
@@ -93,13 +93,19 @@ type AppConfig struct {
 		Enabled bool `yaml:"enabled"`
 		// Upstream configures the addresses of upstream
 		// DNS servers to which client DNS requests will be sent to.
-		// Defaults the host's upstream DNS servers (via resolveconf)
-		// or 1.1.1.1 if resolveconf cannot be used.
-		// NOTE: currently wg-access-server will only use the first upstream.
+		// NOTE: currently wg-access-server will always prefer the first upstream and fall back on failures.
+		// Defaults the host's upstream DNS servers (via resolvconf)
+		// or Cloudflare DNS if resolvconf cannot be used.
 		Upstream []string `yaml:"upstream"`
+		// Domain sets a domain that the embedded dns server should serve authoritatively for device addresses.
+		// A and AAAA queries for names in the format <device>.<user>.<domain> will be answered with the IP addresses
+		// of the according device. Queries for <domain> will be answered with the VPN server address.
+		// Example domain: 'vpn.home.arpa.'
+		// Disabled by default.
+		Domain string `yaml:"domain"`
 	} `yaml:"dns"`
 	// Auth configures optional authentication backends
-	// to controll access to the web ui.
+	// to control access to the web ui.
 	// Devices will be managed on a per-user basis if any
 	// auth backends are configured.
 	// If no authentication backends are configured then

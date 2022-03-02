@@ -30,12 +30,15 @@ func syncMetrics(d *DeviceManager) {
 		// they may actually be connected to another replica.
 		if peer.Endpoint != nil {
 			if device, err := d.GetByPublicKey(peer.PublicKey.String()); err == nil {
+				if !IsConnected(peer.LastHandshakeTime) && !IsConnected(*device.LastHandshakeTime) {
+					// Not connected, and we haven't been the last time either, nothing to update
+					continue
+				}
 				device.Endpoint = peer.Endpoint.IP.String()
 				device.ReceiveBytes = peer.ReceiveBytes
 				device.TransmitBytes = peer.TransmitBytes
-				if !peer.LastHandshakeTime.IsZero() {
-					device.LastHandshakeTime = &peer.LastHandshakeTime
-				}
+				device.LastHandshakeTime = &peer.LastHandshakeTime
+
 				if err := d.SaveDevice(device); err != nil {
 					logrus.Error(errors.Wrap(err, "failed to save device during metadata sync"))
 				}

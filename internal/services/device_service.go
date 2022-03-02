@@ -2,15 +2,14 @@ package services
 
 import (
 	"context"
-	"time"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
-	"github.com/place1/wg-access-server/pkg/authnz/authsession"
-
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/place1/wg-access-server/internal/devices"
 	"github.com/place1/wg-access-server/internal/storage"
+	"github.com/place1/wg-access-server/pkg/authnz/authsession"
 	"github.com/place1/wg-access-server/proto/proto"
+
+	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -116,7 +115,7 @@ func mapDevice(d *storage.Device) *proto.Device {
 		 * silent as possible.
 		 *
 		 */
-		Connected: isConnected(d.LastHandshakeTime),
+		Connected: d.LastHandshakeTime != nil && devices.IsConnected(*d.LastHandshakeTime),
 	}
 }
 
@@ -126,11 +125,4 @@ func mapDevices(devices []*storage.Device) []*proto.Device {
 		items = append(items, mapDevice(d))
 	}
 	return items
-}
-
-func isConnected(lastHandshake *time.Time) bool {
-	if lastHandshake == nil {
-		return false
-	}
-	return lastHandshake.After(time.Now().Add(-3 * time.Minute))
 }
