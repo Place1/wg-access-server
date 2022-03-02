@@ -10,10 +10,10 @@ import (
 
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"github.com/place1/wg-access-server/internal/config"
-	"github.com/place1/wg-access-server/internal/devices"
-	"github.com/place1/wg-access-server/internal/traces"
-	"github.com/place1/wg-access-server/proto/proto"
+	"github.com/freifunkMUC/wg-access-server/internal/config"
+	"github.com/freifunkMUC/wg-access-server/internal/devices"
+	"github.com/freifunkMUC/wg-access-server/internal/traces"
+	"github.com/freifunkMUC/wg-access-server/proto/proto"
 	"google.golang.org/grpc"
 )
 

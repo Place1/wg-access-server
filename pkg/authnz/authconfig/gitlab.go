@@ -1,6 +1,6 @@
 package authconfig
 
-import "github.com/place1/wg-access-server/pkg/authnz/authruntime"
+import "github.com/freifunkMUC/wg-access-server/pkg/authnz/authruntime"
 
 type GitlabConfig struct {
 	Name         string   `yaml:"name"`
