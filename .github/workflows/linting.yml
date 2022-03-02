@@ -12,7 +12,7 @@ jobs: # Docs: <https://git.io/JvxXE>
     name: Gitleaks
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with: {fetch-depth: 0}
 
       - uses: zricethezav/gitleaks-action@v1 # Action page: <https://github.com/zricethezav/gitleaks-action>
@@ -21,7 +21,7 @@ jobs: # Docs: <https://git.io/JvxXE>
     name: Golang-CI (lint)
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with: {fetch-depth: 0}
 
       - name: Run linter
@@ -35,7 +35,7 @@ jobs: # Docs: <https://git.io/JvxXE>
     name: Helm
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with: {fetch-depth: 0}
 
       - name: Run helm lint
