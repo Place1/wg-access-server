@@ -59,7 +59,7 @@ export declare namespace InfoReq {
 export class InfoReq extends jspb.Message {
 
 	private static repeatedFields_ = [
-		
+
 	];
 
 	constructor(data?: jspb.Message.MessageArray) {
@@ -116,13 +116,14 @@ export declare namespace InfoRes {
 		allowedIps: string,
 		dnsEnabled: boolean,
 		dnsAddress: string,
+		mtu: number,
 	}
 }
 
 export class InfoRes extends jspb.Message {
 
 	private static repeatedFields_ = [
-		
+
 	];
 
 	constructor(data?: jspb.Message.MessageArray) {
@@ -203,6 +204,14 @@ export class InfoRes extends jspb.Message {
 		(jspb.Message as any).setProto3StringField(this, 9, value);
 	}
 
+	getMtu(): number {
+		return jspb.Message.getFieldWithDefault(this, 10, 0);
+	}
+
+	setMtu(value: string): void {
+		(jspb.Message as any).setProto3IntField(this, 10, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		InfoRes.serializeBinaryToWriter(this, writer);
@@ -220,7 +229,7 @@ export class InfoRes extends jspb.Message {
 			allowedIps: this.getAllowedIps(),
 			dnsEnabled: this.getDnsEnabled(),
 			dnsAddress: this.getDnsAddress(),
-			
+			mtu: this.getMtu()
 		};
 	}
 

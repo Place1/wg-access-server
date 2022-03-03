@@ -60,6 +60,7 @@ export class AddDevice extends React.Component<Props> {
         PrivateKey = ${privateKey}
         Address = ${device.address}
         ${info.dnsEnabled && `DNS = ${info.dnsAddress}`}
+        MTU = ${info.mtu}
 
         [Peer]
         PublicKey = ${info.publicKey}
