@@ -215,25 +215,12 @@ func (cmd *servecmd) Run() {
 	router.PathPrefix("/health").Handler(services.HealthEndpoint())
 
 	// Authentication middleware
-	if conf.Auth.IsEnabled() {
-		middleware, err := authnz.NewMiddleware(conf.Auth, claimsMiddleware(conf))
-		if err != nil {
-			logrus.Error(errors.Wrap(err, "failed to set up authnz middleware"))
-			return
-		}
-		router.Use(middleware)
-	} else {
-		logrus.Warn("[DEPRECATION NOTICE] using wg-access-server without an admin user is deprecated and will be removed in an upcoming minor release.")
-		router.Use(func(next http.Handler) http.Handler {
-			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				next.ServeHTTP(w, r.WithContext(authsession.SetIdentityCtx(r.Context(), &authsession.AuthSession{
-					Identity: &authsession.Identity{
-						Subject: "",
-					},
-				})))
-			})
-		})
+	middleware, err := authnz.NewMiddleware(conf.Auth, claimsMiddleware(conf))
+	if err != nil {
+		logrus.Error(errors.Wrap(err, "failed to set up authnz middleware"))
+		return
 	}
+	router.Use(middleware)
 
 	// Subrouter for our site (web + api)
 	site := router.PathPrefix("/").Subrouter()
@@ -301,23 +288,28 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 		}
 	}
 
-	if cmd.AppConfig.AdminPassword == "" {
-		logrus.Fatal("missing admin password: please set via environment variable, flag or config file")
-	}
-
 	if cmd.AppConfig.DisableMetadata {
 		logrus.Info("Metadata collection has been disabled. No metrics or device connectivity information will be recorded or shown")
 	}
 
-	// set a basic auth entry for the admin user
-	if cmd.AppConfig.Auth.Basic == nil {
-		cmd.AppConfig.Auth.Basic = &authconfig.BasicAuthConfig{}
+	if !cmd.AppConfig.Auth.IsEnabled() {
+		if cmd.AppConfig.AdminPassword == "" {
+			logrus.Fatal("missing admin password: please set via environment variable, flag or config file")
+		}
 	}
-	pw, err := bcrypt.GenerateFromPassword([]byte(cmd.AppConfig.AdminPassword), bcrypt.DefaultCost)
-	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to generate a bcrypt hash for the provided admin password"))
+
+	if cmd.AppConfig.AdminPassword != "" {
+		// set a basic auth entry for the admin user
+		if cmd.AppConfig.Auth.Basic == nil {
+			// one of them has to be enabled
+			cmd.AppConfig.Auth.Basic = &authconfig.BasicAuthConfig{}
+		}
+		pw, err := bcrypt.GenerateFromPassword([]byte(cmd.AppConfig.AdminPassword), bcrypt.DefaultCost)
+		if err != nil {
+			logrus.Fatal(errors.Wrap(err, "failed to generate a bcrypt hash for the provided admin password"))
+		}
+		cmd.AppConfig.Auth.Basic.Users = append(cmd.AppConfig.Auth.Basic.Users, fmt.Sprintf("%s:%s", cmd.AppConfig.AdminUsername, string(pw)))
 	}
-	cmd.AppConfig.Auth.Basic.Users = append(cmd.AppConfig.Auth.Basic.Users, fmt.Sprintf("%s:%s", cmd.AppConfig.AdminUsername, string(pw)))
 
 	// we'll generate a private key when using memory://
 	// storage only.
@@ -337,6 +329,9 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 
 func claimsMiddleware(conf *config.AppConfig) authsession.ClaimsMiddleware {
 	return func(user *authsession.Identity) error {
+		if user == nil {
+			return errors.New("User is not logged in")
+		}
 		if user.Subject == conf.AdminUsername {
 			user.Claims.Add("admin", "true")
 		}
