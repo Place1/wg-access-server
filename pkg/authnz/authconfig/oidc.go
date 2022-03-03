@@ -98,11 +98,15 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 		}
 
 		code := r.FormValue("code")
-		token, _ := oauthConfig.Exchange(r.Context(), code)
+
+		token, err := oauthConfig.Exchange(r.Context(), code)
+		if err != nil {
+			panic(errors.Wrap(err, "Unable to exchange tokens"))
+		}
+
 		info, err := provider.UserInfo(r.Context(), oauthConfig.TokenSource(r.Context(), token))
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+			panic(errors.Wrap(err, "Unable to get user info"))
 		}
 
 		if msg, valid := verifyEmailDomain(c.EmailDomains, info.Email); !valid {
