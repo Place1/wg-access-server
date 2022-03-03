@@ -4,7 +4,7 @@ type Identity struct {
 	// Provider is the name of the authentication provider
 	// that authenticated (created) this Identity struct.
 	Provider string
-	// Subject is the canonical identifer for this Identity.
+	// Subject is the canonical identifier for this Identity.
 	Subject string
 	// Name is the name of the person this Identity refers to.
 	// It may be empty.

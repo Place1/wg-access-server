@@ -19,7 +19,7 @@ func WebsiteRouter() *mux.Router {
 
 	staticFiles, err := filepath.Abs("website/build")
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to create absolut path to website static files"))
+		logrus.Fatal(errors.Wrap(err, "failed to create absolute path to website static files"))
 	}
 
 	if _, err := os.Stat(staticFiles); os.IsNotExist(err) {
