@@ -137,6 +137,11 @@ type AppConfig struct {
 		// Search domain to be provided with the client configuration file.
 		// Empty by default.
 		DNSSearchDomain string `yaml:"dnsSearchDomain"`
+		// The maximum transmission unit (MTU) to be written into the client configuration file.
+		// If left empty "the MTU is automatically determined from the endpoint addresses or the system default route,
+		// which is usually a sane choice." (From wg-quick 8 manual page.)
+		// Empty by default.
+		MTU int `yaml:"mtu"`
 	} `yaml:"clientConfig"`
 	// Auth configures optional authentication backends
 	// to control access to the web ui.

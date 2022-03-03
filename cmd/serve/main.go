@@ -64,6 +64,7 @@ func Register(app *kingpin.Application) *servecmd {
 	cli.Flag("dns-domain", "A domain to serve configured device names authoritatively").Envar("WG_DNS_DOMAIN").StringVar(&cmd.AppConfig.DNS.Domain)
 	cli.Flag("clientconfig-dns-servers", "DNS servers (one or more IPs, comma separated) to write into the client configuration file").Envar("WG_CLIENTCONFIG_DNS_SERVERS").StringsVar(&cmd.AppConfig.ClientConfig.DNSServers)
 	cli.Flag("clientconfig-dns-search-domain", "DNS search domain to write into the client configuration file").Envar("WG_CLIENTCONFIG_DNS_SEARCH_DOMAIN").StringVar(&cmd.AppConfig.ClientConfig.DNSSearchDomain)
+	cli.Flag("clientconfig-mtu", "The maximum transmission unit (MTU) to write into the client configuration file").Envar("WG_CLIENTCONFIG_MTU").IntVar(&cmd.AppConfig.ClientConfig.MTU)
 	return cmd
 }
 
