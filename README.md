@@ -133,8 +133,22 @@ Here are some notes on development configuration:
 - access to the website is on `:3000` and API requests are redirected to `:8000` thanks to webpack
 - in-memory storage and generated WireGuard keys are used
 
-gRPC code generation:
+### gRPC code generation:
 
 The client communicates with the server via gRPC web. You can edit the API specification in `./proto/*.proto`.
 
-After changing a service or message definition, you must regenerate the server and client code using: `./codegen.sh`.
+After changing a service or message definition, you must regenerate the server and client code:
+
+```sh
+./codegen.sh
+cd website && npm run codegen
+```
+
+Or use the Dockerfile at `proto/Dockerfile`:
+
+```sh
+docker build -f proto/Dockerfile --target proto-js -t wg-access-server-proto:js .
+docker build -f proto/Dockerfile --target proto-go -t wg-access-server-proto:go .
+docker run --rm -v `pwd`/proto:/proto -v `pwd`/website/src/sdk:/code/src/sdk wg-access-server-proto:js
+docker run --rm -v `pwd`/proto:/code/proto wg-access-server-proto:go
+```

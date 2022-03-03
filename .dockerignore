@@ -2,6 +2,8 @@
 .github/
 .vscode/
 docs/
+Dockerfile
+proto/Dockerfile
 
 # Common artifacts from building and running locally
 config.yaml
