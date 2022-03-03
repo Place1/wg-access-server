@@ -34,7 +34,7 @@
     "@types/react-router-dom": "^5.3.3",
     "grpc-ts-web": "^0.2.0",
     "prettier": "^2.5.1",
-    "typescript": "^4.5.5"
+    "typescript": "^4.6.2"
   },
   "proxy": "http://localhost:8000/api",
   "browserslist": {
