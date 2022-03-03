@@ -49,7 +49,7 @@ func NewSqlStorage(u *url.URL) *SQLStorage {
 	switch u.Scheme {
 	case "postgresql":
 		// handle `postgresql` as the scheme to be compatible with
-		// standar uri style postgresql connection strings (i.e. like psql)
+		// standard uri style postgresql connection strings (i.e. like psql)
 		u.Scheme = "postgres"
 		fallthrough
 	case "postgres":
