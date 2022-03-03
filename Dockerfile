@@ -1,5 +1,5 @@
 ### Build stage for the website frontend
-FROM --platform=$BUILDPLATFORM node:17.4.0-bullseye as website
+FROM --platform=$BUILDPLATFORM node:17.6.0-bullseye as website
 RUN apt-get update
 RUN apt-get install -y protobuf-compiler libprotobuf-dev
 WORKDIR /code
