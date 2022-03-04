@@ -86,5 +86,5 @@ ingress:
 | nodeSelector | object | `{}` |  |
 | tolerations | list | `[]` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"place1/wg-access-server"` |  |
+| image.repository | string | `"freifunkMUC/wg-access-server"` |  |
 | imagePullSecrets | list | `[]` |  |

@@ -1,4 +1,4 @@
-module github.com/place1/wg-access-server
+module github.com/freifunkMUC/wg-access-server
 
 go 1.17
 

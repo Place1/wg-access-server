@@ -6,7 +6,7 @@ import (
 	"runtime/debug"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
-	"github.com/place1/wg-access-server/internal/traces"
+	"github.com/freifunkMUC/wg-access-server/internal/traces"
 )
 
 func TracesMiddleware(next http.Handler) http.Handler {

@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/place1/wg-access-server/internal/network"
-	"github.com/place1/wg-access-server/internal/storage"
-	"github.com/place1/wg-access-server/pkg/authnz/authsession"
+	"github.com/freifunkMUC/wg-access-server/internal/network"
+	"github.com/freifunkMUC/wg-access-server/internal/storage"
+	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
 
 	"github.com/pkg/errors"
 	"github.com/place1/wg-embed/pkg/wgembed"

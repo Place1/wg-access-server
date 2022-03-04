@@ -2,7 +2,7 @@ package migrate
 
 import (
 	"github.com/pkg/errors"
-	"github.com/place1/wg-access-server/internal/storage"
+	"github.com/freifunkMUC/wg-access-server/internal/storage"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )

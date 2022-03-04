@@ -167,32 +167,28 @@ export class Device extends jspb.Message {
 	}
 
 
-	getName(): string {
-		return jspb.Message.getFieldWithDefault(this, 1, "");
+	getName(): string {return jspb.Message.getFieldWithDefault(this, 1, "");
 	}
 
 	setName(value: string): void {
 		(jspb.Message as any).setProto3StringField(this, 1, value);
 	}
 
-	getOwner(): string {
-		return jspb.Message.getFieldWithDefault(this, 2, "");
+	getOwner(): string {return jspb.Message.getFieldWithDefault(this, 2, "");
 	}
 
 	setOwner(value: string): void {
 		(jspb.Message as any).setProto3StringField(this, 2, value);
 	}
 
-	getPublicKey(): string {
-		return jspb.Message.getFieldWithDefault(this, 3, "");
+	getPublicKey(): string {return jspb.Message.getFieldWithDefault(this, 3, "");
 	}
 
 	setPublicKey(value: string): void {
 		(jspb.Message as any).setProto3StringField(this, 3, value);
 	}
 
-	getAddress(): string {
-		return jspb.Message.getFieldWithDefault(this, 4, "");
+	getAddress(): string {return jspb.Message.getFieldWithDefault(this, 4, "");
 	}
 
 	setAddress(value: string): void {
@@ -207,8 +203,7 @@ export class Device extends jspb.Message {
 		(jspb.Message as any).setWrapperField(this, 5, value);
 	}
 
-	getConnected(): boolean {
-		return jspb.Message.getFieldWithDefault(this, 6, false);
+	getConnected(): boolean {return jspb.Message.getFieldWithDefault(this, 6, false);
 	}
 
 	setConnected(value: boolean): void {
@@ -223,48 +218,42 @@ export class Device extends jspb.Message {
 		(jspb.Message as any).setWrapperField(this, 7, value);
 	}
 
-	getReceiveBytes(): number {
-		return jspb.Message.getFieldWithDefault(this, 8, 0);
+	getReceiveBytes(): number {return jspb.Message.getFieldWithDefault(this, 8, 0);
 	}
 
 	setReceiveBytes(value: number): void {
 		(jspb.Message as any).setProto3IntField(this, 8, value);
 	}
 
-	getTransmitBytes(): number {
-		return jspb.Message.getFieldWithDefault(this, 9, 0);
+	getTransmitBytes(): number {return jspb.Message.getFieldWithDefault(this, 9, 0);
 	}
 
 	setTransmitBytes(value: number): void {
 		(jspb.Message as any).setProto3IntField(this, 9, value);
 	}
 
-	getEndpoint(): string {
-		return jspb.Message.getFieldWithDefault(this, 10, "");
+	getEndpoint(): string {return jspb.Message.getFieldWithDefault(this, 10, "");
 	}
 
 	setEndpoint(value: string): void {
 		(jspb.Message as any).setProto3StringField(this, 10, value);
 	}
 
-	getOwnerName(): string {
-		return jspb.Message.getFieldWithDefault(this, 11, "");
+	getOwnerName(): string {return jspb.Message.getFieldWithDefault(this, 11, "");
 	}
 
 	setOwnerName(value: string): void {
 		(jspb.Message as any).setProto3StringField(this, 11, value);
 	}
 
-	getOwnerEmail(): string {
-		return jspb.Message.getFieldWithDefault(this, 12, "");
+	getOwnerEmail(): string {return jspb.Message.getFieldWithDefault(this, 12, "");
 	}
 
 	setOwnerEmail(value: string): void {
 		(jspb.Message as any).setProto3StringField(this, 12, value);
 	}
 
-	getOwnerProvider(): string {
-		return jspb.Message.getFieldWithDefault(this, 13, "");
+	getOwnerProvider(): string {return jspb.Message.getFieldWithDefault(this, 13, "");
 	}
 
 	setOwnerProvider(value: string): void {
@@ -279,7 +268,8 @@ export class Device extends jspb.Message {
 
 	toObject(): Device.AsObject {
 		let f: any;
-		return {name: this.getName(),
+		return {
+			name: this.getName(),
 			owner: this.getOwner(),
 			publicKey: this.getPublicKey(),
 			address: this.getAddress(),
@@ -292,7 +282,6 @@ export class Device extends jspb.Message {
 			ownerName: this.getOwnerName(),
 			ownerEmail: this.getOwnerEmail(),
 			ownerProvider: this.getOwnerProvider(),
-			
 		};
 	}
 
@@ -446,16 +435,14 @@ export class AddDeviceReq extends jspb.Message {
 	}
 
 
-	getName(): string {
-		return jspb.Message.getFieldWithDefault(this, 1, "");
+	getName(): string {return jspb.Message.getFieldWithDefault(this, 1, "");
 	}
 
 	setName(value: string): void {
 		(jspb.Message as any).setProto3StringField(this, 1, value);
 	}
 
-	getPublicKey(): string {
-		return jspb.Message.getFieldWithDefault(this, 2, "");
+	getPublicKey(): string {return jspb.Message.getFieldWithDefault(this, 2, "");
 	}
 
 	setPublicKey(value: string): void {
@@ -470,9 +457,9 @@ export class AddDeviceReq extends jspb.Message {
 
 	toObject(): AddDeviceReq.AsObject {
 		let f: any;
-		return {name: this.getName(),
+		return {
+			name: this.getName(),
 			publicKey: this.getPublicKey(),
-			
 		};
 	}
 
@@ -596,7 +583,7 @@ export class ListDevicesRes extends jspb.Message {
 	setItems(value: Array<Device>): void {
 		(jspb.Message as any).setRepeatedWrapperField(this, 1, value);
 	}
-	
+
 	addItems(value?: Device, index?: number): Device {
 		return jspb.Message.addToRepeatedWrapperField(this, 1, value, Device, index);
 	}
@@ -667,8 +654,7 @@ export class DeleteDeviceReq extends jspb.Message {
 	}
 
 
-	getName(): string {
-		return jspb.Message.getFieldWithDefault(this, 1, "");
+	getName(): string {return jspb.Message.getFieldWithDefault(this, 1, "");
 	}
 
 	setName(value: string): void {
@@ -691,9 +677,9 @@ export class DeleteDeviceReq extends jspb.Message {
 
 	toObject(): DeleteDeviceReq.AsObject {
 		let f: any;
-		return {name: this.getName(),
+		return {
+			name: this.getName(),
 			owner: (f = this.getOwner()) && f.toObject(),
-			
 		};
 	}
 
@@ -818,7 +804,7 @@ export class ListAllDevicesRes extends jspb.Message {
 	setItems(value: Array<Device>): void {
 		(jspb.Message as any).setRepeatedWrapperField(this, 1, value);
 	}
-	
+
 	addItems(value?: Device, index?: number): Device {
 		return jspb.Message.addToRepeatedWrapperField(this, 1, value, Device, index);
 	}

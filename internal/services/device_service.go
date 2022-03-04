@@ -3,10 +3,10 @@ package services
 import (
 	"context"
 
-	"github.com/place1/wg-access-server/internal/devices"
-	"github.com/place1/wg-access-server/internal/storage"
-	"github.com/place1/wg-access-server/pkg/authnz/authsession"
-	"github.com/place1/wg-access-server/proto/proto"
+	"github.com/freifunkMUC/wg-access-server/internal/devices"
+	"github.com/freifunkMUC/wg-access-server/internal/storage"
+	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
+	"github.com/freifunkMUC/wg-access-server/proto/proto"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"

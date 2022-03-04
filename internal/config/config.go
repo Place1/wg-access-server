@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/place1/wg-access-server/pkg/authnz/authconfig"
+	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authconfig"
 )
 
 type AppConfig struct {
