@@ -14,7 +14,7 @@ spec:
   externalTrafficPolicy: {{ .Values.web.service.externalTrafficPolicy }}
 {{- end }}
   type: {{  .Values.web.service.type }}
-{{- if .Values.web.service.loadBalancerIP }}
+{{- if and ( eq .Values.web.service.type "LoadBalancer" ) ( .Values.web.service.loadBalancerIP ) }}
   loadBalancerIP: {{ .Values.web.service.loadBalancerIP }}
 {{- end }}
   ports:
@@ -43,12 +43,13 @@ spec:
 {{- if .Values.wireguard.service.externalTrafficPolicy }}
   externalTrafficPolicy: {{ .Values.wireguard.service.externalTrafficPolicy }}
 {{- end }}
-{{- if .Values.wireguard.service.loadBalancerIP }}
+  ipFamilyPolicy: {{ .Values.wireguard.service.ipFamilyPolicy }}
+{{- if and ( eq .Values.wireguard.service.type "LoadBalancer" ) ( .Values.wireguard.service.loadBalancerIP ) }}
   loadBalancerIP: {{ .Values.wireguard.service.loadBalancerIP }}
 {{- end }}
   ports:
-    - port: 51820
-      targetPort: 51820
+    - port: {{ .Values.wireguard.service.port }}
+      targetPort: {{ .Values.wireguard.service.port }}
       protocol: UDP
       name: wireguard
   selector:

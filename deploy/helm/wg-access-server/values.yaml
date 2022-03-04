@@ -7,20 +7,33 @@ config:
 
 web:
   config:
-    adminUsername: ""
+    adminUsername: "admin"
     adminPassword: ""
   service:
+    annotations: {}
+    externalTrafficPolicy: ""
     type: ClusterIP
+    loadBalancerIP: ""
 
 wireguard:
   config:
     privateKey: ""
   service:
-    sessionAffinity: ClientIP
+    annotations: {}
     type: ClusterIP
+    sessionAffinity: ClientIP
+    externalTrafficPolicy: ""
+    ipFamilyPolicy: SingleStack
+    loadBalancerIP: ""
+    port: 51820
 
 persistence:
   enabled: false
+  existingClaim: ""
+  annotations: {}
+  accessModes:
+    - ReadWriteOnce
+
   ## Persistent Volume Storage Class
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -28,12 +41,8 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  # storageClass: "-"
+  storageClass: ""
   size: 100Mi
-  annotations: {}
-  accessModes:
-    - ReadWriteOnce
-  subPath: ""
 
 
 ingress:
@@ -41,7 +50,8 @@ ingress:
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
-  hosts:
+  ingressClassName: ""
+  hosts: []
     # - www.example.com
   tls: []
   #  - secretName: chart-example-tls
@@ -56,13 +66,15 @@ imagePullSecrets: []
 
 image:
   repository: ghcr.io/freifunkmuc/wg-access-server
+  tag: ""
   pullPolicy: IfNotPresent
 
 # multiple replicas is only supported when using
 # a supported highly-available storage backend (i.e. postgresql)
 replicas: 1
 
-strategy: {}
+strategy:
+  type: ""
   # the deployment strategy type will default to "Recreate" when persistence is enabled
   # or "RollingUpdate" when persistence is not enabled.
   # type: Recreate
