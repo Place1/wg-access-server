@@ -280,8 +280,5 @@ func deviceListContains(devices []*storage.Device, publicKey string) bool {
 }
 
 func IsConnected(lastHandshake time.Time) bool {
-	// if lastHandshake == nil {
-	// 	return false
-	// }
 	return lastHandshake.After(time.Now().Add(-3 * time.Minute))
 }
