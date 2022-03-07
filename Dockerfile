@@ -1,30 +1,22 @@
 ### Build stage for the website frontend
 FROM --platform=$BUILDPLATFORM node:17.6.0-bullseye as website
-RUN apt-get update
-RUN apt-get install -y protobuf-compiler libprotobuf-dev
 WORKDIR /code
 COPY ./website/package.json ./
 COPY ./website/package-lock.json ./
 RUN npm ci --no-audit --prefer-offline
-COPY ./proto/ ../proto/
 COPY ./website/ ./
-RUN npm run codegen
 RUN npm run build
 
 ### Build stage for the website backend server
 FROM golang:1.17.7-alpine as server
-RUN apk add --no-cache gcc musl-dev protobuf protobuf-dev
+RUN apk add --no-cache gcc musl-dev
 WORKDIR /code
 ENV CGO_ENABLED=1
-ENV GO111MODULE=on
-RUN go install github.com/golang/protobuf/protoc-gen-go@v1.5.2
 COPY ./go.mod ./
 COPY ./go.sum ./
 RUN go mod download
 RUN go mod verify
-COPY ./proto/ ./proto/
-COPY ./codegen.sh ./
-RUN ./codegen.sh
+COPY ./proto/proto/ ./proto/proto/
 COPY ./main.go ./main.go
 COPY ./cmd/ ./cmd/
 COPY ./pkg/ ./pkg/

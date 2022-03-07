@@ -1,8 +1,11 @@
 ### Default ignore for this project ###
-config.yaml
-data/
-./wg-access-server
-site/
+/config.yaml
+/db.sqlite3
+/wg-access-server
+
+/data/
+/site/
+
 
 ### Code ###
 .vscode/*
@@ -64,5 +67,3 @@ website/yarn-error.log*
 website/yarn.lock
 
 __debug_bin
-
-db.sqlite3
