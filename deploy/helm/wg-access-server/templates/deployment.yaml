@@ -20,6 +20,7 @@ spec:
     metadata:
       annotations:
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml" ) . | sha256sum }}
       labels:
         {{- include "wg-access-server.selectorLabels" . | nindent 8 }}
     spec:
@@ -32,16 +33,18 @@ spec:
           securityContext:
             capabilities:
               add: ['NET_ADMIN']
-          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 8000
               protocol: TCP
             - name: wireguard
-              containerPort: 51820
+              containerPort: {{ .Values.wireguard.service.port }}
               protocol: UDP
           env:
+            - name: WG_WIREGUARD_PORT
+              value: {{ .Values.wireguard.service.port | quote }}
             {{- if .Values.wireguard.config.privateKey }}
             - name: WG_WIREGUARD_PRIVATE_KEY
               valueFrom:
@@ -56,13 +59,11 @@ spec:
                   name: "{{ $fullName }}"
                   key: adminUsername
             {{- end}}
-            {{- if .Values.web.config.adminPassword }}
             - name: WG_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: "{{ $fullName }}"
                   key: adminPassword
-            {{- end}}
           volumeMounts:
             - name: tun
               mountPath: /dev/net/tun
