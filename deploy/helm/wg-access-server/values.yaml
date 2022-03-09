@@ -26,6 +26,7 @@ wireguard:
     ipFamilyPolicy: SingleStack
     loadBalancerIP: ""
     port: 51820
+    nodePort: ""
 
 persistence:
   enabled: false
