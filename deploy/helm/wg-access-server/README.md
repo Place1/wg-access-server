@@ -79,6 +79,7 @@ ingress:
 | wireguard.service.ipFamilyPolicy | string | `"SingleStack"` |  |
 | wireguard.service.loadBalancerIP | string | `""` |  |
 | wireguard.service.port | int | `51820` |  |
+| wireguard.service.nodePort | int | `""` | Use available port from range 30000-32768 |
 | persistence.enabled | bool | `false` |  |
 | persistence.existingClaim | string | `""` | Use existing PVC claim for persistence instead |
 | persistence.annotations | object | `{}` |  |
