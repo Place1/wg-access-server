@@ -10,8 +10,8 @@ import (
 	"github.com/freifunkMUC/wg-access-server/internal/storage"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
 
+	"github.com/freifunkMUC/wg-embed/pkg/wgembed"
 	"github.com/pkg/errors"
-	"github.com/place1/wg-embed/pkg/wgembed"
 	"github.com/sirupsen/logrus"
 )
 
