@@ -128,10 +128,10 @@ github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5Kwzbycv
 github.com/franela/goblin v0.0.0-20200105215937-c9ffbefa60db/go.mod h1:7dvUGVsVBjqR7JHJk0brhHOZYGmfBYOrK0ZhYMEtBr4=
 github.com/franela/goreq v0.0.0-20171204163338-bcd34c9993f8/go.mod h1:ZhphrRTfi2rbfLwlschooIH4+wKKDR4Pdxhh+TRoA20=
 github.com/frankban/quicktest v1.11.3/go.mod h1:wRf/ReqHper53s+kmmSZizM8NamnL3IM0I9ntUbOk+k=
-github.com/freifunkMUC/pg-events v0.3.0 h1:S86hHujIyJf0jc9kG5r8kxPo83TTMJXNhkwPS+i2kR8=
-github.com/freifunkMUC/pg-events v0.3.0/go.mod h1:WpQ7S07fp3UWq/HKmRWnJLwXtqGa6VSsqJQdrly+5mY=
-github.com/freifunkMUC/wg-embed v0.5.2 h1:S0+PwDP7tnsUhfYjWo62PxMvLUNFEo2YWXyw0AABPHI=
-github.com/freifunkMUC/wg-embed v0.5.2/go.mod h1:9Zr8ryEtVHESqzzSOkcThoynoPUiEHTKur/94gCN7zY=
+github.com/freifunkMUC/pg-events v0.4.0 h1:LSSYZgdkEAr+dzcotxyibXYwW4UQOFCNmno3c09Z7do=
+github.com/freifunkMUC/pg-events v0.4.0/go.mod h1:RIANURwUzHVI17cZzIoK5X/+MRUgBWx5fpksO4beOoQ=
+github.com/freifunkMUC/wg-embed v0.6.0 h1:3+JRjN8tUfiVkL07/uzPZZ7RMpOZ9Ya4hCSAzFwGF+0=
+github.com/freifunkMUC/wg-embed v0.6.0/go.mod h1:WCz8WhEzhTMYSzsIyahe92JhkNVC35ALSloRedAWcCU=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
@@ -914,8 +914,8 @@ gopkg.in/fsnotify.v1 v1.4.7/go.mod h1:Tz8NjZHkW78fSQdbUxIjBTcgA1z1m8ZHf0WmKUhAMy
 gopkg.in/gcfg.v1 v1.2.3/go.mod h1:yesOnuUOFQAhST5vPY4nbZsb/huCgGGXlipJsBn0b3o=
 gopkg.in/go-playground/assert.v1 v1.2.1/go.mod h1:9RXL0bg/zibRAgZUYszZSwO/z8Y/a8bDuhia5mkpMnE=
 gopkg.in/go-playground/validator.v9 v9.29.1/go.mod h1:+c9/zcJMFNgbLvly1L1V+PpxWdVbfP1avr/N00E2vyQ=
-gopkg.in/ini.v1 v1.66.2 h1:XfR1dOYubytKy4Shzc2LHrrGhU0lDCfDGG1yLPmpgsI=
-gopkg.in/ini.v1 v1.66.2/go.mod h1:pNLf8WUiyNEtQjuu5G5vTm06TEv9tsIgeAvK8hOrP4k=
+gopkg.in/ini.v1 v1.66.4 h1:SsAcf+mM7mRZo2nJNGt8mZCjG8ZRaNGMURJw7BsIST4=
+gopkg.in/ini.v1 v1.66.4/go.mod h1:pNLf8WUiyNEtQjuu5G5vTm06TEv9tsIgeAvK8hOrP4k=
 gopkg.in/resty.v1 v1.12.0/go.mod h1:mDo4pnntr5jdWRML875a/NmxYqAlA73dVijT2AXvQQo=
 gopkg.in/square/go-jose.v2 v2.6.0 h1:NGk74WTnPKBNUhNzQX7PYcTLUjoq7mzKk2OKbvwk2iI=
 gopkg.in/square/go-jose.v2 v2.6.0/go.mod h1:M9dMgbHiYLoDGQrXy7OpJDJWiKiU//h+vD76mk0e1AI=
