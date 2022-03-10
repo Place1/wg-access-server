@@ -24,7 +24,3 @@ mergeable:
         changed:
           file: 'package.json'  # also supports globs expressions
           required: ['package-lock.json'] # alias: `files` for backward compatibility
-      - do: changeset
-        must_include:
-          regex: 'CHANGELOG.md'
-          message: 'new features or fixes needed to be logged to the changelog'
