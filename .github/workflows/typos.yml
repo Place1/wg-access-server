@@ -1,0 +1,25 @@
+name: "Typos"
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches:
+      - master
+  schedule:
+    - cron: '45 9 * * 1'
+
+jobs:
+  run:
+    name: Spell Check with Typos
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Actions Repository
+      uses: actions/checkout@v2
+
+    - name: Use custom config file
+      uses: crate-ci/typos@master
+      with: 
+        config: ./.typos.toml

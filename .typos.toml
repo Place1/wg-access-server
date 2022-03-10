@@ -1,0 +1,2 @@
+[files]
+extend-exclude = ["go.sum", "package-lock.json"]
