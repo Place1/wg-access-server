@@ -84,3 +84,4 @@ ingress:
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"place1/wg-access-server"` |  |
 | imagePullSecrets | list | `[]` |  |
+| existingSecret | string | `""` | Allow the use of an existing secret for admin username, password and private key |

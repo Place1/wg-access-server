@@ -1,6 +1,20 @@
 # wg-access-server config
 config: {}
 
+## Provide an existing secret with the following keys:
+##
+## data:
+##   WG_ADMIN_PASSWORD: X
+##   WG_ADMIN_USERNAME: X
+##   WG_WIREGUARD_PRIVATE_KEY: X
+##
+## overrides:
+## web.config.adminUsername
+## web.config.adminPassword
+## wireguard.config.privateKey
+##
+# existingSecret: ""
+
 web:
   config:
     adminUsername: ""

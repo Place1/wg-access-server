@@ -41,28 +41,14 @@ spec:
             - name: wireguard
               containerPort: 51820
               protocol: UDP
-          env:
-            {{- if .Values.wireguard.config.privateKey }}
-            - name: WG_WIREGUARD_PRIVATE_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ $fullName }}"
-                  key: privateKey
-            {{- end }}
-            {{- if .Values.web.config.adminUsername }}
-            - name: WG_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ $fullName }}"
-                  key: adminUsername
-            {{- end}}
-            {{- if .Values.web.config.adminPassword }}
-            - name: WG_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ $fullName }}"
-                  key: adminPassword
-            {{- end}}
+          envFrom:
+          - secretRef:
+              {{- if .Values.existingSecret }}
+              name: {{ .Values.existingSecret }}
+              {{- else }}
+              name: {{ $fullName }}
+              {{- end }}
+          env: {}
           volumeMounts:
             - name: tun
               mountPath: /dev/net/tun
