@@ -48,7 +48,6 @@ spec:
               {{- else }}
               name: {{ $fullName }}
               {{- end }}
-          env: {}
           volumeMounts:
             - name: tun
               mountPath: /dev/net/tun
