@@ -64,6 +64,7 @@ ingress:
 | web.service.type | string | `"ClusterIP"` |  |
 | wireguard.config.privateKey | string | "" | A wireguard private key. You can generate one using `$ wg genkey` |
 | wireguard.service.type | string | `"ClusterIP"` |  |
+| wireguard.service.nodePort | int | `nil` | When `NodePort` is used as `service.type`, a static nodePort can be added |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts | string | `nil` |  |
 | ingress.tls | list | `[]` |  |
