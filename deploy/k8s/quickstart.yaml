@@ -1,15 +1,33 @@
 ---
+# Source: wg-access-server/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "quickstart-wg-access-server"
+  labels:
+    helm.sh/chart: wg-access-server-v0.6.0
+    app: wg-access-server
+    app.kubernetes.io/name: wg-access-server
+    app.kubernetes.io/instance: quickstart
+    app.kubernetes.io/version: "v0.6.0"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  privateKey: ""
+  adminUsername: "YWRtaW4="
+  adminPassword: "clc1bVNKbGs1MnVaOUpiZUxVY2I="
+---
 # Source: wg-access-server/templates/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: quickstart-wg-access-server
   labels:
-    helm.sh/chart: wg-access-server-v0.5.2
+    helm.sh/chart: wg-access-server-v0.6.0
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "v0.5.2"
+    app.kubernetes.io/version: "v0.6.0"
     app.kubernetes.io/managed-by: Helm
 data:
   config.yaml: |-
@@ -22,11 +40,11 @@ kind: Service
 metadata:
   name: quickstart-wg-access-server-web
   labels:
-    helm.sh/chart: wg-access-server-v0.5.2
+    helm.sh/chart: wg-access-server-v0.6.0
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "v0.5.2"
+    app.kubernetes.io/version: "v0.6.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -46,15 +64,16 @@ kind: Service
 metadata:
   name: quickstart-wg-access-server-wireguard
   labels:
-    helm.sh/chart: wg-access-server-v0.5.2
+    helm.sh/chart: wg-access-server-v0.6.0
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "v0.5.2"
+    app.kubernetes.io/version: "v0.6.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
   sessionAffinity: ClientIP
+  ipFamilyPolicy: SingleStack
   ports:
     - port: 51820
       targetPort: 51820
@@ -71,11 +90,11 @@ kind: Deployment
 metadata:
   name: quickstart-wg-access-server
   labels:
-    helm.sh/chart: wg-access-server-v0.5.2
+    helm.sh/chart: wg-access-server-v0.6.0
     app: wg-access-server
     app.kubernetes.io/name: wg-access-server
     app.kubernetes.io/instance: quickstart
-    app.kubernetes.io/version: "v0.5.2"
+    app.kubernetes.io/version: "v0.6.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -89,7 +108,8 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap: 6818cba9f494a7e223889b6b23ee84e325bd5aced85f8fa68530f8420b6af733
+        checksum/configmap: 3240f1610ddb40f38805a86a7d42883d4e86eda88412120dc5ae055947190a2d
+        checksum/secret: 1467e5c5dd18b5fa07b6b9ee7ede1ae26a80c78c82b8253d8ad5832ffb07f01b
       labels:
         app: wg-access-server
         app.kubernetes.io/name: wg-access-server
@@ -100,7 +120,7 @@ spec:
           securityContext:
             capabilities:
               add: ['NET_ADMIN']
-          image: "ghcr.io/freifunkmuc/wg-access-server:v0.5.2"
+          image: "ghcr.io/freifunkmuc/wg-access-server:v0.6.0"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -110,6 +130,18 @@ spec:
               containerPort: 51820
               protocol: UDP
           env:
+            - name: WG_WIREGUARD_PORT
+              value: "51820"
+            - name: WG_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "quickstart-wg-access-server"
+                  key: adminUsername
+            - name: WG_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "quickstart-wg-access-server"
+                  key: adminPassword
           volumeMounts:
             - name: tun
               mountPath: /dev/net/tun
