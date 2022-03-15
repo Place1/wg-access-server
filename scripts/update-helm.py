@@ -23,16 +23,30 @@ with open('deploy/helm/wg-access-server/Chart.yaml', 'r+') as f:
     yaml.dump(chart, f, default_flow_style=False)
     f.truncate()
 with open('deploy/k8s/quickstart.yaml', 'w') as f:
-    subprocess.run(['helm', 'template', '--name-template',
-                    'quickstart', 'deploy/helm/wg-access-server/'], stdout=f)
-subprocess.run(['helm', 'package', 'deploy/helm/wg-access-server/',
-                '--destination', 'docs/charts/'])
-subprocess.run(['helm', 'repo', 'index', 'docs/', '--url',
-                'https://freie-netze.org/wg-access-server'])
+    try:
+        subprocess.run(['helm', 'template', '--name-template',
+                        'quickstart', 'deploy/helm/wg-access-server/'],
+                       stdout=f, check=True)
+    except subprocess.CalledProcessError as ex:
+        print("::error::{}".format(ex))
+        exit(1)
 
-# commit changes
-subprocess.run(['git', 'add', 'docs/index.yaml', 'docs/charts/', 'deploy/helm/', 'deploy/k8s/'])
-subprocess.run(['git', 'commit', '-m', f'{version} - Automated Helm & k8s update'])
+try:
+    subprocess.run(['helm', 'package', 'deploy/helm/wg-access-server/',
+                    '--destination', 'docs/charts/'],
+                   check=True, capture_output=True)
+    subprocess.run(['helm', 'repo', 'index', 'docs/', '--url',
+                    'https://freie-netze.org/wg-access-server'],
+                   check=True, capture_output=True)
 
-# push everything
-subprocess.run(['git', 'push'])
+    # commit changes
+    subprocess.run(['git', 'add', 'docs/index.yaml', 'docs/charts/', 'deploy/helm/', 'deploy/k8s/'],
+                   check=True, capture_output=True)
+    subprocess.run(['git', 'commit', '-m', f'{version} - Automated Helm & k8s update'],
+                   check=True, capture_output=True)
+
+    # push everything
+    subprocess.run(['git', 'push'], check=True, capture_output=True)
+except subprocess.CalledProcessError as ex:
+    print("::error::{}\nStdout:\n{}\nStderr:\n{}".format(ex, ex.stdout.decode('utf-8'), ex.stderr.decode('utf-8')))
+    exit(1)
