@@ -36,6 +36,7 @@ Here's what you can configure:
 | `WG_VPN_CIDR`              | `--vpn-cidr`               | `vpn.cidr`             |          | `10.44.0.0/24`                               | The VPN IPv4 network range. VPN clients will be assigned IP addresses in this range. Set to `0` to disable IPv4.                                                                   |
 | `WG_IPV4_NAT_ENABLED`      | `--vpn-nat44-enabled`      | `vpn.nat44`            |          | `true`                                       | Disables NAT for IPv4                                                                                                                                                              |
 | `WG_IPV6_NAT_ENABLED`      | `--vpn-nat66-enabled`      | `vpn.nat66`            |          | `true`                                       | Disables NAT for IPv6                                                                                                                                                              |
+| `WG_VPN_CLIENT_ISOLATION`  | `--vpn-client-isolation`   | `vpn.clientIsolation`  |          | `false`                                      | BLock or allow traffic between client devices (client isolation)                                                                                                                   |
 | `WG_VPN_CIDRV6`            | `--vpn-cidrv6`             | `vpn.cidrv6`           |          | `fd48:4c4:7aa9::/64`                         | The VPN IPv6 network range. VPN clients will be assigned IP addresses in this range. Set to `0` to disable IPv6.                                                                   |
 | `WG_VPN_GATEWAY_INTERFACE` | `--vpn-gateway-interface`  | `vpn.gatewayInterface` |          | _default gateway interface (e.g. eth0)_      | The VPN gateway interface. VPN client traffic will be forwarded to this interface.                                                                                                 |
 | `WG_VPN_ALLOWED_IPS`       | `--vpn-allowed-ips`        | `vpn.allowedIPs`       |          | `0.0.0.0/0, ::/0`                            | Allowed IPs that clients may route through this VPN. This will be set in the client's WireGuard connection file and routing is also enforced by the server using iptables.         |
@@ -54,5 +55,6 @@ wireguard:
   privateKey: "<some-key>"
 dns:
   upstream:
+    - "2001:4860:4860::8888"
     - "8.8.8.8"
 ```

@@ -65,14 +65,25 @@ func SplitAddresses(addresses string) []string {
 	return split
 }
 
-func ConfigureForwarding(gatewayIface string, cidr, cidrv6 string, nat44, nat66 bool, allowedIPs []string) error {
+// ForwardingOptions contains all options used for configuring the firewall rules
+type ForwardingOptions struct {
+	GatewayIface    string
+	CIDR, CIDRv6    string
+	NAT44, NAT66    bool
+	ClientIsolation bool
+	AllowedIPs      []string
+	allowedIPv4s    []string
+	allowedIPv6s    []string
+}
+
+func ConfigureForwarding(options ForwardingOptions) error {
 	// Networking configuration (iptables) configuration
 	// to ensure that traffic from clients of the wireguard interface
 	// is sent to the provided network interface
-	allowedIPv4s := make([]string, 0, len(allowedIPs)/2)
-	allowedIPv6s := make([]string, 0, len(allowedIPs)/2)
+	allowedIPv4s := make([]string, 0, len(options.AllowedIPs)/2)
+	allowedIPv6s := make([]string, 0, len(options.AllowedIPs)/2)
 
-	for _, allowedCIDR := range allowedIPs {
+	for _, allowedCIDR := range options.AllowedIPs {
 		parsedAddress, parsedNetwork, err := net.ParseCIDR(allowedCIDR)
 		if err != nil {
 			return errors.Wrap(err, "invalid cidr in AllowedIPs")
@@ -86,21 +97,23 @@ func ConfigureForwarding(gatewayIface string, cidr, cidrv6 string, nat44, nat66 
 			allowedIPv6s = append(allowedIPv6s, parsedNetwork.String())
 		}
 	}
+	options.allowedIPv4s = allowedIPv4s
+	options.allowedIPv6s = allowedIPv6s
 
-	if cidr != "" {
-		if err := configureForwardingv4(gatewayIface, cidr, nat44, allowedIPv4s); err != nil {
+	if options.CIDR != "" {
+		if err := configureForwardingv4(options); err != nil {
 			return err
 		}
 	}
-	if cidrv6 != "" {
-		if err := configureForwardingv6(gatewayIface, cidrv6, nat66, allowedIPv6s); err != nil {
+	if options.CIDRv6 != "" {
+		if err := configureForwardingv6(options); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func configureForwardingv4(gatewayIface string, cidr string, nat44 bool, allowedIPs []string) error {
+func configureForwardingv4(options ForwardingOptions) error {
 	ipt, err := iptables.NewWithProtocol(iptables.ProtocolIPv4)
 	if err != nil {
 		return errors.Wrap(err, "failed to init iptables")
@@ -128,19 +141,26 @@ func configureForwardingv4(gatewayIface string, cidr string, nat44 bool, allowed
 		return errors.Wrap(err, "failed to append POSTROUTING rule to nat chain")
 	}
 
-	for _, allowedCIDR := range allowedIPs {
-		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-d", allowedCIDR, "-j", "ACCEPT"); err != nil {
+	if options.ClientIsolation {
+		// Reject inter-device traffic
+		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", options.CIDR, "-d", options.CIDR, "-j", "REJECT"); err != nil {
+			return errors.Wrap(err, "failed to set ip tables rule")
+		}
+	}
+	// Accept client traffic for given allowed ips
+	for _, allowedCIDR := range options.allowedIPv4s {
+		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", options.CIDR, "-d", allowedCIDR, "-j", "ACCEPT"); err != nil {
 			return errors.Wrap(err, "failed to set ip tables rule")
 		}
 	}
 	// And reject everything else
-	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidr, "-j", "REJECT"); err != nil {
+	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", options.CIDR, "-j", "REJECT"); err != nil {
 		return errors.Wrap(err, "failed to set ip tables rule")
 	}
 
-	if gatewayIface != "" {
-		if nat44 {
-			if err := ipt.AppendUnique("nat", "WG_ACCESS_SERVER_POSTROUTING", "-s", cidr, "-o", gatewayIface, "-j", "MASQUERADE"); err != nil {
+	if options.GatewayIface != "" {
+		if options.NAT44 {
+			if err := ipt.AppendUnique("nat", "WG_ACCESS_SERVER_POSTROUTING", "-s", options.CIDR, "-o", options.GatewayIface, "-j", "MASQUERADE"); err != nil {
 				return errors.Wrap(err, "failed to set ip tables rule")
 			}
 		}
@@ -148,7 +168,7 @@ func configureForwardingv4(gatewayIface string, cidr string, nat44 bool, allowed
 	return nil
 }
 
-func configureForwardingv6(gatewayIface string, cidrv6 string, nat66 bool, allowedIPs []string) error {
+func configureForwardingv6(options ForwardingOptions) error {
 	ipt, err := iptables.NewWithProtocol(iptables.ProtocolIPv6)
 	if err != nil {
 		return errors.Wrap(err, "failed to init ip6tables")
@@ -174,20 +194,26 @@ func configureForwardingv6(gatewayIface string, cidrv6 string, nat66 bool, allow
 		return errors.Wrap(err, "failed to append POSTROUTING rule to nat chain")
 	}
 
+	if options.ClientIsolation {
+		// Reject inter-device traffic
+		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", options.CIDRv6, "-d", options.CIDRv6, "-j", "REJECT"); err != nil {
+			return errors.Wrap(err, "failed to set ip tables rule")
+		}
+	}
 	// Accept client traffic for given allowed ips
-	for _, allowedCIDR := range allowedIPs {
-		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidrv6, "-d", allowedCIDR, "-j", "ACCEPT"); err != nil {
+	for _, allowedCIDR := range options.allowedIPv6s {
+		if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", options.CIDRv6, "-d", allowedCIDR, "-j", "ACCEPT"); err != nil {
 			return errors.Wrap(err, "failed to set ip tables rule")
 		}
 	}
 	// And reject everything else
-	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", cidrv6, "-j", "REJECT"); err != nil {
+	if err := ipt.AppendUnique("filter", "WG_ACCESS_SERVER_FORWARD", "-s", options.CIDRv6, "-j", "REJECT"); err != nil {
 		return errors.Wrap(err, "failed to set ip tables rule")
 	}
 
-	if gatewayIface != "" {
-		if nat66 {
-			if err := ipt.AppendUnique("nat", "WG_ACCESS_SERVER_POSTROUTING", "-s", cidrv6, "-o", gatewayIface, "-j", "MASQUERADE"); err != nil {
+	if options.GatewayIface != "" {
+		if options.NAT66 {
+			if err := ipt.AppendUnique("nat", "WG_ACCESS_SERVER_POSTROUTING", "-s", options.CIDRv6, "-o", options.GatewayIface, "-j", "MASQUERADE"); err != nil {
 				return errors.Wrap(err, "failed to set ip tables rule")
 			}
 		}
