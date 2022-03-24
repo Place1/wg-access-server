@@ -49,12 +49,13 @@ func Register(app *kingpin.Application) *servecmd {
 	cli.Flag("wireguard-interface", "Set the wireguard interface name").Default("wg0").Envar("WG_WIREGUARD_INTERFACE").StringVar(&cmd.AppConfig.WireGuard.Interface)
 	cli.Flag("wireguard-private-key", "Wireguard private key").Envar("WG_WIREGUARD_PRIVATE_KEY").StringVar(&cmd.AppConfig.WireGuard.PrivateKey)
 	cli.Flag("wireguard-port", "The port that the Wireguard server will listen on").Envar("WG_WIREGUARD_PORT").Default("51820").IntVar(&cmd.AppConfig.WireGuard.Port)
+	cli.Flag("vpn-allowed-ips", "A list of networks that VPN clients will be allowed to connect to via the VPN").Envar("WG_VPN_ALLOWED_IPS").Default("0.0.0.0/0", "::/0").StringsVar(&cmd.AppConfig.VPN.AllowedIPs)
 	cli.Flag("vpn-cidr", "The network CIDR for the VPN").Envar("WG_VPN_CIDR").Default("10.44.0.0/24").StringVar(&cmd.AppConfig.VPN.CIDR)
 	cli.Flag("vpn-cidrv6", "The IPv6 network CIDR for the VPN").Envar("WG_VPN_CIDRV6").Default("fd48:4c4:7aa9::/64").StringVar(&cmd.AppConfig.VPN.CIDRv6)
+	cli.Flag("vpn-gateway-interface", "The gateway network interface (i.e. eth0)").Envar("WG_VPN_GATEWAY_INTERFACE").Default(detectDefaultInterface()).StringVar(&cmd.AppConfig.VPN.GatewayInterface)
 	cli.Flag("vpn-nat44-enabled", "Enable or disable NAT of IPv6 traffic leaving through the gateway").Envar("WG_IPV4_NAT_ENABLED").Default("true").BoolVar(&cmd.AppConfig.VPN.NAT44)
 	cli.Flag("vpn-nat66-enabled", "Enable or disable NAT of IPv6 traffic leaving through the gateway").Envar("WG_IPV6_NAT_ENABLED").Default("true").BoolVar(&cmd.AppConfig.VPN.NAT66)
-	cli.Flag("vpn-gateway-interface", "The gateway network interface (i.e. eth0)").Envar("WG_VPN_GATEWAY_INTERFACE").Default(detectDefaultInterface()).StringVar(&cmd.AppConfig.VPN.GatewayInterface)
-	cli.Flag("vpn-allowed-ips", "A list of networks that VPN clients will be allowed to connect to via the VPN").Envar("WG_VPN_ALLOWED_IPS").Default("0.0.0.0/0", "::/0").StringsVar(&cmd.AppConfig.VPN.AllowedIPs)
+	cli.Flag("vpn-client-isolation", "Block or allow traffic between client devices").Envar("WG_VPN_CLIENT_ISOLATION").Default("false").BoolVar(&cmd.AppConfig.VPN.ClientIsolation)
 	cli.Flag("dns-enabled", "Enable or disable the embedded dns proxy server (useful for development)").Envar("WG_DNS_ENABLED").Default("true").BoolVar(&cmd.AppConfig.DNS.Enabled)
 	cli.Flag("dns-upstream", "An upstream DNS server to proxy DNS traffic to. Defaults to resolvconf with Cloudflare DNS as fallback").Envar("WG_DNS_UPSTREAM").StringsVar(&cmd.AppConfig.DNS.Upstream)
 	cli.Flag("dns-domain", "A domain to serve configured device names authoritatively").Envar("WG_DNS_DOMAIN").StringVar(&cmd.AppConfig.DNS.Domain)
@@ -141,7 +142,17 @@ func (cmd *servecmd) Run() {
 
 		logrus.Infof("wireguard VPN network is %s", network.StringJoinIPNets(vpnip, vpnipv6))
 
-		if err := network.ConfigureForwarding(conf.VPN.GatewayInterface, conf.VPN.CIDR, conf.VPN.CIDRv6, conf.VPN.NAT44, conf.VPN.NAT66, conf.VPN.AllowedIPs); err != nil {
+		options := network.ForwardingOptions{
+			GatewayIface:    conf.VPN.GatewayInterface,
+			CIDR:            conf.VPN.CIDR,
+			CIDRv6:          conf.VPN.CIDRv6,
+			NAT44:           conf.VPN.NAT44,
+			NAT66:           conf.VPN.NAT66,
+			ClientIsolation: conf.VPN.ClientIsolation,
+			AllowedIPs:      conf.VPN.AllowedIPs,
+		}
+
+		if err := network.ConfigureForwarding(options); err != nil {
 			logrus.Error(err)
 			return
 		}
