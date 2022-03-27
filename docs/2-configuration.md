@@ -5,9 +5,8 @@ taking precedence over one another in that order.
 
 The default configuration should work out of the box if you're just looking to try it out.
 
-The only required configuration is an admin password and a wireguard private key. The admin
-password can be anything you like. You can generate a wireguard private key by
-[following the official docs](https://www.wireguard.com/quickstart/#key-generation).
+The only required configuration is a wireguard private key.
+You can generate a wireguard private key by [following the official docs](https://www.wireguard.com/quickstart/#key-generation).
 
 TLDR:
 

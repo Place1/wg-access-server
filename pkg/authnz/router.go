@@ -41,6 +41,11 @@ func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddle
 	}
 
 	router.HandleFunc("/signin", func(w http.ResponseWriter, r *http.Request) {
+		if !config.DesiresSigninPage() && len(providers) == 1 {
+			// we only have one proider, so jump directly to that
+			providers[0].Invoke(w, r, runtime)
+			return
+		}
 		w.WriteHeader(http.StatusOK)
 		_, _ = fmt.Fprint(w, authtemplates.RenderLoginPage(w, authtemplates.LoginPage{
 			Providers: providers,
