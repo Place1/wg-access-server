@@ -1,8 +1,9 @@
 package migrate
 
 import (
-	"github.com/pkg/errors"
 	"github.com/freifunkMUC/wg-access-server/internal/storage"
+
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
