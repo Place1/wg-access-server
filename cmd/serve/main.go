@@ -74,16 +74,6 @@ func (cmd *servecmd) Name() string {
 func (cmd *servecmd) Run() {
 	conf := cmd.ReadConfig()
 
-	if conf.VPN.CIDR == "0" {
-		conf.VPN.CIDR = ""
-	}
-	if conf.VPN.CIDRv6 == "0" {
-		conf.VPN.CIDRv6 = ""
-	}
-	if conf.DNS.Domain == "0" {
-		conf.DNS.Domain = ""
-	}
-
 	// Get the server's IP addresses within the VPN
 	var vpnip, vpnipv6 *net.IPNet
 	var err error
@@ -284,6 +274,7 @@ func (cmd *servecmd) Run() {
 	}
 }
 
+// ReadConfig reads the config file from disk if specified and overrides any env vars or cmdline options
 func (cmd *servecmd) ReadConfig() *config.AppConfig {
 	if cmd.ConfigFilePath != "" {
 		if b, err := ioutil.ReadFile(cmd.ConfigFilePath); err == nil {
@@ -333,6 +324,24 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 			logrus.Fatal(errors.Wrap(err, "failed to generate a server private key"))
 		}
 		cmd.AppConfig.WireGuard.PrivateKey = key.String()
+	}
+
+	// The empty string can be hard to pass through an env var, so we accept '0' too
+	if cmd.AppConfig.VPN.CIDR == "0" {
+		cmd.AppConfig.VPN.CIDR = ""
+	}
+	if cmd.AppConfig.VPN.CIDRv6 == "0" {
+		cmd.AppConfig.VPN.CIDRv6 = ""
+	}
+	if cmd.AppConfig.DNS.Domain == "0" {
+		cmd.AppConfig.DNS.Domain = ""
+	}
+	// kingpin only splits env vars by \n, let's split at commas as well
+	if len(cmd.AppConfig.VPN.AllowedIPs) == 1 {
+		cmd.AppConfig.VPN.AllowedIPs = strings.Split(cmd.AppConfig.VPN.AllowedIPs[0], ",")
+	}
+	if len(cmd.AppConfig.DNS.Upstream) == 1 {
+		cmd.AppConfig.DNS.Upstream = strings.Split(cmd.AppConfig.DNS.Upstream[0], ",")
 	}
 
 	return &cmd.AppConfig
