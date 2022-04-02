@@ -16,7 +16,7 @@ wg-access-server supports 4 storage backends.
 This is the default backend if you're running the binary directly and haven't configured
 another storage backend. Data will be lost between restarts. Handy for development.
 
-### Sqlite3
+### SQLite3
 
 This is the default backend if you're running the docker container directly or using docker-compose.
 
@@ -31,18 +31,20 @@ Example connection string:
 - Relative path: `sqlite3://path/to/db.sqlite3`
 - Absolute path: `sqlite3:///absolute/path/to/db.sqlite3`
 
-### Postgres
+### PostgreSQL
 
 This backend requires an external Postgres database to be deployed.
 
-Postgres will support highly-available deployments of wg-access-server in the near future
+Postgres experimentally supports highly-available deployments of wg-access-server
 and is the recommended storage backend where possible.
+If you have pgbouncer running in front of PostgreSQL, make sure it is running in "Session pooling" mode,
+as the more aggressive modes like "Transaction Pooling" break LISTEN/NOTIFY which we rely on.
 
 Example connection string:
 
 - `postgresql://user:password@localhost:5432/database?sslmode=disable`
 
-### Mysql
+### MySQL
 
 This backend requires an external Mysql database to be deployed. Mysql flavours should be compatible.
 wg-access-server uses [this golang driver](github.com/go-sql-driver/mysql) if you want to check the
