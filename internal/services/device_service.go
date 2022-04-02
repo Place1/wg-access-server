@@ -8,13 +8,14 @@ import (
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
 	"github.com/freifunkMUC/wg-access-server/proto/proto"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type DeviceService struct {
+	proto.UnimplementedDevicesServer
 	DeviceManager *devices.DeviceManager
 }
 
@@ -49,7 +50,7 @@ func (d *DeviceService) ListDevices(ctx context.Context, req *proto.ListDevicesR
 	}, nil
 }
 
-func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDeviceReq) (*empty.Empty, error) {
+func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDeviceReq) (*emptypb.Empty, error) {
 	user, err := authsession.CurrentUser(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
@@ -70,7 +71,7 @@ func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDevic
 		return nil, status.Errorf(codes.Internal, "failed to delete device")
 	}
 
-	return &empty.Empty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (d *DeviceService) ListAllDevices(ctx context.Context, req *proto.ListAllDevicesReq) (*proto.ListAllDevicesRes, error) {
