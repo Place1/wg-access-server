@@ -116,7 +116,7 @@ helm delete my-release
 
 ## Changelog
 
-See the [CHANGELOG.md](https://github.com/freifunkMUC/wg-access-server/blob/master/CHANGELOG.md) file
+See the [Releases section](https://github.com/freifunkMUC/wg-access-server/releases)
 
 ## Development
 
