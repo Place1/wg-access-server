@@ -1,0 +1,26 @@
+version: 2
+mergeable:
+  - when: pull_request.opened
+    name: "Greet a contributor"
+    validate: []
+    pass:
+      - do: comment
+        payload:
+          body: >
+            Thanks for creating a pull request! A maintainer will review your changes shortly. Please don't be discouraged if it takes a while.
+  - when: pull_request.*
+    validate:
+      - do: title
+        must_exclude:
+          regex: ^\[WIP\]
+      - do: label
+        must_exclude:
+          regex: 'wip'
+      - do: description
+        no_empty:
+          enabled: true
+          message: Description matter and should not be empty. Provide detail with **what** was changed, **why** it was changed, and **how** it was changed.
+      - do: dependent
+        changed:
+          file: 'package.json'  # also supports globs expressions
+          required: ['package-lock.json'] # alias: `files` for backward compatibility
