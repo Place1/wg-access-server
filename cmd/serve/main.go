@@ -108,7 +108,11 @@ func (cmd *servecmd) Run() {
 	// WireGuard Server
 	wg := wgembed.NewNoOpInterface()
 	if conf.WireGuard.Enabled {
-		wgimpl, err := wgembed.New(conf.WireGuard.Interface)
+		wgOpts := wgembed.Options{
+			InterfaceName:     conf.WireGuard.Interface,
+			AllowKernelModule: true,
+		}
+		wgimpl, err := wgembed.NewWithOpts(wgOpts)
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err, "failed to create wireguard interface"))
 		}

@@ -22,10 +22,13 @@ NAT can be disabled separately for IPv4 and IPv6.
 
 - Pluggable authentication using OpenID Connect
 - Authentication using GitLab
+- PostgreSQL, MySQL or SQLite3 storage backend
+- WireGuard client configuration QR codes
 - IPv6 support in tunnel
 - Caching DNS proxy (stub resolver)
-- WireGuard client configuration QR codes
-- PostgreSQL, MySQL or SQLite3 storage backend
+- Client isolation (optional)
+- WireGuard kernel module for improved performance and latency
+- Automatic fallback to embedded userspace implementation for easy container deployment
 
 ## Documentation
 

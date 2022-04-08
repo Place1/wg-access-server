@@ -1,12 +1,13 @@
 # Docker
 
-Load the `ip_tables` and `ip6_tables` kernel modules on the host.
+Load the `ip_tables`, `ip6_tables` and `wireguard` kernel modules on the host.
 
 ```bash
-modprobe ip_tables && modprobe ip6_tables
+modprobe ip_tables && modprobe ip6_tables && modprobe wireguard
 # Load modules on boot
 echo ip_tables >> /etc/modules
 echo ip6_tables >> /etc/modules
+echo wireguard >> /etc/modules
 ```
 
 ```bash
@@ -27,9 +28,12 @@ docker run \
 
 ## Modules
 
-If you are unable to load the kernel modules, you can add the `SYS_MODULE` capability instead: `--cap-add SYS_MODULE`. You must also add the following mount: `-v /lib/modules:/lib/modules:ro`.
+If you are unable to load the `iptables` kernel modules, you can add the `SYS_MODULE` capability instead: `--cap-add SYS_MODULE`. You must also add the following mount: `-v /lib/modules:/lib/modules:ro`.
 
 This is not recommended as it essentially gives the container root privileges over the host system and an attacker could easily break out of the container.
+
+The WireGuard module should be loaded automatically, even without `SYS_MODULE` capability or `/lib/modules` mount.
+If it still fails to load, the server automatically falls back to the userspace implementation. 
 
 ## IPv4-only (without IPv6)
 
