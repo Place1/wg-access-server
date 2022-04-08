@@ -6,8 +6,8 @@ import (
 )
 
 func HealthEndpoint() http.Handler {
-	return http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		fmt.Fprintf(w, "ok")
-	}))
+	})
 }

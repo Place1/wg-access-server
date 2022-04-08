@@ -12,9 +12,13 @@ import (
 	"github.com/freifunkMUC/wg-access-server/proto/proto"
 
 	"github.com/freifunkMUC/wg-embed/pkg/wgembed"
-	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
+	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpcLogrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
+	grpcRecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type ApiServices struct {
@@ -27,9 +31,18 @@ func ApiRouter(deps *ApiServices) http.Handler {
 	// Native GRPC server
 	server := grpc.NewServer([]grpc.ServerOption{
 		grpc.MaxRecvMsgSize(int(1 * math.Pow(2, 20))), // 1MB
-		grpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-			return grpc_logrus.UnaryServerInterceptor(traces.Logger(ctx))(ctx, req, info, handler)
-		}),
+		grpc.UnaryInterceptor(grpcMiddleware.ChainUnaryServer(
+			func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+				// wrapped in anonymous func to get ctx
+				return grpcLogrus.UnaryServerInterceptor(traces.Logger(ctx))(ctx, req, info, handler)
+			},
+			grpcRecovery.UnaryServerInterceptor(
+				grpcRecovery.WithRecoveryHandlerContext(func(ctx context.Context, p interface{}) (err error) {
+					// add trace id to error message so it's visible for the client
+					return status.Errorf(codes.Internal, "%v; trace = %s", p, traces.TraceID(ctx))
+				}),
+			),
+		)),
 	}...)
 
 	// Register GRPC services

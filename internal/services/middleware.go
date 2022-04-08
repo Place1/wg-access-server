@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/freifunkMUC/wg-access-server/internal/traces"
 )
 
@@ -19,7 +18,7 @@ func RecoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				ctxlogrus.Extract(r.Context()).
+				traces.Logger(r.Context()).
 					WithField("stack", string(debug.Stack())).
 					Error(err)
 				w.WriteHeader(500)
