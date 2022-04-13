@@ -15,11 +15,8 @@ func (c *AuthConfig) IsEnabled() bool {
 }
 
 func (c *AuthConfig) DesiresSigninPage() bool {
-	if c.Basic != nil {
-		// Basic auth is the only that truly needs the signin button
-		return true
-	}
-	return false
+	// Basic auth is the only that truly needs the signin button
+	return c.Basic != nil
 }
 
 func (c *AuthConfig) Providers() []*authruntime.Provider {
