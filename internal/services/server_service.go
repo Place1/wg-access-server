@@ -16,6 +16,7 @@ import (
 )
 
 type ServerService struct {
+	proto.UnimplementedServerServer
 	Config *config.AppConfig
 	Wg     wgembed.WireGuardInterface
 }

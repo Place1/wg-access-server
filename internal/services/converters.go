@@ -3,17 +3,16 @@ package services
 import (
 	"time"
 
-	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-func TimestampToTime(value *timestamp.Timestamp) time.Time {
+func TimestampToTime(value *timestamppb.Timestamp) time.Time {
 	return time.Unix(value.Seconds, int64(value.Nanos))
 }
 
-func TimeToTimestamp(value *time.Time) *timestamp.Timestamp {
+func TimeToTimestamp(value *time.Time) *timestamppb.Timestamp {
 	if value == nil {
 		return nil
 	}
@@ -25,9 +24,9 @@ func TimeToTimestamp(value *time.Time) *timestamp.Timestamp {
 	return t
 }
 
-func stringValue(value *string) *wrappers.StringValue {
+func stringValue(value *string) *wrapperspb.StringValue {
 	if value != nil {
-		return &wrappers.StringValue{
+		return &wrapperspb.StringValue{
 			Value: *value,
 		}
 	}

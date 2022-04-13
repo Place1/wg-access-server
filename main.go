@@ -6,10 +6,11 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/pkg/errors"
 	"github.com/freifunkMUC/wg-access-server/cmd"
 	"github.com/freifunkMUC/wg-access-server/cmd/migrate"
 	"github.com/freifunkMUC/wg-access-server/cmd/serve"
+
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
