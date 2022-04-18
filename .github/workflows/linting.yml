@@ -30,13 +30,3 @@ jobs: # Docs: <https://git.io/JvxXE>
           version: v1.42 # without patch version
           only-new-issues: false # show only new issues if it's a pull request
           args: --timeout 4m # the default of 1m didn't suffice occasionally
-
-  helm:
-    name: Helm
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-        with: {fetch-depth: 0}
-
-      - name: Run helm lint
-        run: helm lint deploy/helm/wg-access-server/
