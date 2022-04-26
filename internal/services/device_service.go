@@ -59,7 +59,7 @@ func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDevic
 	deviceOwner := user.Subject
 
 	if req.Owner != nil {
-		if user.Claims.Contains("admin") {
+		if user.Claims.Has("admin", "true") {
 			deviceOwner = req.Owner.Value
 		} else {
 			return nil, status.Errorf(codes.PermissionDenied, "must be an admin")
@@ -80,7 +80,7 @@ func (d *DeviceService) ListAllDevices(ctx context.Context, req *proto.ListAllDe
 		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
 	}
 
-	if !user.Claims.Contains("admin") {
+	if !user.Claims.Has("admin", "true") {
 		return nil, status.Errorf(codes.PermissionDenied, "must be an admin")
 	}
 

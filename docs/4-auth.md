@@ -14,11 +14,16 @@ to a larger solution like this.
 
 The following authentication backends are currently supported:
 
-| Backend        | Use Case                                                                                      | Notes                                                         |
-| -------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Basic Auth     | Deployments with a static list of users. Simple and great for self-hosters and home use-cases | The wg-access-server admin account is powered by this backend |
-| OpenID Connect | For delegating authentication to an existing identity solution                                |                                                               |
-| Gitlab         | For delegating authentication to gitlab. Supports self-hosted Gitlab.                         |                                                               |
+| Backend        | Use Case                                                                                      | Notes                                                               |
+|----------------|-----------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| Simple Auth    | Deployments with a static list of users. Simple and great for self-hosters and home use-cases | Recommended, default for the admin account                          |
+| Basic Auth     | Like Simple Auth, but using HTTP Basic Auth for login                                         | Logout does not work because browsers caches Basic Auth credentials |
+| OpenID Connect | For delegating authentication to an existing identity solution                                |                                                                     |
+| Gitlab         | For delegating authentication to gitlab. Supports self-hosted Gitlab.                         |                                                                     |
+
+If `adminPassword` is set, an administrator account will be added with the username of `adminUsername` (default `admin`)
+to the Simple Auth or Basic Auth backend; whichever is enabled, automatically enabling Simple if both are unset,
+preferring Simple to Basic if both are enabled.
 
 ## Configuration
 
@@ -28,8 +33,18 @@ config file (config.yaml).
 Below is an annotated example config section that can be used as a starting point.
 
 ```yaml
+# You can disable the builtin admin account by leaving out 'adminPassword'. Requires another backend to be configured.
+adminPassword: "<admin password>"
+# adminUsername sets the user for the Basic/Simple Auth admin account if adminPassword is set.
+# Every user of the basic and simple backend with a username matching adminUsername will have admin privileges.
+adminUsername: "admin"
 # Configure zero or more authentication backends
 auth:
+  simple:
+    # Users is a list of htpasswd encoded username:password pairs
+    # supports BCrypt, Sha, Ssha, Md5
+    # You can create a user using "htpasswd -nB <username>"
+    users: []
   # HTTP Basic Authentication
   basic:
     # Users is a list of htpasswd encoded username:password pairs

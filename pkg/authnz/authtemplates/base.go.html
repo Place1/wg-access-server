@@ -1,26 +1,10 @@
-package authtemplates
-
-import (
-	"html/template"
-	"io"
-
-	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authruntime"
-)
-
-type LoginPage struct {
-	Providers []*authruntime.Provider
-}
-
-func RenderLoginPage(w io.Writer, data LoginPage) error {
-	tpl, err := template.New("login-page").Parse(loginPage)
-	if err != nil {
-		return err
-	}
-	return tpl.Execute(w, data)
-}
-
-const loginPage string = `
-<style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Sign In</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
 	* {
 		font-family: monospace;
 		font-size: 16px;
@@ -58,8 +42,13 @@ const loginPage string = `
 		width: 100%;
 		padding: 10px 15px;
 		border: 1px solid #ccc;
-		color: #ccc;
+		color: #666;
 		box-sizing: border-box;
+	}
+
+	.form label {
+		margin: 10px 0 0;
+		display: block;
 	}
 
 	.form a {
@@ -71,7 +60,7 @@ const loginPage string = `
 	}
 
 	.form > *:last-child {
-		margin-bottom: 0px;
+		margin-bottom: 0;
 	}
 
 	.form input:focus {
@@ -87,6 +76,10 @@ const loginPage string = `
 		border: 0;
 		color: #fff;
 		text-transform: capitalize;
+	}
+
+	.form #submit {
+		margin: 20px 0 0;
 	}
 
 	.form button:hover {
@@ -113,25 +106,13 @@ const loginPage string = `
 		background-color: #4d4d4d;
 		border-radius: 50%;
 	}
-</style>
 
-<section class="form">
-  <h2>Sign In</h2>
-
-	{{range $i, $p := .Providers}}
-		<a href="/signin/{{$i}}">
-			<button>{{$p.Type}}</button>
-		</a>
-	{{end}}
-
-	<!--
-	<form autocomplete="off">
-		<input placeholder="Username" type="text" id="username"></input>
-		<input placeholder="Password" type="password" id="password"></input>
-		<button id="submit">Login</button>
-	</form>
-	<hr />
-	-->
-
-</section>
-`
+	.form .error {
+		color: red;
+	}
+	</style>
+</head>
+<body>
+{{block "body" .}}{{end}}
+</body>
+</html>

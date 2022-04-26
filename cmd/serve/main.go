@@ -306,15 +306,21 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 
 	if cmd.AppConfig.AdminPassword != "" {
 		// set a basic auth entry for the admin user
-		if cmd.AppConfig.Auth.Basic == nil {
-			// one of them has to be enabled
-			cmd.AppConfig.Auth.Basic = &authconfig.BasicAuthConfig{}
-		}
 		pw, err := bcrypt.GenerateFromPassword([]byte(cmd.AppConfig.AdminPassword), bcrypt.DefaultCost)
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err, "failed to generate a bcrypt hash for the provided admin password"))
 		}
-		cmd.AppConfig.Auth.Basic.Users = append(cmd.AppConfig.Auth.Basic.Users, fmt.Sprintf("%s:%s", cmd.AppConfig.AdminUsername, string(pw)))
+		if cmd.AppConfig.Auth.Simple == nil && cmd.AppConfig.Auth.Basic == nil {
+			// basic and simple auth are unset, enable simple auth for the admin user
+			cmd.AppConfig.Auth.Simple = &authconfig.SimpleAuthConfig{}
+			cmd.AppConfig.Auth.Simple.Users = append(cmd.AppConfig.Auth.Simple.Users, fmt.Sprintf("%s:%s", cmd.AppConfig.AdminUsername, string(pw)))
+		} else if cmd.AppConfig.Auth.Simple != nil {
+			// there already exists a simple auth section, set a simple auth entry for the admin user
+			cmd.AppConfig.Auth.Simple.Users = append(cmd.AppConfig.Auth.Simple.Users, fmt.Sprintf("%s:%s", cmd.AppConfig.AdminUsername, string(pw)))
+		} else {
+			// there already exists a basic auth section, set a basic auth entry for the admin user
+			cmd.AppConfig.Auth.Basic.Users = append(cmd.AppConfig.Auth.Basic.Users, fmt.Sprintf("%s:%s", cmd.AppConfig.AdminUsername, string(pw)))
+		}
 	}
 
 	// we'll generate a private key when using memory://
@@ -356,7 +362,8 @@ func claimsMiddleware(conf *config.AppConfig) authsession.ClaimsMiddleware {
 		if user == nil {
 			return errors.New("User is not logged in")
 		}
-		if user.Subject == conf.AdminUsername {
+		// restrict privilege elevation by username to basic and simple auth users only
+		if (user.Provider == "Basic" || user.Provider == "Simple") && user.Subject == conf.AdminUsername {
 			user.Claims.Add("admin", "true")
 		}
 		return nil

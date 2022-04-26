@@ -5,13 +5,14 @@ import (
 )
 
 type AuthConfig struct {
-	OIDC   *OIDCConfig      `yaml:"oidc"`
-	Gitlab *GitlabConfig    `yaml:"gitlab"`
-	Basic  *BasicAuthConfig `yaml:"basic"`
+	OIDC   *OIDCConfig       `yaml:"oidc"`
+	Gitlab *GitlabConfig     `yaml:"gitlab"`
+	Basic  *BasicAuthConfig  `yaml:"basic"`
+	Simple *SimpleAuthConfig `yaml:"simple"`
 }
 
 func (c *AuthConfig) IsEnabled() bool {
-	return c.OIDC != nil || c.Gitlab != nil || c.Basic != nil
+	return c.OIDC != nil || c.Gitlab != nil || c.Basic != nil || c.Simple != nil
 }
 
 func (c *AuthConfig) DesiresSigninPage() bool {
@@ -32,6 +33,10 @@ func (c *AuthConfig) Providers() []*authruntime.Provider {
 
 	if c.Basic != nil {
 		providers = append(providers, c.Basic.Provider())
+	}
+
+	if c.Simple != nil {
+		providers = append(providers, c.Simple.Provider())
 	}
 
 	return providers

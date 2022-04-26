@@ -12,7 +12,6 @@ type Identity struct {
 	// Email is the email address of the person this Identity refers to.
 	// It may be empty.
 	Email string
-	// Claims are any additional claims that middleware have
-	// added to this Identity.
+	// Claims are any additional claims that middlewares have added to this Identity.
 	Claims Claims
 }
