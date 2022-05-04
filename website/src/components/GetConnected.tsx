@@ -11,6 +11,7 @@ import { GetApp } from '@material-ui/icons';
 import Laptop from '@material-ui/icons/Laptop';
 import PhoneIphone from '@material-ui/icons/PhoneIphone';
 import React from 'react';
+import { AppState } from '../AppState';
 import { isMobile } from '../Platform';
 import { download } from '../Util';
 import { LinuxIcon, MacOSIcon, WindowsIcon } from './Icons';
@@ -31,8 +32,9 @@ export class GetConnected extends React.Component<Props> {
   };
 
   download = () => {
+    const info = AppState.info!;
     download({
-      filename: 'WireGuard.conf',
+      filename: info.filename.length > 0 ? info.filename + '.conf' : 'WireGuard.conf',
       content: this.props.configFile,
     });
   };
