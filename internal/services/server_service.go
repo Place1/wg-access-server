@@ -67,6 +67,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		AllowedIps:      allowedIPs(s.Config),
 		DnsEnabled:      s.Config.DNS.Enabled,
 		DnsAddress:      dnsAddress,
+		Filename:        s.Config.Filename,
 	}, nil
 }
 

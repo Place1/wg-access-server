@@ -29,6 +29,11 @@ type AppConfig struct {
 	// DisableMetadata allows you to turn off collection of device
 	// metadata including last handshake time & rx/tx bytes
 	DisableMetadata bool `yaml:"disableMetadata"`
+	// The name of the WireGuard configuration file that can
+	// be downloaded through the web UI after adding a device.
+	// Do not include the '.conf' extension
+	// Defaults to 'WireGuard' (resulting full name 'WireGuard.conf')
+	Filename string `yaml:"filename"`
 	// Configure WireGuard related settings
 	WireGuard struct {
 		// Set this to false to disable the embedded wireguard
