@@ -5,9 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
-	"github.com/pkg/errors"
-
+	"github.com/freifunkMUC/wg-access-server/internal/traces"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authconfig"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authruntime"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
@@ -16,6 +14,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"github.com/pkg/errors"
 )
 
 type AuthMiddleware struct {
@@ -100,7 +99,7 @@ func (m *AuthMiddleware) Middleware(next http.Handler) http.Handler {
 		if s, err := m.runtime.GetSession(r); err == nil {
 			if m.claimsMiddleware != nil {
 				if err := m.claimsMiddleware(s.Identity); err != nil {
-					ctxlogrus.Extract(r.Context()).Error(errors.Wrap(err, "authz middleware failure"))
+					traces.Logger(r.Context()).Error(errors.Wrap(err, "authz middleware failure"))
 					http.Error(w, "internal server error", http.StatusInternalServerError)
 					return
 				}
