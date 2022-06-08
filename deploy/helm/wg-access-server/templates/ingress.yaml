@@ -28,7 +28,11 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: {{ $fullName }}-web
-              servicePort: 80
+              service:
+                name:  {{ $fullName }}-web
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
   {{- end }}
 {{- end }}
