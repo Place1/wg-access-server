@@ -97,15 +97,23 @@ func (m *AuthMiddleware) Middleware(next http.Handler) http.Handler {
 		// functionality i.e. annotate the request context
 		// with the request user (identity)
 		if s, err := m.runtime.GetSession(r); err == nil {
+			if s.Identity == nil {
+				// Can happen due to an aborted or failed login at the OIDC provider
+				// Redirect the user to the signin page, so they can redo the login
+				http.Redirect(w, r, "/signin", http.StatusSeeOther)
+				return
+			}
 			if m.claimsMiddleware != nil {
 				if err := m.claimsMiddleware(s.Identity); err != nil {
-					traces.Logger(r.Context()).Error(errors.Wrap(err, "authz middleware failure"))
-					http.Error(w, "internal server error", http.StatusInternalServerError)
+					traces.Logger(r.Context()).Error(errors.Wrap(err, "authnz middleware failure"))
+					http.Redirect(w, r, "/signin", http.StatusSeeOther)
 					return
 				}
 			}
 			next.ServeHTTP(w, r.WithContext(authsession.SetIdentityCtx(r.Context(), s)))
 		} else {
+			// GetSession() errors e.g. after the server restarted, because old session cookies are no longer trusted
+			// The RequireAuthentication() middleware will be next in line and prompt the user to log in
 			next.ServeHTTP(w, r)
 		}
 	})
