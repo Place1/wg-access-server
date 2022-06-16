@@ -2,56 +2,57 @@ package network
 
 import (
 	"net"
+	"net/netip"
 	"strings"
 
 	"github.com/coreos/go-iptables/iptables"
 	"github.com/pkg/errors"
 )
 
-// ServerVPNIPs returns two net.IPNet objects (for IPv4 + IPv6)
-// with the IP attribute set to the server's IP addresses
+// ServerVPNIPs returns two netip.Prefix objects (for IPv4 + IPv6)
+// with the Addr set to the server's IP addresses
 // in these subnets, i.e. the first usable address
-// The  return values are nil if the corresponding input is an empty string
-func ServerVPNIPs(cidr, cidr6 string) (ipv4, ipv6 *net.IPNet, err error) {
+// The return values are the zero prefixes if the corresponding input is an empty string
+func ServerVPNIPs(cidr, cidr6 string) (ipv4, ipv6 netip.Prefix, err error) {
 	if cidr != "" {
-		vpnip, vpnsubnet, err := net.ParseCIDR(cidr)
+		vpnprefix, err := netip.ParsePrefix(cidr)
 		if err != nil {
-			return nil, nil, err
+			return netip.Prefix{}, netip.Prefix{}, err
 		}
-		vpnsubnet.IP = nextIP(vpnip.Mask(vpnsubnet.Mask))
-		ipv4 = vpnsubnet
+		addr := vpnprefix.Masked().Addr().Next()
+		ipv4 = netip.PrefixFrom(addr, vpnprefix.Bits())
 	}
 	if cidr6 != "" {
-		vpnip, vpnsubnet, err := net.ParseCIDR(cidr6)
+		vpnprefix, err := netip.ParsePrefix(cidr6)
 		if err != nil {
-			return nil, nil, err
+			return netip.Prefix{}, netip.Prefix{}, err
 		}
-		vpnsubnet.IP = nextIP(vpnip.Mask(vpnsubnet.Mask))
-		ipv6 = vpnsubnet
+		addr := vpnprefix.Masked().Addr().Next()
+		ipv6 = netip.PrefixFrom(addr, vpnprefix.Bits())
 	}
 	return ipv4, ipv6, nil
 }
 
-// StringJoinIPNets joins the string representations of a and b using a comma
-func StringJoinIPNets(a, b *net.IPNet) string {
-	if a != nil && b != nil {
+// StringJoinIPNets joins the string representations of a and b using ", "
+func StringJoinIPNets(a, b netip.Prefix) string {
+	if a.IsValid() && b.IsValid() {
 		return strings.Join([]string{a.String(), b.String()}, ", ")
-	} else if a != nil {
+	} else if a.IsValid() {
 		return a.String()
-	} else if b != nil {
+	} else if b.IsValid() {
 		return b.String()
 	}
 	return ""
 }
 
-// StringJoinIPs joins the string representations of the IPs of a and b using a comma
-func StringJoinIPs(a, b *net.IPNet) string {
-	if a != nil && b != nil {
-		return strings.Join([]string{a.IP.String(), b.IP.String()}, ", ")
-	} else if a != nil {
-		return a.IP.String()
-	} else if b != nil {
-		return b.IP.String()
+// StringJoinIPs joins the string representations of the IPs of a and b using ", "
+func StringJoinIPs(a, b netip.Prefix) string {
+	if a.IsValid() && b.IsValid() {
+		return strings.Join([]string{a.Addr().String(), b.Addr().String()}, ", ")
+	} else if a.IsValid() {
+		return a.Addr().String()
+	} else if b.IsValid() {
+		return b.Addr().String()
 	}
 	return ""
 }
@@ -239,16 +240,4 @@ func clearOrCreateChain(ipt *iptables.IPTables, table, chain string) error {
 		}
 	}
 	return nil
-}
-
-func nextIP(ip net.IP) net.IP {
-	next := make([]byte, len(ip))
-	copy(next, ip)
-	for j := len(next) - 1; j >= 0; j-- {
-		next[j]++
-		if next[j] > 0 {
-			break
-		}
-	}
-	return next
 }

@@ -50,8 +50,8 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 	dnsAddress := network.StringJoinIPs(vpnip, vpnipv6)
 
 	var hostVPNIP string
-	if vpnip != nil {
-		hostVPNIP = vpnip.IP.String()
+	if vpnip.IsValid() {
+		hostVPNIP = vpnip.Addr().String()
 	} else {
 		hostVPNIP = ""
 	}

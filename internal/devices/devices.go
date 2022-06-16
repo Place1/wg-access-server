@@ -2,7 +2,7 @@ package devices
 
 import (
 	"fmt"
-	"net"
+	"net/netip"
 	"sync"
 	"time"
 
@@ -162,18 +162,18 @@ func (d *DeviceManager) nextClientAddress() (string, error) {
 	// TODO: read up on better ways to allocate client's IP
 	// addresses from a configurable CIDR
 
-	var usedIPv4s []net.IP
-	var usedIPv6s []net.IP
+	usedIPv4s := make(map[netip.Addr]bool, len(devices)+3)
+	usedIPv6s := make(map[netip.Addr]bool, len(devices)+3)
 
 	// Check what IP addresses are already occupied
 	for _, device := range devices {
 		addresses := network.SplitAddresses(device.Address)
 		for _, addr := range addresses {
-			ip, _ := MustParseCIDR(addr)
-			if as4 := ip.To4(); as4 != nil {
-				usedIPv4s = append(usedIPv4s, as4)
+			addr := netip.MustParsePrefix(addr).Addr()
+			if addr.Is4() {
+				usedIPv4s[addr] = true
 			} else {
-				usedIPv6s = append(usedIPv6s, ip)
+				usedIPv6s[addr] = true
 			}
 		}
 	}
@@ -182,36 +182,32 @@ func (d *DeviceManager) nextClientAddress() (string, error) {
 	var ipv6 string
 
 	if d.cidr != "" {
-		vpnipv4, vpnsubnetv4 := MustParseCIDR(d.cidr)
-		startIPv4 := vpnipv4.Mask(vpnsubnetv4.Mask)
+		vpnsubnetv4 := netip.MustParsePrefix(d.cidr)
+		startIPv4 := vpnsubnetv4.Masked().Addr()
 
 		// Add the network address and the VPN server address to the list of occupied addresses
-		usedIPv4s = append(usedIPv4s,
-			startIPv4,         // x.x.x.0
-			nextIP(startIPv4), // x.x.x.1
-		)
+		usedIPv4s[startIPv4] = true        // x.x.x.0
+		usedIPv4s[startIPv4.Next()] = true // x.x.x.1
 
-		for ip := startIPv4; vpnsubnetv4.Contains(ip); ip = nextIP(ip) {
-			if !contains(usedIPv4s, ip) {
-				ipv4 = fmt.Sprintf("%s/32", ip.String())
+		for ip := startIPv4.Next().Next(); vpnsubnetv4.Contains(ip); ip = ip.Next() {
+			if !usedIPv4s[ip] {
+				ipv4 = netip.PrefixFrom(ip, 32).String()
 				break
 			}
 		}
 	}
 
 	if d.cidrv6 != "" {
-		vpnipv6, vpnsubnetv6 := MustParseCIDR(d.cidrv6)
-		startIPv6 := vpnipv6.Mask(vpnsubnetv6.Mask)
+		vpnsubnetv6 := netip.MustParsePrefix(d.cidrv6)
+		startIPv6 := vpnsubnetv6.Masked().Addr()
 
 		// Add the network address and the VPN server address to the list of occupied addresses
-		usedIPv6s = append(usedIPv6s,
-			startIPv6,         // ::0
-			nextIP(startIPv6), // ::1
-		)
+		usedIPv6s[startIPv6] = true        // ::0
+		usedIPv6s[startIPv6.Next()] = true // ::1
 
-		for ip := startIPv6; vpnsubnetv6.Contains(ip); ip = nextIP(ip) {
-			if !contains(usedIPv6s, ip) {
-				ipv6 = fmt.Sprintf("%s/128", ip.String())
+		for ip := startIPv6.Next().Next(); vpnsubnetv6.Contains(ip); ip = ip.Next() {
+			if !usedIPv6s[ip] {
+				ipv6 = netip.PrefixFrom(ip, 128).String()
 				break
 			}
 		}
@@ -234,40 +230,6 @@ func (d *DeviceManager) nextClientAddress() (string, error) {
 	} else {
 		return "", fmt.Errorf("there are no free IP addresses in the vpn subnets: '%s', '%s'", d.cidr, d.cidrv6)
 	}
-}
-
-func contains(ips []net.IP, target net.IP) bool {
-	for _, ip := range ips {
-		if ip.Equal(target) {
-			return true
-		}
-	}
-	return false
-}
-
-func MustParseCIDR(cidr string) (net.IP, *net.IPNet) {
-	ip, ipnet, err := net.ParseCIDR(cidr)
-	if err != nil {
-		panic(err)
-	}
-	return ip, ipnet
-}
-
-func MustParseIP(ip string) net.IP {
-	netip, _ := MustParseCIDR(fmt.Sprintf("%s/32", ip))
-	return netip
-}
-
-func nextIP(ip net.IP) net.IP {
-	next := make([]byte, len(ip))
-	copy(next, ip)
-	for j := len(next) - 1; j >= 0; j-- {
-		next[j]++
-		if next[j] > 0 {
-			break
-		}
-	}
-	return next
 }
 
 func deviceListContains(devices []*storage.Device, publicKey string) bool {
