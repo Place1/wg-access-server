@@ -34,7 +34,12 @@ func New(opts DNSServerOpts) (*DNSServer, error) {
 	dnsServer := &DNSServer{
 		servers: []*dns.Server{},
 		proxy: &DNSProxy{
-			client: &dns.Client{
+			udpClient: &dns.Client{
+				SingleInflight: true,
+				Timeout:        5 * time.Second,
+			},
+			tcpClient: &dns.Client{
+				Net:            "tcp",
 				SingleInflight: true,
 				Timeout:        5 * time.Second,
 			},
