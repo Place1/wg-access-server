@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/netip"
 	"os"
 	"os/signal"
 	"strings"
@@ -76,13 +77,13 @@ func (cmd *servecmd) Run() {
 	conf := cmd.ReadConfig()
 
 	// Get the server's IP addresses within the VPN
-	var vpnip, vpnipv6 *net.IPNet
+	var vpnip, vpnipv6 netip.Prefix
 	var err error
 	vpnip, vpnipv6, err = network.ServerVPNIPs(conf.VPN.CIDR, conf.VPN.CIDRv6)
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	if vpnip == nil && vpnipv6 == nil {
+	if !vpnip.IsValid() && !vpnipv6.IsValid() {
 		logrus.Fatal("need at least one of VPN.CIDR or VPN.CIDRv6 set")
 	}
 
@@ -90,20 +91,20 @@ func (cmd *servecmd) Run() {
 	// This is important because clients will send traffic
 	// to the embedded DNS proxy using the VPN IP
 	vpnipstrings := make([]string, 0, 2)
-	if vpnip != nil {
-		conf.VPN.AllowedIPs = append(conf.VPN.AllowedIPs, fmt.Sprintf("%s/32", vpnip.IP.String()))
+	if vpnip.IsValid() {
+		conf.VPN.AllowedIPs = append(conf.VPN.AllowedIPs, netip.PrefixFrom(vpnip.Addr(), 32).String())
 		vpnipstrings = append(vpnipstrings, vpnip.String())
 	}
-	if vpnipv6 != nil {
-		conf.VPN.AllowedIPs = append(conf.VPN.AllowedIPs, fmt.Sprintf("%s/128", vpnipv6.IP.String()))
+	if vpnipv6.IsValid() {
+		conf.VPN.AllowedIPs = append(conf.VPN.AllowedIPs, netip.PrefixFrom(vpnipv6.Addr(), 128).String())
 		vpnipstrings = append(vpnipstrings, vpnipv6.String())
 	}
-	vpnips := make([]net.IP, 0, 2)
-	if vpnip != nil {
-		vpnips = append(vpnips, vpnip.IP)
+	vpnips := make([]netip.Addr, 0, 2)
+	if vpnip.IsValid() {
+		vpnips = append(vpnips, vpnip.Addr())
 	}
-	if vpnipv6 != nil {
-		vpnips = append(vpnips, vpnipv6.IP)
+	if vpnipv6.IsValid() {
+		vpnips = append(vpnips, vpnipv6.Addr())
 	}
 
 	// WireGuard Server
@@ -414,7 +415,7 @@ func detectDefaultInterface() string {
 	return ""
 }
 
-func generateZone(deviceManager *devices.DeviceManager, vpnips []net.IP) dnsproxy.Zone {
+func generateZone(deviceManager *devices.DeviceManager, vpnips []netip.Addr) dnsproxy.Zone {
 	devs, err := deviceManager.ListAllDevices()
 	if err != nil {
 		logrus.Error(errors.Wrap(err, "could not query devices to generate the DNS zone"))
@@ -425,13 +426,13 @@ func generateZone(deviceManager *devices.DeviceManager, vpnips []net.IP) dnsprox
 		owner := device.Owner
 		name := device.Name
 		addressStrings := network.SplitAddresses(device.Address)
-		addresses := make([]net.IP, 0, 2)
+		addresses := make([]netip.Addr, 0, 2)
 		for _, str := range addressStrings {
-			addr, _, err := net.ParseCIDR(str)
+			pref, err := netip.ParsePrefix(str)
 			if err != nil {
 				continue
 			}
-			addresses = append(addresses, addr)
+			addresses = append(addresses, pref.Addr())
 		}
 		zone[dnsproxy.ZoneKey{Owner: owner, Name: name}] = addresses
 	}

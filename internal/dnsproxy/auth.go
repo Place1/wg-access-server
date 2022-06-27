@@ -2,7 +2,7 @@ package dnsproxy
 
 import (
 	"fmt"
-	"net"
+	"net/netip"
 	"strings"
 	"sync"
 
@@ -14,7 +14,7 @@ import (
 const authoritativeTTL = 300
 
 type ZoneKey struct{ Owner, Name string }
-type Zone map[ZoneKey][]net.IP
+type Zone map[ZoneKey][]netip.Addr
 
 type DNSAuth struct {
 	Domain string
@@ -73,7 +73,7 @@ func (d *DNSAuth) Lookup(m *dns.Msg) (*dns.Msg, error) {
 
 	response := new(dns.Msg)
 	response.Authoritative = true
-	var addresses []net.IP
+	var addresses []netip.Addr
 
 	if parts == nil {
 		// Query for the search domain itself, return server address
@@ -106,16 +106,16 @@ func (d *DNSAuth) Lookup(m *dns.Msg) (*dns.Msg, error) {
 	// Figure out which addresses to send
 	for _, addr := range addresses {
 		if question.Qtype == dns.TypeAAAA || question.Qtype == dns.TypeANY {
-			if addr.To4() == nil {
-				rr, err := newRR(qname, question.Qclass, dns.TypeAAAA, addr.To16().String())
+			if addr.Is6() {
+				rr, err := newRR(qname, question.Qclass, dns.TypeAAAA, addr.String())
 				if err == nil {
 					response.Answer = append(response.Answer, rr)
 				}
 			}
 		}
 		if question.Qtype == dns.TypeA || question.Qtype == dns.TypeANY {
-			if addr.To4() != nil {
-				rr, err := newRR(qname, question.Qclass, dns.TypeA, addr.To4().String())
+			if addr.Is4() {
+				rr, err := newRR(qname, question.Qclass, dns.TypeA, addr.String())
 				if err == nil {
 					response.Answer = append(response.Answer, rr)
 				}
@@ -127,7 +127,7 @@ func (d *DNSAuth) Lookup(m *dns.Msg) (*dns.Msg, error) {
 	return response, nil
 }
 
-func (d *DNSAuth) getDevice(owner, device string) []net.IP {
+func (d *DNSAuth) getDevice(owner, device string) []netip.Addr {
 	d.zoneLock.RLock()
 	defer d.zoneLock.RUnlock()
 	return d.zone[ZoneKey{owner, device}]
