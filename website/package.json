@@ -14,7 +14,7 @@
     "common-tags": "^1.8.2",
     "date-fns": "^2.28.0",
     "google-protobuf": "^4.0.0-rc.1",
-    "mobx": "^6.5.0",
+    "mobx": "^6.6.1",
     "mobx-react": "^7.5.0",
     "mobx-utils": "^6.0.5",
     "numeral": "^2.0.6",
