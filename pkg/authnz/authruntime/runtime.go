@@ -36,7 +36,7 @@ func (p *ProviderRuntime) ClearSession(w http.ResponseWriter, r *http.Request) e
 }
 
 func (p *ProviderRuntime) Restart(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/signin?signout=1", http.StatusTemporaryRedirect)
 }
 
 func (p *ProviderRuntime) Done(w http.ResponseWriter, r *http.Request) {

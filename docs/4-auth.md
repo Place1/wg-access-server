@@ -59,26 +59,34 @@ auth:
     # Your OIDC client credentials which would be provided by your OIDC provider
     clientID: "<client-id>"
     clientSecret: "<client-secret>"
-    # List of scopes to request defaults to ["openid"]
-    scopes:
-      - openid
     # The full redirect URL
     # The path can be almost anything as long as it doesn't
     # conflict with a path that the web UI uses.
     # /callback is recommended.
     redirectURL: "https://wg-access-server.example.com/callback"
+    # List of scopes to request claims for. Must include 'openid'.
+    # Must include 'email' if 'emailDomains' is used. Can include 'profile' to show the user's name in the UI.
+    # Add custom ones if required for 'claimMapping'.
+    # Defaults to ["openid"]
+    scopes:
+      - openid
+      - profile
+      - email
     # You can optionally restrict access to users with an email address
     # that matches an allowed domain.
     # If empty or omitted then all email domains will be allowed.
     emailDomains:
       - example.com
-    # This is an advanced feature that allows you to define
-    # OIDC claim mapping expressions.
-    # This feature is used to define wg-access-server admins
-    # based off a claim in your OIDC token
-    # See https://github.com/Knetic/govaluate/blob/9aa49832a739dcd78a5542ff189fb82c3e423116/MANUAL.md for how to write rules
+    # This is an advanced feature that allows you to define OIDC claim mapping expressions.
+    # This feature is used to define wg-access-server admins based off a claim in your OIDC token.
+    # A JSON-like object of claimKey: claimValue pairs as returned by the issuer is passed to the evaluation function. 
+    # See https://github.com/Knetic/govaluate/blob/9aa49832a739dcd78a5542ff189fb82c3e423116/MANUAL.md for the syntax.
     claimMapping:
+      # This example works if you have a custom group_membership claim which is a list of strings 
       admin: "'WireguardAdmins' in group_membership"
+    # Let wg-access-server retrieve the claims from the ID Token instead of querying the UserInfo endpoint.
+    # Some OIDC authorization provider implementations (e.g. ADFS) only publish claims in the ID Token.
+    claimsFromIDToken: false
   gitlab:
     name: "My Gitlab Backend"
     baseURL: "https://mygitlab.example.com"
@@ -88,3 +96,9 @@ auth:
     emailDomains:
       - example.com
 ```
+
+## OIDC Provider specifics
+
+### Active Directory Federation Services (ADFS)
+
+Please see [this helpful issue comment](https://github.com/freifunkMUC/wg-access-server/issues/213#issuecomment-1172656633) for instructions for ADFS 2016 and above.

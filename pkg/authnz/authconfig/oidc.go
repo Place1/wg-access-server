@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authruntime"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
@@ -21,24 +20,28 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// OIDCConfig implements an OIDC client using the [Authorization Code Flow]
+// [Authorization Code Flow]: https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth
 type OIDCConfig struct {
-	Name         string                    `yaml:"name"`
-	Issuer       string                    `yaml:"issuer"`
-	ClientID     string                    `yaml:"clientID"`
-	ClientSecret string                    `yaml:"clientSecret"`
-	Scopes       []string                  `yaml:"scopes"`
-	RedirectURL  string                    `yaml:"redirectURL"`
-	EmailDomains []string                  `yaml:"emailDomains"`
-	ClaimMapping map[string]ruleExpression `yaml:"claimMapping"`
+	Name              string                    `yaml:"name"`
+	Issuer            string                    `yaml:"issuer"`
+	ClientID          string                    `yaml:"clientID"`
+	ClientSecret      string                    `yaml:"clientSecret"`
+	Scopes            []string                  `yaml:"scopes"`
+	RedirectURL       string                    `yaml:"redirectURL"`
+	EmailDomains      []string                  `yaml:"emailDomains"`
+	ClaimMapping      map[string]ruleExpression `yaml:"claimMapping"`
+	ClaimsFromIDToken bool                      `yaml:"claimsFromIDToken"`
 }
 
 func (c *OIDCConfig) Provider() *authruntime.Provider {
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
+	// The context for the oidc.Provider must be long-lived for verifying ID tokens later-on
+	ctx := context.Background()
 	provider, err := oidc.NewProvider(ctx, c.Issuer)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "failed to create oidc provider"))
 	}
+	verifier := provider.Verifier(&oidc.Config{ClientID: c.ClientID})
 
 	if c.Scopes == nil {
 		c.Scopes = []string{"openid"}
@@ -63,7 +66,7 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 			c.loginHandler(runtime, oauthConfig)(w, r)
 		},
 		RegisterRoutes: func(router *mux.Router, runtime *authruntime.ProviderRuntime) error {
-			router.HandleFunc(redirectURL.Path, c.callbackHandler(runtime, oauthConfig, provider))
+			router.HandleFunc(redirectURL.Path, c.callbackHandler(runtime, oauthConfig, provider, verifier))
 			return nil
 		},
 	}
@@ -71,6 +74,7 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 
 func (c *OIDCConfig) loginHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// 1. Client prepares an Authentication Request containing the desired request parameters.
 		oauthStateString := authutil.RandomString(32)
 		err := runtime.SetSession(w, r, &authsession.AuthSession{
 			Nonce: &oauthStateString,
@@ -79,74 +83,109 @@ func (c *OIDCConfig) loginHandler(runtime *authruntime.ProviderRuntime, oauthCon
 			http.Error(w, "no session", http.StatusUnauthorized)
 			return
 		}
-		url := oauthConfig.AuthCodeURL(oauthStateString)
-		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+		// 2. Client sends the request to the Authorization Server.
+		authCodeURL := oauthConfig.AuthCodeURL(oauthStateString)
+		http.Redirect(w, r, authCodeURL, http.StatusTemporaryRedirect)
 	}
 }
 
-func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.Config, provider *oidc.Provider) http.HandlerFunc {
+func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauthConfig *oauth2.Config,
+	provider *oidc.Provider, verifier *oidc.IDTokenVerifier) http.HandlerFunc {
+
 	return func(w http.ResponseWriter, r *http.Request) {
+		// 3. Authorization Server Authenticates the End-User.
+		// 4. Authorization Server obtains End-User Consent/Authorization.
+		// 5. Authorization Server sends the End-User back to the Client with an Authorization Code.
+
 		s, err := runtime.GetSession(r)
 		if err != nil {
 			http.Error(w, "no session", http.StatusBadRequest)
 			return
 		}
 
+		// Make sure the returned state matches the one saved in the session cookie to prevent CSRF attacks
 		state := r.FormValue("state")
-		if s.Nonce == nil || *s.Nonce != state {
-			http.Error(w, "bad nonce", http.StatusBadRequest)
+		if s.Nonce == nil {
+			http.Error(w, "no state associated with session", http.StatusBadRequest)
+			return
+		} else if *s.Nonce != state {
+			http.Error(w, "bad state value", http.StatusBadRequest)
 			return
 		}
 
-		code := r.FormValue("code")
+		authCode := r.FormValue("code")
 
-		token, err := oauthConfig.Exchange(r.Context(), code)
+		// 6. Client requests a response using the Authorization Code at the Token Endpoint.
+		// 7. Client receives a response that contains an ID Token and Access Token in the response body.
+		oauth2Token, err := oauthConfig.Exchange(r.Context(), authCode)
 		if err != nil {
 			panic(errors.Wrap(err, "Unable to exchange tokens"))
 		}
 
-		info, err := provider.UserInfo(r.Context(), oauthConfig.TokenSource(r.Context(), token))
-		if err != nil {
-			panic(errors.Wrap(err, "Unable to get user info"))
+		// 8. Client validates the ID token and retrieves the End-User's Subject Identifier.
+		oidcClaims := make(map[string]interface{})
+		if !c.ClaimsFromIDToken {
+			// Use the UserInfo endpoint to retrieve the claims
+			logrus.Debug("retrieving claims from UserInfo endpoint")
+			info, err := provider.UserInfo(r.Context(), oauthConfig.TokenSource(r.Context(), oauth2Token))
+			if err != nil {
+				panic(errors.Wrap(err, "Unable to get UserInfo"))
+			}
+
+			// Dump the claims
+			err = info.Claims(&oidcClaims)
+			if err != nil {
+				panic(errors.Wrap(err, "Unable to unmarshal claims from UserInfo JSON"))
+			}
+		} else {
+			// Extract and parse the ID token to retrieve the claims
+			logrus.Debug("retrieving claims from ID Token")
+			rawIDToken, ok := oauth2Token.Extra("id_token").(string)
+			if !ok {
+				panic(errors.New("No id_token field in oauth2 token"))
+			}
+			// Parse and verify ID Token payload
+			idToken, err := verifier.Verify(r.Context(), rawIDToken)
+			if err != nil {
+				panic(errors.Wrap(err, "Failed to verify ID Token"))
+			}
+
+			// Dump the claims
+			err = idToken.Claims(&oidcClaims)
+			if err != nil {
+				panic(errors.Wrap(err, "Unable to unmarshal claims from ID Token JSON"))
+			}
 		}
 
-		if msg, valid := verifyEmailDomain(c.EmailDomains, info.Email); !valid {
+		email, _ := oidcClaims["email"].(string)
+		if msg, valid := verifyEmailDomain(c.EmailDomains, email); !valid {
 			http.Error(w, msg, http.StatusForbidden)
 			return
 		}
 
-		oidcProfileData := make(map[string]interface{})
-		err = info.Claims(&oidcProfileData)
+		claims, err := evaluateClaimMapping(c.ClaimMapping, oidcClaims)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		claims := &authsession.Claims{}
-		for claimName, rule := range c.ClaimMapping {
-			result, err := rule.Evaluate(oidcProfileData)
-
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-
-			// If result is 'false' or an empty string then don't include the Claim
-			if val, ok := result.(bool); ok && val {
-				claims.Add(claimName, strconv.FormatBool(val))
-			} else if val, ok := result.(string); ok && len(val) > 0 {
-				claims.Add(claimName, val)
-			}
+		// Build the authnz Identity for the user, they are now considered logged in
+		var subject string
+		if sub, ok := oidcClaims["sub"].(string); ok {
+			subject = sub
+		} else {
+			panic(errors.New("No 'sub' claim returned from authorization provider"))
 		}
-
 		identity := &authsession.Identity{
 			Provider: c.Name,
-			Subject:  info.Subject,
-			Email:    info.Email,
+			Subject:  subject,
 			Claims:   *claims,
 		}
-		if name, ok := oidcProfileData["name"].(string); ok {
+		if name, ok := oidcClaims["name"].(string); ok {
 			identity.Name = name
+		}
+		if email != "" {
+			identity.Email = email
 		}
 
 		err = runtime.SetSession(w, r, &authsession.AuthSession{
@@ -181,6 +220,25 @@ func verifyEmailDomain(allowedDomains []string, email string) (string, bool) {
 	}
 
 	return "email domain not authorized", false
+}
+
+// evaluateClaimMapping translates OIDC claims to custom authnz claims.
+func evaluateClaimMapping(claimMapping map[string]ruleExpression, oidcClaims map[string]interface{}) (*authsession.Claims, error) {
+	claims := &authsession.Claims{}
+	for claimName, rule := range claimMapping {
+		result, err := rule.Evaluate(oidcClaims)
+		if err != nil {
+			return nil, err
+		}
+
+		// If result is 'false' or an empty string then don't include the Claim
+		if val, ok := result.(bool); ok && val {
+			claims.Add(claimName, strconv.FormatBool(val))
+		} else if val, ok := result.(string); ok && len(val) > 0 {
+			claims.Add(claimName, val)
+		}
+	}
+	return claims, nil
 }
 
 type ruleExpression struct {
