@@ -1,0 +1,26 @@
+name: Unit tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test-go:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: [ '1.18', '1.19' ]
+    name: Go ${{ matrix.go }} tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go }}
+          cache: true
+      - name: Run go test
+        run: go test -v ./...
+
