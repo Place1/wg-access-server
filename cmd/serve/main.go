@@ -184,9 +184,10 @@ func (cmd *servecmd) Run() {
 			ListenAddr: listenAddr,
 		})
 		if err != nil {
-			logrus.Error(errors.Wrap(err, "failed to start dns server"))
+			logrus.Error(errors.Wrap(err, "failed to create dns server"))
 			return
 		}
+		dns.ListenAndServe()
 		defer dns.Close()
 		if conf.DNS.Domain != "" {
 			// Generate initial DNS zone for registered devices
