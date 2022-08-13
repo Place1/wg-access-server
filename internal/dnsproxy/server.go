@@ -24,17 +24,22 @@ type DNSServer struct {
 	auth    *DNSAuth
 }
 
+// New returns a pointer to a DNSServer configured using opts DNSServerOpts.
+// The returned server needs to be started using DNSServer.ListenAndServe()
 func New(opts DNSServerOpts) (*DNSServer, error) {
 	if len(opts.Upstream) == 0 {
 		return nil, errors.New("at least 1 upstream dns server is required for the dns proxy server to function")
 	}
 
-	logrus.Infof("starting dns server on %s with upstreams: %s", strings.Join(opts.ListenAddr, ", "), strings.Join(opts.Upstream, ", "))
-
 	dnsServer := &DNSServer{
 		servers: []*dns.Server{},
 		proxy: &DNSProxy{
-			client: &dns.Client{
+			udpClient: &dns.Client{
+				SingleInflight: true,
+				Timeout:        5 * time.Second,
+			},
+			tcpClient: &dns.Client{
+				Net:            "tcp",
 				SingleInflight: true,
 				Timeout:        5 * time.Second,
 			},
@@ -72,15 +77,39 @@ func New(opts DNSServerOpts) (*DNSServer, error) {
 		dnsServer.servers = append(dnsServer.servers, tcpServer)
 	}
 
-	for _, server := range dnsServer.servers {
+	return dnsServer, nil
+}
+
+// ListenAndServe starts the DNSServer and waits until all listeners are up.
+func (d *DNSServer) ListenAndServe() {
+	var sb strings.Builder
+	for i, s := range d.servers {
+		sb.WriteString(s.Addr)
+		sb.WriteString("/")
+		sb.WriteString(s.Net)
+		if i < len(d.servers)-1 {
+			sb.WriteString(", ")
+		}
+	}
+
+	logrus.Infof("starting dns server on %s with upstreams: %s", sb.String(), strings.Join(d.proxy.upstream, ", "))
+
+	var wg sync.WaitGroup
+
+	for _, server := range d.servers {
+		wg.Add(1)
+		server.NotifyStartedFunc = func() {
+			wg.Done()
+		}
 		go func(server *dns.Server) {
 			if err := server.ListenAndServe(); err != nil {
 				logrus.Error(errors.Errorf("failed to start DNS server on %s/%s: %s", server.Addr, server.Net, err))
+				wg.Done()
 			}
 		}(server)
 	}
 
-	return dnsServer, nil
+	wg.Wait()
 }
 
 func (d *DNSServer) Close() error {
