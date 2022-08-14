@@ -27,6 +27,20 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- with .Values.sysctlInitContainer }}
+      initContainers:
+      - command:
+        - sysctl
+        - -w
+        - net.ipv4.ip_forward=1
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        name: init-sysctl
+        securityContext:
+          privileged: true
+          runAsNonRoot: false
+          runAsUser: 0
+    {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
