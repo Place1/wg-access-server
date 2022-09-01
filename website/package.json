@@ -28,7 +28,7 @@
   "devDependencies": {
     "@types/common-tags": "^1.8.1",
     "@types/numeral": "^2.0.2",
-    "@types/qrcode": "^1.4.2",
+    "@types/qrcode": "^1.5.0",
     "@types/react": "^17.0.39",
     "@types/react-dom": "^18.0.3",
     "@types/react-router-dom": "^5.3.3",
