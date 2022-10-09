@@ -32,6 +32,7 @@ type OIDCConfig struct {
 	EmailDomains      []string                  `yaml:"emailDomains"`
 	ClaimMapping      map[string]ruleExpression `yaml:"claimMapping"`
 	ClaimsFromIDToken bool                      `yaml:"claimsFromIDToken"`
+	AccessClaim       string                    `yaml:"accessClaim"`
 }
 
 func (c *OIDCConfig) Provider() *authruntime.Provider {
