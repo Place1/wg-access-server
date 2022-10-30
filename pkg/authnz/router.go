@@ -1,6 +1,7 @@
 package authnz
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -26,7 +27,20 @@ type AuthMiddleware struct {
 
 func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddleware) (*AuthMiddleware, error) {
 	router := mux.NewRouter()
-	store := sessions.NewCookieStore([]byte(authutil.RandomString(32)))
+	var storeSecret []byte
+	if config.SessionStore.Secret == "" {
+		storeSecret = []byte(authutil.RandomString(32))
+	} else {
+		var err error
+		storeSecret, err = hex.DecodeString(config.SessionStore.Secret)
+		if err != nil {
+			return nil, err
+		}
+		if len(storeSecret) != 32 {
+			return nil, errors.New("session store secret must be 32 bytes long")
+		}
+	}
+	store := sessions.NewCookieStore(storeSecret)
 	runtime := authruntime.NewProviderRuntime(store)
 	providers := config.Providers()
 
