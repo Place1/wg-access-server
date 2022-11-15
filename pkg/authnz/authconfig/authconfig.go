@@ -5,10 +5,15 @@ import (
 )
 
 type AuthConfig struct {
-	OIDC   *OIDCConfig       `yaml:"oidc"`
-	Gitlab *GitlabConfig     `yaml:"gitlab"`
-	Basic  *BasicAuthConfig  `yaml:"basic"`
-	Simple *SimpleAuthConfig `yaml:"simple"`
+	SessionStore *SessionStoreConfig `yaml:"sessionStore"`
+	OIDC         *OIDCConfig         `yaml:"oidc"`
+	Gitlab       *GitlabConfig       `yaml:"gitlab"`
+	Basic        *BasicAuthConfig    `yaml:"basic"`
+	Simple       *SimpleAuthConfig   `yaml:"simple"`
+}
+
+type SessionStoreConfig struct {
+	Secret string `yaml:"secret"`
 }
 
 func (c *AuthConfig) IsEnabled() bool {

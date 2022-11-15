@@ -40,6 +40,10 @@ adminPassword: "<admin password>"
 adminUsername: "admin"
 # Configure zero or more authentication backends
 auth:
+  sessionStore:
+    # 32 random bytes in hexadecimal encoding (64 chars) used to sign session cookies. It's generated randomly
+    # if not present. Need to be set when running in HA setup (more than one replica)
+    secret: "<session store secret>"
   simple:
     # Users is a list of htpasswd encoded username:password pairs
     # supports BCrypt, Sha, Ssha, Md5
