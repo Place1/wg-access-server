@@ -84,9 +84,12 @@ auth:
     claimMapping:
       # This example works if you have a custom group_membership claim which is a list of strings 
       admin: "'WireguardAdmins' in group_membership"
+      access: "'WireguardAccess' in group_membership"
     # Let wg-access-server retrieve the claims from the ID Token instead of querying the UserInfo endpoint.
     # Some OIDC authorization provider implementations (e.g. ADFS) only publish claims in the ID Token.
     claimsFromIDToken: false
+    # require this claim to be "true" to allow access for the user
+    accessClaim: "access"
   gitlab:
     name: "My Gitlab Backend"
     baseURL: "https://mygitlab.example.com"

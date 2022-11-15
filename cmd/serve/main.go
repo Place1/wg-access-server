@@ -369,6 +369,13 @@ func claimsMiddleware(conf *config.AppConfig) authsession.ClaimsMiddleware {
 		if (user.Provider == "Basic" || user.Provider == "Simple") && user.Subject == conf.AdminUsername {
 			user.Claims.Add("admin", "true")
 		}
+		// allow access to users only when access claim is present for OIDC
+		if conf.Auth.OIDC != nil && user.Provider == conf.Auth.OIDC.Name && conf.Auth.OIDC.AccessClaim != "" {
+			if !user.Claims.Has(conf.Auth.OIDC.AccessClaim, "true") {
+				return errors.New("User has no access")
+			}
+		}
+
 		return nil
 	}
 }
