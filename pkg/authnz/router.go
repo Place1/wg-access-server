@@ -28,7 +28,7 @@ type AuthMiddleware struct {
 func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddleware) (*AuthMiddleware, error) {
 	router := mux.NewRouter()
 	var storeSecret []byte
-	if config.SessionStore.Secret == "" {
+	if config.SessionStore == nil || config.SessionStore.Secret == "" {
 		storeSecret = []byte(authutil.RandomString(32))
 	} else {
 		var err error
