@@ -66,6 +66,19 @@ func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, p
 		return nil, errors.New("device name must not be empty")
 	}
 
+	var nameTaken bool = false
+	devices, err := d.ListDevices(identity.Subject)
+	for _, x := range devices {
+		if x.Name == name {
+			nameTaken = true
+			break
+		}
+	}
+
+	if nameTaken {
+		return nil, errors.New("device name already taken")
+	}
+
 	clientAddr, err := d.nextClientAddress()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate an ip address for device")
