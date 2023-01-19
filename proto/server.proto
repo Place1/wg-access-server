@@ -5,6 +5,7 @@ package proto;
 option go_package = "github.com/freifunkMUC/wg-access-server/proto/proto";
 
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/duration.proto";
 
 service Server {
   rpc Info(InfoReq) returns (InfoRes) {}
@@ -25,4 +26,6 @@ message InfoRes {
   bool dns_enabled = 8;
   string dns_address = 9;
   string filename = 10;
+  bool inactive_enabled = 11;
+  google.protobuf.Duration inactive_duration = 12;
 }

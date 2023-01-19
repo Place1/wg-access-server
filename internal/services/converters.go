@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -22,6 +23,18 @@ func TimeToTimestamp(value *time.Time) *timestamppb.Timestamp {
 		t = timestamppb.Now()
 	}
 	return t
+}
+
+func DurationToDurationpb(value *time.Duration) *durationpb.Duration {
+	if value == nil {
+		return nil
+	}
+	d := durationpb.New(*value)
+	if d == nil {
+		logrus.Error("bad duration value")
+		d = &durationpb.Duration{}
+	}
+	return d
 }
 
 func stringValue(value *string) *wrapperspb.StringValue {

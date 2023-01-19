@@ -6,6 +6,7 @@ import * as jspb from 'google-protobuf';
 import * as grpcWeb from 'grpc-web';
 
 import * as googleProtobufWrappers from 'google-protobuf/google/protobuf/wrappers_pb';
+import * as googleProtobufDuration from 'google-protobuf/google/protobuf/duration_pb';
 
 export class Server {
 
@@ -117,6 +118,8 @@ export declare namespace InfoRes {
 		dnsEnabled: boolean,
 		dnsAddress: string,
 		filename: string,
+		inactiveEnabled: boolean,
+		inactiveDuration?: googleProtobufDuration.Duration.AsObject,
 	}
 }
 
@@ -203,6 +206,21 @@ export class InfoRes extends jspb.Message {
 		(jspb.Message as any).setProto3StringField(this, 10, value);
 	}
 
+	getInactiveEnabled(): boolean {return jspb.Message.getFieldWithDefault(this, 11, false);
+	}
+
+	setInactiveEnabled(value: boolean): void {
+		(jspb.Message as any).setProto3BooleanField(this, 11, value);
+	}
+
+	getInactiveDuration(): googleProtobufDuration.Duration {
+		return jspb.Message.getWrapperField(this, googleProtobufDuration.Duration, 12);
+	}
+
+	setInactiveDuration(value?: googleProtobufDuration.Duration): void {
+		(jspb.Message as any).setWrapperField(this, 12, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		InfoRes.serializeBinaryToWriter(this, writer);
@@ -222,6 +240,8 @@ export class InfoRes extends jspb.Message {
 			dnsEnabled: this.getDnsEnabled(),
 			dnsAddress: this.getDnsAddress(),
 			filename: this.getFilename(),
+			inactiveEnabled: this.getInactiveEnabled(),
+			inactiveDuration: (f = this.getInactiveDuration()) && f.toObject(),
 		};
 	}
 
@@ -265,6 +285,14 @@ export class InfoRes extends jspb.Message {
 		const field10 = message.getFilename();
 		if (field10.length > 0) {
 			writer.writeString(10, field10);
+		}
+		const field11 = message.getInactiveEnabled();
+		if (field11 != false) {
+			writer.writeBool(11, field11);
+		}
+		const field12 = message.getInactiveDuration();
+		if (field12 != null) {
+			writer.writeMessage(12, field12, googleProtobufDuration.Duration.serializeBinaryToWriter);
 		}
 	}
 
@@ -322,6 +350,15 @@ export class InfoRes extends jspb.Message {
 				const field10 = reader.readString()
 				message.setFilename(field10);
 				break;
+			case 11:
+				const field11 = reader.readBool()
+				message.setInactiveEnabled(field11);
+				break;
+			case 12:
+				const field12 = new googleProtobufDuration.Duration();
+				reader.readMessage(field12, googleProtobufDuration.Duration.deserializeBinaryFromReader);
+				message.setInactiveDuration(field12);
+				break;
 			default:
 				reader.skipField();
 				break;
@@ -356,6 +393,8 @@ function InfoResFromObject(obj: InfoRes.AsObject | undefined): InfoRes | undefin
 	message.setDnsEnabled(obj.dnsEnabled);
 	message.setDnsAddress(obj.dnsAddress);
 	message.setFilename(obj.filename);
+	message.setInactiveEnabled(obj.inactiveEnabled);
+	message.setInactiveDuration(DurationFromObject(obj.inactiveDuration));
 	return message;
 }
 
@@ -365,6 +404,16 @@ function StringValueFromObject(obj: googleProtobufWrappers.StringValue.AsObject 
 	}
 	const message = new googleProtobufWrappers.StringValue();
 	message.setValue(obj.value);
+	return message;
+}
+
+function DurationFromObject(obj: googleProtobufDuration.Duration.AsObject | undefined): googleProtobufDuration.Duration | undefined {
+	if (obj === undefined) {
+		return undefined;
+	}
+	const message = new googleProtobufDuration.Duration();
+	message.setSeconds(obj.seconds);
+	message.setNanos(obj.nanos);
 	return message;
 }
 
