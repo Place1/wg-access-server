@@ -1,5 +1,5 @@
 ### Build stage for the website frontend
-FROM --platform=$BUILDPLATFORM node:19.2.0-bullseye as website
+FROM --platform=$BUILDPLATFORM node:19.3.0-bullseye as website
 WORKDIR /code
 COPY ./website/package.json ./
 COPY ./website/package-lock.json ./
