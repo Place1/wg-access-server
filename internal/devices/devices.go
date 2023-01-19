@@ -6,13 +6,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/freifunkMUC/wg-access-server/internal/network"
-	"github.com/freifunkMUC/wg-access-server/internal/storage"
-	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
-
 	"github.com/freifunkMUC/wg-embed/pkg/wgembed"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+
+	"github.com/freifunkMUC/wg-access-server/internal/network"
+	"github.com/freifunkMUC/wg-access-server/internal/storage"
+	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
 )
 
 type DeviceManager struct {
@@ -20,6 +20,10 @@ type DeviceManager struct {
 	storage storage.Storage
 	cidr    string
 	cidrv6  string
+}
+
+type User struct {
+	Name string
 }
 
 func New(wg wgembed.WireGuardInterface, s storage.Storage, cidr, cidrv6 string) *DeviceManager {
@@ -252,6 +256,40 @@ func deviceListContains(devices []*storage.Device, publicKey string) bool {
 		}
 	}
 	return false
+}
+
+func (d *DeviceManager) ListUsers() ([]*User, error) {
+	devices, err := d.storage.List("")
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to retrieve devices")
+	}
+
+	seen := map[string]bool{}
+	users := []*User{}
+	for _, dev := range devices {
+		if _, ok := seen[dev.Owner]; !ok {
+			users = append(users, &User{Name: dev.Owner})
+			seen[dev.Owner] = true
+		}
+	}
+
+	return users, nil
+}
+
+func (d *DeviceManager) DeleteDevicesForUser(user string) error {
+	devices, err := d.ListDevices(user)
+	if err != nil {
+		return errors.Wrap(err, "failed to retrieve devices")
+	}
+
+	for _, dev := range devices {
+		// TODO not transactional
+		if err := d.DeleteDevice(user, dev.Name); err != nil {
+			return errors.Wrap(err, "failed to delete device")
+		}
+	}
+
+	return nil
 }
 
 func IsConnected(lastHandshake time.Time) bool {

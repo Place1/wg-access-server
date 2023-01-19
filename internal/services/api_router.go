@@ -6,11 +6,6 @@ import (
 	"math"
 	"net/http"
 
-	"github.com/freifunkMUC/wg-access-server/internal/config"
-	"github.com/freifunkMUC/wg-access-server/internal/devices"
-	"github.com/freifunkMUC/wg-access-server/internal/traces"
-	"github.com/freifunkMUC/wg-access-server/proto/proto"
-
 	"github.com/freifunkMUC/wg-embed/pkg/wgembed"
 	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpcLogrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -19,6 +14,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/freifunkMUC/wg-access-server/internal/config"
+	"github.com/freifunkMUC/wg-access-server/internal/devices"
+	"github.com/freifunkMUC/wg-access-server/internal/traces"
+	"github.com/freifunkMUC/wg-access-server/proto/proto"
 )
 
 type ApiServices struct {
@@ -49,6 +49,9 @@ func ApiRouter(deps *ApiServices) http.Handler {
 	proto.RegisterServerServer(server, &ServerService{
 		Config: deps.Config,
 		Wg:     deps.Wg,
+	})
+	proto.RegisterUsersServer(server, &UserService{
+		DeviceManager: deps.DeviceManager,
 	})
 	proto.RegisterDevicesServer(server, &DeviceService{
 		DeviceManager: deps.DeviceManager,
