@@ -13,16 +13,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/freifunkMUC/wg-access-server/internal/config"
-	"github.com/freifunkMUC/wg-access-server/internal/devices"
-	"github.com/freifunkMUC/wg-access-server/internal/dnsproxy"
-	"github.com/freifunkMUC/wg-access-server/internal/network"
-	"github.com/freifunkMUC/wg-access-server/internal/services"
-	"github.com/freifunkMUC/wg-access-server/internal/storage"
-	"github.com/freifunkMUC/wg-access-server/pkg/authnz"
-	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authconfig"
-	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
-
 	"github.com/docker/libnetwork/resolvconf"
 	"github.com/docker/libnetwork/types"
 	"github.com/freifunkMUC/wg-embed/pkg/wgembed"
@@ -34,6 +24,16 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/yaml.v2"
+
+	"github.com/freifunkMUC/wg-access-server/internal/config"
+	"github.com/freifunkMUC/wg-access-server/internal/devices"
+	"github.com/freifunkMUC/wg-access-server/internal/dnsproxy"
+	"github.com/freifunkMUC/wg-access-server/internal/network"
+	"github.com/freifunkMUC/wg-access-server/internal/services"
+	"github.com/freifunkMUC/wg-access-server/internal/storage"
+	"github.com/freifunkMUC/wg-access-server/pkg/authnz"
+	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authconfig"
+	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
 )
 
 func Register(app *kingpin.Application) *servecmd {
@@ -222,7 +222,7 @@ func (cmd *servecmd) Run() {
 	router.Use(services.RecoveryMiddleware)
 
 	// Health check endpoint
-	router.PathPrefix("/health").Handler(services.HealthEndpoint())
+	router.PathPrefix("/health").Handler(services.HealthEndpoint(deviceManager))
 
 	// Authentication middleware
 	middleware, err := authnz.NewMiddleware(conf.Auth, claimsMiddleware(conf))

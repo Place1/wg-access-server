@@ -11,6 +11,7 @@ import (
 
 type Storage interface {
 	Watcher
+	Pingable
 	Save(device *Device) error
 	List(owner string) ([]*Device, error)
 	Get(owner string, name string) (*Device, error)
@@ -26,6 +27,10 @@ type Watcher interface {
 	OnReconnect(func())
 	EmitAdd(device *Device)
 	EmitDelete(device *Device)
+}
+
+type Pingable interface {
+	Ping() error
 }
 
 type Callback func(device *Device)

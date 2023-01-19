@@ -311,6 +311,16 @@ func (d *DeviceManager) DeleteDevicesForUser(user string) error {
 	return nil
 }
 
+func (d *DeviceManager) Ping() error {
+	if err := d.storage.Ping(); err != nil {
+		return errors.Wrap(err, "failed to ping storage")
+	}
+
+	// TODO ping wireguard
+
+	return nil
+}
+
 func IsConnected(lastHandshake time.Time) bool {
 	return lastHandshake.After(time.Now().Add(-3 * time.Minute))
 }
