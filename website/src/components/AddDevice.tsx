@@ -13,7 +13,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import { codeBlock } from 'common-tags';
-import { observable, makeObservable } from 'mobx';
+import { makeObservable, observable } from 'mobx';
 import { observer } from 'mobx-react';
 import React from 'react';
 import { box_keyPair } from 'tweetnacl-ts';
@@ -33,13 +33,15 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
 
   deviceName = '';
 
+  devicePublickey = '';
+
   configFile?: string;
 
   submit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     const keypair = box_keyPair();
-    const publicKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
+    const publicKey = this.devicePublickey || window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
     const privateKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.secretKey) as any)));
 
     try {
@@ -68,12 +70,14 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
     } catch (error) {
       console.log(error);
       // TODO: unwrap grpc error message
-      this.error = 'failed';
+      this.error = 'failed to add device';;
     }
   };
 
   reset = () => {
     this.deviceName = '';
+    this.devicePublickey = '';
+    this.error = '';
   };
 
   constructor(props: Props) {
@@ -83,6 +87,7 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
       dialogOpen: observable,
       error: observable,
       deviceName: observable,
+      devicePublickey: observable,
       configFile: observable
     });
   }
@@ -94,7 +99,7 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
           <CardHeader title="Add A Device" />
           <CardContent>
             <form onSubmit={this.submit}>
-              <FormControl error={!!this.error} fullWidth>
+              <FormControl fullWidth>
                 <InputLabel htmlFor="device-name">Device Name</InputLabel>
                 <Input
                   id="device-name"
@@ -102,8 +107,19 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
                   onChange={(event) => (this.deviceName = event.currentTarget.value)}
                   aria-describedby="device-name-text"
                 />
-                <FormHelperText id="device-name-text">{this.error}</FormHelperText>
+                <FormHelperText id="device-name-text">Any name to your liking</FormHelperText>
               </FormControl>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="device-publickey">Device Public Key</InputLabel>
+                <Input
+                  id="device-publickey"
+                  value={this.devicePublickey}
+                  onChange={(event) => (this.devicePublickey = event.currentTarget.value)}
+                  aria-describedby="device-publickey-text"
+                />
+                <FormHelperText id="device-publickey-text">You may extract your public key from your given private key with: wg pubkey &lt; private.key</FormHelperText>
+              </FormControl>
+              <FormHelperText id="device-error-text" error={true}>{this.error}</FormHelperText>
               <Typography component="div" align="right">
                 <Button color="secondary" type="button" onClick={this.reset}>
                   Cancel
