@@ -2,6 +2,8 @@ package authconfig
 
 import "github.com/freifunkMUC/wg-access-server/pkg/authnz/authruntime"
 
+const GitlabAuthProvider = "gitlab"
+
 type GitlabConfig struct {
 	Name         string   `yaml:"name"`
 	BaseURL      string   `yaml:"baseURL"`
@@ -22,6 +24,6 @@ func (c *GitlabConfig) Provider() *authruntime.Provider {
 		EmailDomains: c.EmailDomains,
 	}
 	p := o.Provider()
-	p.Type = "Gitlab"
+	p.Type = GitlabAuthProvider
 	return p
 }

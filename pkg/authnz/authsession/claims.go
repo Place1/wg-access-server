@@ -1,5 +1,7 @@
 package authsession
 
+const adminClaim = "admin"
+
 type claim struct {
 	Name  string
 	Value string
@@ -32,4 +34,15 @@ func (c *Claims) Has(claim string, value string) bool {
 		}
 	}
 	return false
+}
+
+func (c *Claims) IsAdmin() bool {
+	return c.Has(adminClaim, "true")
+}
+
+func (c *Claims) MakeAdmin() {
+	if c == nil {
+		return
+	}
+	c.Add(adminClaim, "true")
 }

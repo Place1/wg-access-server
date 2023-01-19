@@ -5,11 +5,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/tg123/go-htpasswd"
+
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authruntime"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
-
-	"github.com/tg123/go-htpasswd"
 )
+
+const BasicAuthProvider = "basic"
 
 type BasicAuthConfig struct {
 	// Users is a list of htpasswd encoded username:password pairs
@@ -21,7 +23,7 @@ type BasicAuthConfig struct {
 
 func (c *BasicAuthConfig) Provider() *authruntime.Provider {
 	return &authruntime.Provider{
-		Type: "Basic",
+		Type: BasicAuthProvider,
 		Invoke: func(w http.ResponseWriter, r *http.Request, runtime *authruntime.ProviderRuntime) {
 			basicAuthLogin(c, runtime)(w, r)
 		},
@@ -35,7 +37,7 @@ func basicAuthLogin(c *BasicAuthConfig, runtime *authruntime.ProviderRuntime) ht
 			if ok := checkCreds(c.Users, u, p); ok {
 				err := runtime.SetSession(w, r, &authsession.AuthSession{
 					Identity: &authsession.Identity{
-						Provider: "Basic",
+						Provider: BasicAuthProvider,
 						Subject:  u,
 						Name:     u,
 						Email:    "", // basic auth has no email

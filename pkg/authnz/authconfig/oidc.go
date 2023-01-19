@@ -7,10 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authruntime"
-	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
-	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authutil"
-
 	"github.com/coreos/go-oidc"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -18,7 +14,13 @@ import (
 	"golang.org/x/oauth2"
 	"gopkg.in/Knetic/govaluate.v2"
 	"gopkg.in/yaml.v2"
+
+	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authruntime"
+	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
+	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authutil"
 )
+
+const OIDCAuthProvider = "oidc"
 
 // OIDCConfig implements an OIDC client using the [Authorization Code Flow]
 // [Authorization Code Flow]: https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth
@@ -62,7 +64,7 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 	}
 
 	return &authruntime.Provider{
-		Type: "OIDC",
+		Type: OIDCAuthProvider,
 		Invoke: func(w http.ResponseWriter, r *http.Request, runtime *authruntime.ProviderRuntime) {
 			c.loginHandler(runtime, oauthConfig)(w, r)
 		},

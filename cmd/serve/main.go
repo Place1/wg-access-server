@@ -368,8 +368,8 @@ func claimsMiddleware(conf *config.AppConfig) authsession.ClaimsMiddleware {
 			return errors.New("User is not logged in")
 		}
 		// restrict privilege elevation by username to basic and simple auth users only
-		if (user.Provider == "Basic" || user.Provider == "Simple") && user.Subject == conf.AdminUsername {
-			user.Claims.Add("admin", "true")
+		if (user.Provider == authconfig.BasicAuthProvider || user.Provider == authconfig.SimpleAuthProvider) && user.Subject == conf.AdminUsername {
+			user.Claims.MakeAdmin()
 		}
 		// allow access to users only when access claim is present for OIDC
 		if conf.Auth.OIDC != nil && user.Provider == conf.Auth.OIDC.Name && conf.Auth.OIDC.AccessClaim != "" {
