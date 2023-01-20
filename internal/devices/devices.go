@@ -316,7 +316,9 @@ func (d *DeviceManager) Ping() error {
 		return errors.Wrap(err, "failed to ping storage")
 	}
 
-	// TODO ping wireguard
+	if err := d.wg.Ping(); err != nil {
+		return errors.Wrap(err, "failed to ping wireguard")
+	}
 
 	return nil
 }
