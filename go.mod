@@ -14,6 +14,7 @@ require (
 	github.com/gorilla/sessions v1.2.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/improbable-eng/grpc-web v0.15.0
+	github.com/inventage/wg-embed v0.9.1
 	github.com/jinzhu/gorm v1.9.16
 	github.com/miekg/dns v1.1.53
 	github.com/patrickmn/go-cache v2.1.0+incompatible

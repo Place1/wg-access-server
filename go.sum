@@ -212,6 +212,8 @@ github.com/improbable-eng/grpc-web v0.15.0 h1:BN+7z6uNXZ1tQGcNAuaU1YjsLTApzkjt2t
 github.com/improbable-eng/grpc-web v0.15.0/go.mod h1:1sy9HKV4Jt9aEs9JSnkWlRJPuPtwNr0l57L4f878wP8=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/influxdata/influxdb1-client v0.0.0-20191209144304-8bf82d3c094d/go.mod h1:qj24IKcXYK6Iy9ceXlo3Tc+vtHo9lIhSX5JddghvEPo=
+github.com/inventage/wg-embed v0.9.1 h1:xJgw0jeQ5rxf8S8ASgd1y/Tiz9JpRWMEtt4N0PvqT9Q=
+github.com/inventage/wg-embed v0.9.1/go.mod h1:1wjoPYZ0UYszdFoE5JEOzFdibHC73ESjJUglYo3Cdrs=
 github.com/ishidawataru/sctp v0.0.0-20210707070123-9a39160e9062 h1:G1+wBT0dwjIrBdLy0MIG0i+E4CQxEnedHXdauJEIH6g=
 github.com/ishidawataru/sctp v0.0.0-20210707070123-9a39160e9062/go.mod h1:co9pwDoBCm1kGxawmb4sPq0cSIOOWNPT4KnHotMP1Zg=
 github.com/jinzhu/gorm v1.9.16 h1:+IyIjPEABKRpsu/F8OvDPy9fyQlgsg2luMV2ZIH5i5o=

@@ -152,6 +152,7 @@ export declare namespace Device {
 		ownerName: string,
 		ownerEmail: string,
 		ownerProvider: string,
+		presharedKey: string,
 	}
 }
 
@@ -260,6 +261,13 @@ export class Device extends jspb.Message {
 		(jspb.Message as any).setProto3StringField(this, 13, value);
 	}
 
+	getPresharedKey(): string {return jspb.Message.getFieldWithDefault(this, 14, "");
+	}
+
+	setPresharedKey(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 14, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		Device.serializeBinaryToWriter(this, writer);
@@ -282,6 +290,7 @@ export class Device extends jspb.Message {
 			ownerName: this.getOwnerName(),
 			ownerEmail: this.getOwnerEmail(),
 			ownerProvider: this.getOwnerProvider(),
+			presharedKey: this.getPresharedKey(),
 		};
 	}
 
@@ -337,6 +346,10 @@ export class Device extends jspb.Message {
 		const field13 = message.getOwnerProvider();
 		if (field13.length > 0) {
 			writer.writeString(13, field13);
+		}
+		const field14 = message.getPresharedKey();
+		if (field14.length > 0) {
+			writer.writeString(14, field14);
 		}
 	}
 
@@ -407,6 +420,10 @@ export class Device extends jspb.Message {
 				const field13 = reader.readString()
 				message.setOwnerProvider(field13);
 				break;
+			case 14:
+				const field14 = reader.readString()
+				message.setPresharedKey(field14);
+				break;
 			default:
 				reader.skipField();
 				break;
@@ -420,6 +437,7 @@ export declare namespace AddDeviceReq {
 	export type AsObject = {
 		name: string,
 		publicKey: string,
+		presharedKey: string,
 	}
 }
 
@@ -449,6 +467,13 @@ export class AddDeviceReq extends jspb.Message {
 		(jspb.Message as any).setProto3StringField(this, 2, value);
 	}
 
+	getPresharedKey(): string {return jspb.Message.getFieldWithDefault(this, 3, "");
+	}
+
+	setPresharedKey(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 3, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		AddDeviceReq.serializeBinaryToWriter(this, writer);
@@ -460,6 +485,7 @@ export class AddDeviceReq extends jspb.Message {
 		return {
 			name: this.getName(),
 			publicKey: this.getPublicKey(),
+			presharedKey: this.getPresharedKey(),
 		};
 	}
 
@@ -471,6 +497,10 @@ export class AddDeviceReq extends jspb.Message {
 		const field2 = message.getPublicKey();
 		if (field2.length > 0) {
 			writer.writeString(2, field2);
+		}
+		const field3 = message.getPresharedKey();
+		if (field3.length > 0) {
+			writer.writeString(3, field3);
 		}
 	}
 
@@ -494,6 +524,10 @@ export class AddDeviceReq extends jspb.Message {
 			case 2:
 				const field2 = reader.readString()
 				message.setPublicKey(field2);
+				break;
+			case 3:
+				const field3 = reader.readString()
+				message.setPresharedKey(field3);
 				break;
 			default:
 				reader.skipField();
@@ -876,6 +910,7 @@ function DeviceFromObject(obj: Device.AsObject | undefined): Device | undefined 
 	message.setOwnerName(obj.ownerName);
 	message.setOwnerEmail(obj.ownerEmail);
 	message.setOwnerProvider(obj.ownerProvider);
+	message.setPresharedKey(obj.presharedKey);
 	return message;
 }
 
@@ -896,6 +931,7 @@ function AddDeviceReqFromObject(obj: AddDeviceReq.AsObject | undefined): AddDevi
 	const message = new AddDeviceReq();
 	message.setName(obj.name);
 	message.setPublicKey(obj.publicKey);
+	message.setPresharedKey(obj.presharedKey);
 	return message;
 }
 

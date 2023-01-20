@@ -86,6 +86,12 @@ export const DeviceListItem = observer(class DeviceListItem extends React.Compon
                   <PopoverDisplay label="show">{device.publicKey}</PopoverDisplay>
                 </td>
               </tr>
+              <tr>
+                <td>Pre-shared key</td>
+                <td>
+                  { device.presharedKey ? (<PopoverDisplay label="show">{ device.presharedKey }</PopoverDisplay> ) : ('None') }
+                </td>
+              </tr>
             </tbody>
           </table>
         </CardContent>

@@ -15,8 +15,8 @@ import (
 
 	"github.com/docker/libnetwork/resolvconf"
 	"github.com/docker/libnetwork/types"
-	"github.com/freifunkMUC/wg-embed/pkg/wgembed"
 	"github.com/gorilla/mux"
+	"github.com/inventage/wg-embed/pkg/wgembed"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/vishvananda/netlink"
