@@ -6,17 +6,34 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
+	"github.com/pkg/errors"
+
+	"github.com/freifunkMUC/wg-access-server/internal/config"
 	"github.com/freifunkMUC/wg-access-server/internal/traces"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authconfig"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authruntime"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authtemplates"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authutil"
-
-	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
-	"github.com/pkg/errors"
 )
+
+type loginErrorCode int
+
+const (
+	NotAuthenticated loginErrorCode = 1
+	NotAuthorized    loginErrorCode = 2
+)
+
+type LoginError struct {
+	msg  string
+	code loginErrorCode
+}
+
+func (err *LoginError) Error() string {
+	return fmt.Sprintf("%d: %s", err.code, err.msg)
+}
 
 type AuthMiddleware struct {
 	config           authconfig.AuthConfig
@@ -97,6 +114,32 @@ func NewMiddleware(config authconfig.AuthConfig, claimsMiddleware authsession.Cl
 	return authMiddleware.Middleware, nil
 }
 
+func ClaimsMiddleware(conf *config.AppConfig) authsession.ClaimsMiddleware {
+	return func(user *authsession.Identity) error {
+		if user == nil {
+			return &LoginError{
+				msg:  "User is not logged in",
+				code: NotAuthenticated,
+			}
+		}
+		// restrict privilege elevation by username to basic and simple auth users only
+		if (user.Provider == authconfig.BasicAuthProvider || user.Provider == authconfig.SimpleAuthProvider) && user.Subject == conf.AdminUsername {
+			user.Claims.MakeAdmin()
+		}
+		// allow access to users only when access claim is present for OIDC
+		if conf.Auth.OIDC != nil && user.Provider == conf.Auth.OIDC.Name && conf.Auth.OIDC.AccessClaim != "" {
+			if !user.Claims.Has(conf.Auth.OIDC.AccessClaim, "true") {
+				return &LoginError{
+					msg:  "User has no access",
+					code: NotAuthorized,
+				}
+			}
+		}
+
+		return nil
+	}
+}
+
 func (m *AuthMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// check if the request is for an auth
@@ -120,6 +163,17 @@ func (m *AuthMiddleware) Middleware(next http.Handler) http.Handler {
 			if m.claimsMiddleware != nil {
 				if err := m.claimsMiddleware(s.Identity); err != nil {
 					traces.Logger(r.Context()).Error(errors.Wrap(err, "authnz middleware failure"))
+					if lerr, ok := err.(*LoginError); ok {
+						switch lerr.code {
+						case NotAuthenticated:
+							http.Redirect(w, r, "/signin", http.StatusUnauthorized)
+						case NotAuthorized:
+							http.Redirect(w, r, "/signin", http.StatusForbidden)
+						default:
+							http.Redirect(w, r, "/signin", http.StatusBadRequest)
+						}
+						return
+					}
 					http.Redirect(w, r, "/signin", http.StatusSeeOther)
 					return
 				}
