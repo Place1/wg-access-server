@@ -33,7 +33,7 @@ type AppConfig struct {
 	DisableMetadata bool `yaml:"disableMetadata"`
 	// DisableInactive allows you to delete inactive devices
 	// after a time duration defined by InactiveDuration
-	DisableInactive bool `yaml:"disableIncative"`
+	DisableInactive bool `yaml:"disableInactive"`
 	// InactiveDuration sets the duration after which inactive
 	// devices are automatically deleted
 	// Defaults s to 6 months
