@@ -24,6 +24,12 @@ import { AppState } from '../AppState';
 import { GetConnected } from './GetConnected';
 import { Info } from './Info';
 
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Box from '@material-ui/core/Box';
+
 interface Props {
   onAdd: () => void;
 }
@@ -38,6 +44,8 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
   devicePublickey = '';
 
   useDevicePresharekey = false;
+
+  showAdvancedOptions = false;
 
   configFile?: string;
 
@@ -97,6 +105,7 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
     this.deviceName = '';
     this.devicePublickey = '';
     this.useDevicePresharekey = false;
+    this.showAdvancedOptions = false;
     this.error = '';
   };
 
@@ -130,26 +139,39 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
                   aria-describedby="device-name-text"
                 />
               </FormControl>
-              <FormControl fullWidth>
-                <InputLabel htmlFor="device-publickey">Device Public Key (Optional)</InputLabel>
-                <Input
-                  id="device-publickey"
-                  value={this.devicePublickey}
-                  onChange={(event) => (this.devicePublickey = event.currentTarget.value)}
-                  aria-describedby="device-publickey-text"
-                />
-                <FormHelperText id="device-publickey-text">Put your public key to a pre-generated private key here. Replace the private key in the config file after downloading it.</FormHelperText>
-              </FormControl>
-              <FormControlLabel 
-                control={
-                  <Checkbox
-                    id="device-presharedkey"
-                    value={this.useDevicePresharekey}
-                    onChange={(event) => (this.useDevicePresharekey = event.currentTarget.checked)}
-                  />
-                } 
-                label="Use pre-shared key" 
-              />
+              <Box mt={2} mb={2}>
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="advanced-options-content"
+                    id="advanced-options-header"
+                  >
+                    <Typography>Advanced</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <FormControl fullWidth>
+                      <InputLabel htmlFor="device-publickey">Device Public Key (Optional)</InputLabel>
+                      <Input
+                        id="device-publickey"
+                        value={this.devicePublickey}
+                        onChange={(event) => (this.devicePublickey = event.currentTarget.value)}
+                        aria-describedby="device-publickey-text"
+                      />
+                      <FormHelperText id="device-publickey-text">Put your public key to a pre-generated private key here. Replace the private key in the config file after downloading it.</FormHelperText>
+                    </FormControl>
+                    <FormControlLabel 
+                      control={
+                        <Checkbox
+                          id="device-presharedkey"
+                          value={this.useDevicePresharekey}
+                          onChange={(event) => (this.useDevicePresharekey = event.currentTarget.checked)}
+                        />
+                      } 
+                      label="Use pre-shared key" 
+                    />
+                  </AccordionDetails>
+                </Accordion>
+              </Box>
               <FormHelperText id="device-error-text" error={true}>{this.error}</FormHelperText>
               <Typography component="div" align="right">
                 <Button color="secondary" type="button" onClick={this.reset}>
