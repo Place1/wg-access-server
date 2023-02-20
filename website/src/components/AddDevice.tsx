@@ -41,8 +41,15 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
     event.preventDefault();
 
     const keypair = box_keyPair();
-    const publicKey = this.devicePublickey || window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
-    const privateKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.secretKey) as any)));
+    var publicKey: string;
+    var privateKey: string;
+    if (this.devicePublickey) {
+      publicKey = this.devicePublickey
+      privateKey = 'pleaseReplaceThisPrivatekey'
+    } else {
+      publicKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
+      privateKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.secretKey) as any)));
+    }
 
     try {
       const device = await grpc.devices.addDevice({
@@ -107,17 +114,16 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
                   onChange={(event) => (this.deviceName = event.currentTarget.value)}
                   aria-describedby="device-name-text"
                 />
-                <FormHelperText id="device-name-text">Any name to your liking</FormHelperText>
               </FormControl>
               <FormControl fullWidth>
-                <InputLabel htmlFor="device-publickey">Device Public Key</InputLabel>
+                <InputLabel htmlFor="device-publickey">Device Public Key (Optional)</InputLabel>
                 <Input
                   id="device-publickey"
                   value={this.devicePublickey}
                   onChange={(event) => (this.devicePublickey = event.currentTarget.value)}
                   aria-describedby="device-publickey-text"
                 />
-                <FormHelperText id="device-publickey-text">You may extract your public key from your given private key with: wg pubkey &lt; private.key</FormHelperText>
+                <FormHelperText id="device-publickey-text">Put your public key to a pre-generated private key here. Replace the private key in the config file after downloading it.</FormHelperText>
               </FormControl>
               <FormHelperText id="device-error-text" error={true}>{this.error}</FormHelperText>
               <Typography component="div" align="right">
