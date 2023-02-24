@@ -34,6 +34,6 @@ code {
 }
 
 /* Reduces the padding of the overview tables on the admin page for better legibility with large number of table entries. */
-td.MuiTableCell-root {
+td.MuiTableCell-root, th.MuiTableCell-root {
   padding: 8px;
 }
