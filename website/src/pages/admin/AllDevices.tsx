@@ -17,6 +17,7 @@ import { confirm } from '../../components/Present';
 import { Device } from '../../sdk/devices_pb';
 import { User } from '../../sdk/users_pb';
 import { lastSeen, lazy } from '../../Util';
+import numeral from "numeral";
 
 export const AllDevices = observer(class AllDevices extends React.Component {
   users = lazy(async () => {
@@ -107,6 +108,7 @@ export const AllDevices = observer(class AllDevices extends React.Component {
                 <TableCell>Connected</TableCell>
                 <TableCell>Local Address</TableCell>
                 <TableCell>Last Endpoint</TableCell>
+                <TableCell>Download / Upload</TableCell>
                 <TableCell>Last Seen</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
@@ -128,6 +130,7 @@ export const AllDevices = observer(class AllDevices extends React.Component {
                   <TableCell>{device.connected ? 'yes' : 'no'}</TableCell>
                   <TableCell>{device.address}</TableCell>
                   <TableCell>{device.endpoint}</TableCell>
+                  <TableCell>{ numeral(device.transmitBytes).format('0b') } / { numeral(device.receiveBytes).format('0b') }</TableCell>
                   <TableCell>{lastSeen(device.lastHandshakeTime)}</TableCell>
                   <TableCell>
                     <Button variant="outlined" color="secondary" onClick={() => this.deleteDevice(device)}>
