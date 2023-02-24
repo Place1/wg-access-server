@@ -28,6 +28,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Prevents the 'Server Info' panel from breaking the page layout if there is a large number of allowed ips. */
 code {
   overflow-x: scroll;
+}
+
+/* Reduces the padding of the overview tables on the admin page for better legibility with large number of table entries. */
+td.MuiTableCell-root {
+  padding: 8px;
 }
