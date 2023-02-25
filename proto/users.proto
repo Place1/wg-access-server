@@ -14,6 +14,7 @@ service Users {
 
 message User {
   string name = 1;
+  string displayName = 2;
 }
 
 message ListUsersReq {

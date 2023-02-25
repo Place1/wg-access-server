@@ -60,6 +60,7 @@ func (d *UserService) DeleteUser(ctx context.Context, req *proto.DeleteUserReq) 
 func mapUser(u *devices.User) *proto.User {
 	return &proto.User{
 		Name: u.Name,
+		DisplayName: u.DisplayName,
 	}
 }
 
