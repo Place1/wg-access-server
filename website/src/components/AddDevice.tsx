@@ -78,11 +78,16 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
       this.props.onAdd();
 
       const info = AppState.info!;
+
+      const useDns = info.dnsEnabled || info.clientConfigDnsServers;
+      const dnsSearchDomain = info.clientConfigDnsSearchDomain && `, ${info.clientConfigDnsSearchDomain}`;
+      const dnsInfo = ( info.clientConfigDnsServers ? info.clientConfigDnsServers : info.dnsAddress ) + dnsSearchDomain;
+
       const configFile = codeBlock`
         [Interface]
         PrivateKey = ${privateKey}
         Address = ${device.address}
-        ${info.dnsEnabled && `DNS = ${info.dnsAddress}`}
+        ${ useDns && `DNS = ${dnsInfo}` }
 
         [Peer]
         PublicKey = ${info.publicKey}

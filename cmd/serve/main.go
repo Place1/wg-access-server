@@ -62,6 +62,8 @@ func Register(app *kingpin.Application) *servecmd {
 	cli.Flag("dns-enabled", "Enable or disable the embedded dns proxy server (useful for development)").Envar("WG_DNS_ENABLED").Default("true").BoolVar(&cmd.AppConfig.DNS.Enabled)
 	cli.Flag("dns-upstream", "An upstream DNS server to proxy DNS traffic to. Defaults to resolvconf with Cloudflare DNS as fallback").Envar("WG_DNS_UPSTREAM").StringsVar(&cmd.AppConfig.DNS.Upstream)
 	cli.Flag("dns-domain", "A domain to serve configured device names authoritatively").Envar("WG_DNS_DOMAIN").StringVar(&cmd.AppConfig.DNS.Domain)
+	cli.Flag("clientconfig-dns-servers", "DNS servers to write into the client configuration file").Envar("WG_CLIENTCONFIG_DNS_SERVERS").StringsVar(&cmd.AppConfig.ClientConfig.DnsServers)
+	cli.Flag("clientconfig-dns-search-domain", "DNS search domain to write into the client configuration file").Envar("WG_CLIENTCONFIG_DNS_SEARCH_DOMAIN").StringVar(&cmd.AppConfig.ClientConfig.DnsSearchDomain)
 	return cmd
 }
 
@@ -357,6 +359,10 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 	if len(cmd.AppConfig.DNS.Upstream) == 1 {
 		cmd.AppConfig.DNS.Upstream = strings.Split(cmd.AppConfig.DNS.Upstream[0], ",")
 	}
+
+    if len(cmd.AppConfig.ClientConfig.DnsServers) == 1 {
+        cmd.AppConfig.ClientConfig.DnsServers = strings.Split(cmd.AppConfig.ClientConfig.DnsServers[0], ",")
+    }
 
 	return &cmd.AppConfig
 }

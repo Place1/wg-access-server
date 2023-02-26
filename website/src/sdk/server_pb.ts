@@ -118,6 +118,8 @@ export declare namespace InfoRes {
 		dnsEnabled: boolean,
 		dnsAddress: string,
 		filename: string,
+		clientConfigDnsServers: string,
+		clientConfigDnsSearchDomain: string,
 		inactiveEnabled: boolean,
 		inactiveDuration?: googleProtobufDuration.Duration.AsObject,
 	}
@@ -206,19 +208,33 @@ export class InfoRes extends jspb.Message {
 		(jspb.Message as any).setProto3StringField(this, 10, value);
 	}
 
-	getInactiveEnabled(): boolean {return jspb.Message.getFieldWithDefault(this, 11, false);
+	getClientConfigDnsServers(): string {return jspb.Message.getFieldWithDefault(this, 11, "");
+	}
+
+	setClientConfigDnsServers(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 11, value);
+	}
+
+	getClientConfigDnsSearchDomain(): string {return jspb.Message.getFieldWithDefault(this, 12, "");
+	}
+
+	setClientConfigDnsSearchDomain(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 12, value);
+	}
+
+	getInactiveEnabled(): boolean {return jspb.Message.getFieldWithDefault(this, 13, false);
 	}
 
 	setInactiveEnabled(value: boolean): void {
-		(jspb.Message as any).setProto3BooleanField(this, 11, value);
+		(jspb.Message as any).setProto3BooleanField(this, 13, value);
 	}
 
 	getInactiveDuration(): googleProtobufDuration.Duration {
-		return jspb.Message.getWrapperField(this, googleProtobufDuration.Duration, 12);
+		return jspb.Message.getWrapperField(this, googleProtobufDuration.Duration, 14);
 	}
 
 	setInactiveDuration(value?: googleProtobufDuration.Duration): void {
-		(jspb.Message as any).setWrapperField(this, 12, value);
+		(jspb.Message as any).setWrapperField(this, 14, value);
 	}
 
 	serializeBinary(): Uint8Array {
@@ -240,6 +256,8 @@ export class InfoRes extends jspb.Message {
 			dnsEnabled: this.getDnsEnabled(),
 			dnsAddress: this.getDnsAddress(),
 			filename: this.getFilename(),
+			clientConfigDnsServers: this.getClientConfigDnsServers(),
+			clientConfigDnsSearchDomain: this.getClientConfigDnsSearchDomain(),
 			inactiveEnabled: this.getInactiveEnabled(),
 			inactiveDuration: (f = this.getInactiveDuration()) && f.toObject(),
 		};
@@ -286,13 +304,21 @@ export class InfoRes extends jspb.Message {
 		if (field10.length > 0) {
 			writer.writeString(10, field10);
 		}
-		const field11 = message.getInactiveEnabled();
-		if (field11 != false) {
-			writer.writeBool(11, field11);
+		const field11 = message.getClientConfigDnsServers();
+		if (field11.length > 0) {
+			writer.writeString(11, field11);
 		}
-		const field12 = message.getInactiveDuration();
-		if (field12 != null) {
-			writer.writeMessage(12, field12, googleProtobufDuration.Duration.serializeBinaryToWriter);
+		const field12 = message.getClientConfigDnsSearchDomain();
+		if (field12.length > 0) {
+			writer.writeString(12, field12);
+		}
+		const field13 = message.getInactiveEnabled();
+		if (field13 != false) {
+			writer.writeBool(13, field13);
+		}
+		const field14 = message.getInactiveDuration();
+		if (field14 != null) {
+			writer.writeMessage(14, field14, googleProtobufDuration.Duration.serializeBinaryToWriter);
 		}
 	}
 
@@ -351,13 +377,21 @@ export class InfoRes extends jspb.Message {
 				message.setFilename(field10);
 				break;
 			case 11:
-				const field11 = reader.readBool()
-				message.setInactiveEnabled(field11);
+				const field11 = reader.readString()
+				message.setClientConfigDnsServers(field11);
 				break;
 			case 12:
-				const field12 = new googleProtobufDuration.Duration();
-				reader.readMessage(field12, googleProtobufDuration.Duration.deserializeBinaryFromReader);
-				message.setInactiveDuration(field12);
+				const field12 = reader.readString()
+				message.setClientConfigDnsSearchDomain(field12);
+				break;
+			case 13:
+				const field13 = reader.readBool()
+				message.setInactiveEnabled(field13);
+				break;
+			case 14:
+				const field14 = new googleProtobufDuration.Duration();
+				reader.readMessage(field14, googleProtobufDuration.Duration.deserializeBinaryFromReader);
+				message.setInactiveDuration(field14);
 				break;
 			default:
 				reader.skipField();
@@ -393,6 +427,8 @@ function InfoResFromObject(obj: InfoRes.AsObject | undefined): InfoRes | undefin
 	message.setDnsEnabled(obj.dnsEnabled);
 	message.setDnsAddress(obj.dnsAddress);
 	message.setFilename(obj.filename);
+	message.setClientConfigDnsServers(obj.clientConfigDnsServers);
+	message.setClientConfigDnsSearchDomain(obj.clientConfigDnsSearchDomain);
 	message.setInactiveEnabled(obj.inactiveEnabled);
 	message.setInactiveDuration(DurationFromObject(obj.inactiveDuration));
 	return message;
