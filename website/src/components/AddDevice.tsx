@@ -79,15 +79,26 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
 
       const info = AppState.info!;
 
-      const useDns = info.dnsEnabled || info.clientConfigDnsServers;
-      const dnsSearchDomain = info.clientConfigDnsSearchDomain && `, ${info.clientConfigDnsSearchDomain}`;
-      const dnsInfo = ( info.clientConfigDnsServers ? info.clientConfigDnsServers : info.dnsAddress ) + dnsSearchDomain;
+      const dnsInfo = [];
+      if (info.clientConfigDnsServers) {
+        // If custom DNS entries are specified via client config, prefer them over the calculated ones.
+        dnsInfo.push(info.clientConfigDnsServers);
+      }
+      else if (info.dnsEnabled) {
+        // Otherwise, and if DNS is enabled, use the ones from the server.
+        dnsInfo.push(info.dnsAddress);
+      }
+
+      if (info.clientConfigDnsSearchDomain) {
+        // In any case, if there is a custom search domain configured in the client config, append it to the list of DNS servers.
+        dnsInfo.push(info.clientConfigDnsSearchDomain)
+      }
 
       const configFile = codeBlock`
         [Interface]
         PrivateKey = ${privateKey}
         Address = ${device.address}
-        ${ useDns && `DNS = ${dnsInfo}` }
+        ${ 0 < dnsInfo.length && `DNS = ${ dnsInfo.join(", ") }` }
 
         [Peer]
         PublicKey = ${info.publicKey}
@@ -102,7 +113,7 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
     } catch (error) {
       console.log(error);
       // TODO: unwrap grpc error message
-      this.error = 'failed to add device';;
+      this.error = 'failed to add device';
     }
   };
 
