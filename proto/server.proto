@@ -26,8 +26,8 @@ message InfoRes {
   bool dns_enabled = 8;
   string dns_address = 9;
   string filename = 10;
-  string client_config_dns_servers = 11;
-  string client_config_dns_search_domain = 12;
-  bool inactive_enabled = 13;
-  google.protobuf.Duration inactive_duration = 14;
+  bool inactive_enabled = 11;
+  google.protobuf.Duration inactive_duration = 12;
+  string client_config_dns_servers = 13;
+  string client_config_dns_search_domain = 14;
 }

@@ -128,10 +128,10 @@ type AppConfig struct {
 		// If left empty the server decides about the address; usually the wg-access-server address.
 		// If not empty, these replace the wg-access-servers DNS addresses.
 		// Empty by default.
-		DnsServers []string `yaml:"dnsServers"`
+		DNSServers []string `yaml:"dnsServers"`
 		// Search domain to be provided with the client configuration file.
 		// Empty by default.
-		DnsSearchDomain string `yaml:"dnsSearchDomain"`
+		DNSSearchDomain string `yaml:"dnsSearchDomain"`
 
 	} `yaml:"clientConfig"`
 	// Auth configures optional authentication backends

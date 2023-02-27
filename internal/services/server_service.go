@@ -71,7 +71,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		DnsAddress:       dnsAddress,
 		Filename:         s.Config.Filename,
 		ClientConfigDnsServers:        clientConfigDnsServers(s.Config),
-		ClientConfigDnsSearchDomain:   s.Config.ClientConfig.DnsSearchDomain,
+		ClientConfigDnsSearchDomain:   s.Config.ClientConfig.DNSSearchDomain,
 	}, nil
 }
 
@@ -80,5 +80,5 @@ func allowedIPs(config *config.AppConfig) string {
 }
 
 func clientConfigDnsServers(config *config.AppConfig) string {
-	return strings.Join(config.ClientConfig.DnsServers, ", ")
+	return strings.Join(config.ClientConfig.DNSServers, ", ")
 }
