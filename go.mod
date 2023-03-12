@@ -19,7 +19,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.2
-	github.com/tg123/go-htpasswd v1.2.0
+	github.com/tg123/go-htpasswd v1.2.1
 	github.com/vishvananda/netlink v1.1.0
 	golang.org/x/crypto v0.7.0
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
