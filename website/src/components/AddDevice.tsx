@@ -37,6 +37,8 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
 
   configFile?: string;
 
+  showMobile = true;
+
   submit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -46,9 +48,11 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
     if (this.devicePublickey) {
       publicKey = this.devicePublickey
       privateKey = 'pleaseReplaceThisPrivatekey'
+      this.showMobile = false;
     } else {
       publicKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
       privateKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.secretKey) as any)));
+      this.showMobile = true;
     }
 
     try {
@@ -95,7 +99,8 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
       error: observable,
       deviceName: observable,
       devicePublickey: observable,
-      configFile: observable
+      configFile: observable,
+      showMobile: observable
     });
   }
 
@@ -155,7 +160,7 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
             </Info>
           </DialogTitle>
           <DialogContent>
-            <GetConnected configFile={this.configFile!} />
+            <GetConnected configFile={this.configFile!} showMobile={this.showMobile}/>
           </DialogContent>
           <DialogActions>
             <Button color="secondary" variant="outlined" onClick={() => (this.dialogOpen = false)}>
