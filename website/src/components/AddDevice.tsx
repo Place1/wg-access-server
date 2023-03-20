@@ -29,6 +29,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Box from '@material-ui/core/Box';
+import {Warning} from "@material-ui/icons";
 
 interface Props {
   onAdd: () => void;
@@ -110,10 +111,9 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
       this.configFile = configFile;
       this.dialogOpen = true;
       this.reset();
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      // TODO: unwrap grpc error message
-      this.error = 'failed to add device';
+      this.error = 'Failed to add device: ' + error.message;
     }
   };
 
@@ -188,7 +188,12 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
                   </AccordionDetails>
                 </Accordion>
               </Box>
-              <FormHelperText id="device-error-text" error={true}>{this.error}</FormHelperText>
+                { this.error &&
+                    <FormHelperText id="device-error-text" error={true}>
+                        <Warning/>
+                        <span>{this.error}</span>
+                    </FormHelperText>
+                }
               <Typography component="div" align="right">
                 <Button color="secondary" type="button" onClick={this.reset}>
                   Cancel

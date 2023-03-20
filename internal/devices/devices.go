@@ -79,7 +79,7 @@ func (d *DeviceManager) StartSync(disableMetadataCollection, disableInactiveDevi
 
 func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, publicKey string, presharedKey string) (*storage.Device, error) {
 	if name == "" {
-		return nil, errors.New("device name must not be empty")
+		return nil, errors.New("Device name must not be empty.")
 	}
 
 	var nameTaken bool = false
@@ -96,21 +96,21 @@ func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, p
 	}
 
 	if nameTaken {
-		return nil, errors.New("device name already taken")
+		return nil, errors.New("Device name already taken.")
 	}
 
 	if !wgKeyRegex.MatchString(publicKey) {
-		return nil, errors.New("public key has invalid format")
+		return nil, errors.New("Public key has invalid format.")
 	}
 
 	// preshared key is optional
 	if len(presharedKey) != 0 && !wgKeyRegex.MatchString(presharedKey) {
-		return nil, errors.New("pre-shared key has invalid format")
+		return nil, errors.New("Pre-shared key has invalid format.")
 	}
 
 	clientAddr, err := d.nextClientAddress()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate an ip address for device")
+		return nil, errors.Wrap(err, "Failed to generate an ip address for device")
 	}
 
 	device := &storage.Device{
@@ -177,7 +177,7 @@ func (d *DeviceManager) ListDevices(user string) ([]*storage.Device, error) {
 func (d *DeviceManager) DeleteDevice(user string, name string) error {
 	device, err := d.storage.Get(user, name)
 	if err != nil {
-		return errors.Wrap(err, "failed to retrieve device")
+		return errors.Wrap(err, "Failed to retrieve device")
 	}
 
 	if err := d.storage.Delete(device); err != nil {
@@ -199,7 +199,7 @@ func (d *DeviceManager) nextClientAddress() (string, error) {
 
 	devices, err := d.ListDevices("")
 	if err != nil {
-		return "", errors.Wrap(err, "failed to list devices")
+		return "", errors.Wrap(err, "Failed to list devices")
 	}
 
 	// TODO: read up on better ways to allocate client's IP
@@ -260,18 +260,18 @@ func (d *DeviceManager) nextClientAddress() (string, error) {
 		if ipv6 != "" {
 			return fmt.Sprintf("%s, %s", ipv4, ipv6), nil
 		} else if d.cidrv6 != "" {
-			return "", fmt.Errorf("there are no free IP addresses in the vpn subnet: '%s'", d.cidrv6)
+			return "", fmt.Errorf("There are no free IP addresses in the vpn subnet: '%s'", d.cidrv6)
 		} else {
 			return ipv4, nil
 		}
 	} else if ipv6 != "" {
 		if d.cidr != "" {
-			return "", fmt.Errorf("there are no free IP addresses in the vpn subnet: '%s'", d.cidr)
+			return "", fmt.Errorf("There are no free IP addresses in the vpn subnet: '%s'", d.cidr)
 		} else {
 			return ipv6, nil
 		}
 	} else {
-		return "", fmt.Errorf("there are no free IP addresses in the vpn subnets: '%s', '%s'", d.cidr, d.cidrv6)
+		return "", fmt.Errorf("There are no free IP addresses in the vpn subnets: '%s', '%s'", d.cidr, d.cidrv6)
 	}
 }
 
