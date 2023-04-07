@@ -1,11 +1,13 @@
 import { Timestamp } from 'google-protobuf/google/protobuf/timestamp_pb';
 import { Devices } from './sdk/devices_pb';
 import { Server } from './sdk/server_pb';
+import { Users } from './sdk/users_pb';
 
 const backend = window.location.origin + '/api';
 
 export const grpc = {
   server: new Server(backend),
+  users: new Users(backend),
   devices: new Devices(backend),
 };
 

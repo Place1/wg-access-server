@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/freifunkMUC/wg-access-server/proto/proto";
+
+import "google/protobuf/empty.proto";
+
+service Users {
+  // admin only
+  rpc ListUsers(ListUsersReq) returns (ListUsersRes) {}
+  rpc DeleteUser (DeleteUserReq) returns (google.protobuf.Empty) {}
+}
+
+message User {
+  string name = 1;
+}
+
+message ListUsersReq {
+
+}
+
+message ListUsersRes {
+  repeated User items = 1;
+}
+
+message DeleteUserReq {
+  string name = 1;
+}
