@@ -8,6 +8,7 @@ require (
 	github.com/docker/libnetwork v0.8.0-dev.2.0.20200217033114-6659f7f4d8c1
 	github.com/freifunkMUC/pg-events v0.4.1
 	github.com/freifunkMUC/wg-embed v0.8.0
+	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/sessions v1.2.1
@@ -24,7 +25,7 @@ require (
 	golang.org/x/crypto v0.7.0
 	golang.org/x/oauth2 v0.6.0
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20220504211119-3d4a969bb56b
-	google.golang.org/grpc v1.53.0
+	google.golang.org/grpc v1.54.0
 	google.golang.org/protobuf v1.29.1
 	gopkg.in/Knetic/govaluate.v2 v2.3.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
@@ -40,7 +41,6 @@ require (
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/docker/docker v20.10.8+incompatible // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
