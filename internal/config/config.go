@@ -1,6 +1,8 @@
 package config
 
 import (
+	"time"
+
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authconfig"
 )
 
@@ -29,6 +31,13 @@ type AppConfig struct {
 	// DisableMetadata allows you to turn off collection of device
 	// metadata including last handshake time & rx/tx bytes
 	DisableMetadata bool `yaml:"disableMetadata"`
+	// DisableInactive allows you to delete inactive devices
+	// after a time duration defined by InactiveDuration
+	DisableInactive bool `yaml:"disableInactive"`
+	// InactiveDuration sets the duration after which inactive
+	// devices are automatically deleted
+	// Defaults s to 6 months
+	InactiveDuration time.Duration `yaml:"inactiveDuration"`
 	// The name of the WireGuard configuration file that can
 	// be downloaded through the web UI after adding a device.
 	// Do not include the '.conf' extension
