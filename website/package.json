@@ -16,7 +16,7 @@
     "google-protobuf": "^4.0.0-rc.1",
     "mobx": "^6.9.0",
     "mobx-react": "^7.6.0",
-    "mobx-utils": "^6.0.5",
+    "mobx-utils": "^6.0.6",
     "numeral": "^2.0.6",
     "qrcode": "^1.5.1",
     "react": "^17.0.2",
