@@ -67,6 +67,7 @@ imagePullSecrets: []
 
 image:
   repository: place1/wg-access-server
+  tag: v0.4.6
   pullPolicy: IfNotPresent
 
 # multiple replicas is only supported when using
