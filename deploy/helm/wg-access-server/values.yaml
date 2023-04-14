@@ -1,6 +1,20 @@
 # wg-access-server config
 config: {}
 
+## Provide an existing secret with the following keys:
+##
+## data:
+##   WG_ADMIN_PASSWORD: X
+##   WG_ADMIN_USERNAME: X
+##   WG_WIREGUARD_PRIVATE_KEY: X
+##
+## overrides:
+## web.config.adminUsername
+## web.config.adminPassword
+## wireguard.config.privateKey
+##
+# existingSecret: ""
+
 web:
   config:
     adminUsername: ""
@@ -13,6 +27,8 @@ wireguard:
     privateKey: ""
   service:
     type: ClusterIP
+    # type: NodePort
+    # nodePort: 51820
 
 persistence:
   enabled: false
@@ -51,6 +67,7 @@ imagePullSecrets: []
 
 image:
   repository: place1/wg-access-server
+  tag: v0.4.6
   pullPolicy: IfNotPresent
 
 # multiple replicas is only supported when using
@@ -79,3 +96,12 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# sysctlInitContainer flag adds an initContainer named "init-sysctl" to wg-access-server deployment.
+# The goal is to set the sysctl net.ipv4.ip_forward=1 to allow packet routing through node.
+# This initContainer needs to run as privileged, but this is only limited to
+# the initContainer run time, the main container will remain unprivileged as expected.
+# Use case : 
+#   DNS is functionning properly through VPN but does not work for standard traffic. 
+# NB : If you have no problem with wireguard traffic, you should not enable this initContainer
+sysctlInitContainer: false

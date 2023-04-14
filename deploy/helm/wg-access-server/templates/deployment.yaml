@@ -27,12 +27,26 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- with .Values.sysctlInitContainer }}
+      initContainers:
+      - command:
+        - sysctl
+        - -w
+        - net.ipv4.ip_forward=1
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        name: init-sysctl
+        securityContext:
+          privileged: true
+          runAsNonRoot: false
+          runAsUser: 0
+    {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             capabilities:
               add: ['NET_ADMIN']
-          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -41,28 +55,13 @@ spec:
             - name: wireguard
               containerPort: 51820
               protocol: UDP
-          env:
-            {{- if .Values.wireguard.config.privateKey }}
-            - name: WG_WIREGUARD_PRIVATE_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ $fullName }}"
-                  key: privateKey
-            {{- end }}
-            {{- if .Values.web.config.adminUsername }}
-            - name: WG_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ $fullName }}"
-                  key: adminUsername
-            {{- end}}
-            {{- if .Values.web.config.adminPassword }}
-            - name: WG_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ $fullName }}"
-                  key: adminPassword
-            {{- end}}
+          envFrom:
+          - secretRef:
+              {{- if .Values.existingSecret }}
+              name: {{ .Values.existingSecret }}
+              {{- else }}
+              name: {{ $fullName }}
+              {{- end }}
           volumeMounts:
             - name: tun
               mountPath: /dev/net/tun

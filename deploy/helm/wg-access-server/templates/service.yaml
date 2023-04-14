@@ -51,5 +51,8 @@ spec:
       targetPort: 51820
       protocol: UDP
       name: wireguard
+      {{- if and ( eq .Values.wireguard.service.type "NodePort" ) .Values.wireguard.service.nodePort }}
+      nodePort: {{ .Values.wireguard.service.nodePort }}
+      {{- end }}
   selector:
     {{- include "wg-access-server.selectorLabels" . | nindent 4 }}
