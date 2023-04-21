@@ -13,7 +13,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import { codeBlock } from 'common-tags';
-import { observable, makeObservable } from 'mobx';
+import { makeObservable, observable } from 'mobx';
 import { observer } from 'mobx-react';
 import React from 'react';
 import { box_keyPair } from 'tweetnacl-ts';
@@ -33,14 +33,27 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
 
   deviceName = '';
 
+  devicePublickey = '';
+
   configFile?: string;
+
+  showMobile = true;
 
   submit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     const keypair = box_keyPair();
-    const publicKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
-    const privateKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.secretKey) as any)));
+    var publicKey: string;
+    var privateKey: string;
+    if (this.devicePublickey) {
+      publicKey = this.devicePublickey
+      privateKey = 'pleaseReplaceThisPrivatekey'
+      this.showMobile = false;
+    } else {
+      publicKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.publicKey) as any)));
+      privateKey = window.btoa(String.fromCharCode(...(new Uint8Array(keypair.secretKey) as any)));
+      this.showMobile = true;
+    }
 
     try {
       const device = await grpc.devices.addDevice({
@@ -68,12 +81,14 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
     } catch (error) {
       console.log(error);
       // TODO: unwrap grpc error message
-      this.error = 'failed';
+      this.error = 'failed to add device';;
     }
   };
 
   reset = () => {
     this.deviceName = '';
+    this.devicePublickey = '';
+    this.error = '';
   };
 
   constructor(props: Props) {
@@ -83,7 +98,9 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
       dialogOpen: observable,
       error: observable,
       deviceName: observable,
-      configFile: observable
+      devicePublickey: observable,
+      configFile: observable,
+      showMobile: observable
     });
   }
 
@@ -94,7 +111,7 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
           <CardHeader title="Add A Device" />
           <CardContent>
             <form onSubmit={this.submit}>
-              <FormControl error={!!this.error} fullWidth>
+              <FormControl fullWidth>
                 <InputLabel htmlFor="device-name">Device Name</InputLabel>
                 <Input
                   id="device-name"
@@ -102,8 +119,18 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
                   onChange={(event) => (this.deviceName = event.currentTarget.value)}
                   aria-describedby="device-name-text"
                 />
-                <FormHelperText id="device-name-text">{this.error}</FormHelperText>
               </FormControl>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="device-publickey">Device Public Key (Optional)</InputLabel>
+                <Input
+                  id="device-publickey"
+                  value={this.devicePublickey}
+                  onChange={(event) => (this.devicePublickey = event.currentTarget.value)}
+                  aria-describedby="device-publickey-text"
+                />
+                <FormHelperText id="device-publickey-text">Put your public key to a pre-generated private key here. Replace the private key in the config file after downloading it.</FormHelperText>
+              </FormControl>
+              <FormHelperText id="device-error-text" error={true}>{this.error}</FormHelperText>
               <Typography component="div" align="right">
                 <Button color="secondary" type="button" onClick={this.reset}>
                   Cancel
@@ -133,7 +160,7 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
             </Info>
           </DialogTitle>
           <DialogContent>
-            <GetConnected configFile={this.configFile!} />
+            <GetConnected configFile={this.configFile!} showMobile={this.showMobile}/>
           </DialogContent>
           <DialogActions>
             <Button color="secondary" variant="outlined" onClick={() => (this.dialogOpen = false)}>

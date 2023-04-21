@@ -20,11 +20,12 @@ import { TabPanel } from './TabPanel';
 
 interface Props {
   configFile: string;
+  showMobile: boolean;
 }
 
 export class GetConnected extends React.Component<Props> {
   state = {
-    currentTab: isMobile() ? 'mobile' : 'desktop',
+    currentTab: isMobile() && this.props.showMobile ? 'mobile' : 'desktop',
   };
 
   go = (href: string) => {
@@ -55,7 +56,9 @@ export class GetConnected extends React.Component<Props> {
             variant="fullWidth"
           >
             <Tab icon={<Laptop />} value="desktop" />
+            {this.props.showMobile && 
             <Tab icon={<PhoneIphone />} value="mobile" />
+            }
           </Tabs>
         </Paper>
 
@@ -91,6 +94,7 @@ export class GetConnected extends React.Component<Props> {
           </Grid>
         </TabPanel>
 
+        {this.props.showMobile && 
         <TabPanel for="mobile" value={this.state.currentTab}>
           <Grid container direction="row" justify="space-around" alignItems="center">
             <Grid item>
@@ -111,6 +115,7 @@ export class GetConnected extends React.Component<Props> {
             </Grid>
           </Grid>
         </TabPanel>
+        }
       </React.Fragment>
     );
   }
