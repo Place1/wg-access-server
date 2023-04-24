@@ -33,7 +33,6 @@ import (
 	"github.com/freifunkMUC/wg-access-server/internal/storage"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authconfig"
-	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
 )
 
 func Register(app *kingpin.Application) *servecmd {
@@ -225,7 +224,7 @@ func (cmd *servecmd) Run() {
 	router.PathPrefix("/health").Handler(services.HealthEndpoint(deviceManager))
 
 	// Authentication middleware
-	middleware, err := authnz.NewMiddleware(conf.Auth, claimsMiddleware(conf))
+	middleware, err := authnz.NewMiddleware(conf.Auth, authnz.ClaimsMiddleware(conf))
 	if err != nil {
 		logrus.Error(errors.Wrap(err, "failed to set up authnz middleware"))
 		return
@@ -360,26 +359,6 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 	}
 
 	return &cmd.AppConfig
-}
-
-func claimsMiddleware(conf *config.AppConfig) authsession.ClaimsMiddleware {
-	return func(user *authsession.Identity) error {
-		if user == nil {
-			return errors.New("User is not logged in")
-		}
-		// restrict privilege elevation by username to basic and simple auth users only
-		if (user.Provider == "Basic" || user.Provider == "Simple") && user.Subject == conf.AdminUsername {
-			user.Claims.Add("admin", "true")
-		}
-		// allow access to users only when access claim is present for OIDC
-		if conf.Auth.OIDC != nil && user.Provider == conf.Auth.OIDC.Name && conf.Auth.OIDC.AccessClaim != "" {
-			if !user.Claims.Has(conf.Auth.OIDC.AccessClaim, "true") {
-				return errors.New("User has no access")
-			}
-		}
-
-		return nil
-	}
 }
 
 func detectDNSUpstream(ipv4Enabled, ipv6Enabled bool) []string {

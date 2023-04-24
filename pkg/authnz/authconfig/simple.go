@@ -12,6 +12,8 @@ import (
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authtemplates"
 )
 
+const SimpleAuthProvider = "simple"
+
 // SimpleAuthConfig is an alternative to BasicAuthConfig where the login happens through a login page and a POST request.
 type SimpleAuthConfig struct {
 	// Users is a list of htpasswd encoded username:password pairs
@@ -25,7 +27,7 @@ const postURL = "/signin/simpleauth"
 
 func (c *SimpleAuthConfig) Provider() *authruntime.Provider {
 	return &authruntime.Provider{
-		Type: "Simple",
+		Type: SimpleAuthProvider,
 		// The flow is as follows: /signin page -> navigation to /signin/{index}
 		// -> Invoke / simpleAuthLogin() renders login form -> POST to postURL / simpleAuthPostEndpoint()
 		// -> redirect to /
@@ -67,7 +69,7 @@ func simpleAuthPostEndpoint(c *SimpleAuthConfig, runtime *authruntime.ProviderRu
 		if u != "" && p != "" && checkCreds(c.Users, u, p) {
 			err = runtime.SetSession(w, r, &authsession.AuthSession{
 				Identity: &authsession.Identity{
-					Provider: "Simple",
+					Provider: SimpleAuthProvider,
 					Subject:  u,
 					Name:     u,
 					Email:    "", // simple auth has no email

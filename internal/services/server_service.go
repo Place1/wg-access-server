@@ -65,7 +65,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		MetadataEnabled:  !s.Config.DisableMetadata,
 		InactiveEnabled:  !s.Config.DisableInactive,
 		InactiveDuration: DurationToDurationpb(&s.Config.InactiveDuration),
-		IsAdmin:          user.Claims.Has("admin", "true"),
+		IsAdmin:          user.Claims.IsAdmin(),
 		AllowedIps:       allowedIPs(s.Config),
 		DnsEnabled:       s.Config.DNS.Enabled,
 		DnsAddress:       dnsAddress,
