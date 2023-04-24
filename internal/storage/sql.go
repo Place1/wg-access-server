@@ -188,3 +188,15 @@ func (s *SQLStorage) Delete(device *Device) error {
 	s.Watcher.EmitDelete(device)
 	return nil
 }
+
+func (s *SQLStorage) Ping() error {
+	db := s.db.DB()
+	if db == nil {
+		return errors.New("failed to get db")
+	}
+
+	if err := db.Ping(); err != nil {
+		return errors.Wrap(err, "failed to ping db")
+	}
+	return nil
+}

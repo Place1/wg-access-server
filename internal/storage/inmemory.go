@@ -75,3 +75,7 @@ func (s *InMemoryStorage) Delete(device *Device) error {
 	s.EmitDelete(device)
 	return nil
 }
+
+func (s *InMemoryStorage) Ping() error {
+	return nil
+}
