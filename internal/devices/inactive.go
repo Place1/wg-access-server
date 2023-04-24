@@ -29,9 +29,9 @@ func checkAndRemove(d *DeviceManager, inactiveDuration time.Duration) {
 		var elapsed time.Duration
 		if dev.LastHandshakeTime == nil {
 			// Never connected
-			elapsed = time.Now().Sub(dev.CreatedAt)
+			elapsed = time.Since(dev.CreatedAt)
 		} else {
-			elapsed = time.Now().Sub(*dev.LastHandshakeTime)
+			elapsed = time.Since(*dev.LastHandshakeTime)
 		}
 
 		if elapsed > inactiveDuration {
