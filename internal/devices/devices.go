@@ -83,6 +83,10 @@ func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, p
 
 	var nameTaken bool = false
 	devices, err := d.ListDevices(identity.Subject)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to list devices")
+	}
+
 	for _, x := range devices {
 		if x.Name == name {
 			nameTaken = true
