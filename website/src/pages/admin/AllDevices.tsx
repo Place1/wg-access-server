@@ -6,6 +6,9 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
+import WifiIcon from '@material-ui/icons/Wifi';
+import WifiOffIcon from '@material-ui/icons/WifiOff';
+import Avatar from "@material-ui/core/Avatar";
 import { observer } from 'mobx-react';
 import React from 'react';
 import { grpc } from '../../Api';
@@ -14,6 +17,7 @@ import { confirm } from '../../components/Present';
 import { Device } from '../../sdk/devices_pb';
 import { User } from '../../sdk/users_pb';
 import { lastSeen, lazy } from '../../Util';
+import numeral from "numeral";
 
 export const AllDevices = observer(class AllDevices extends React.Component {
   users = lazy(async () => {
@@ -23,7 +27,9 @@ export const AllDevices = observer(class AllDevices extends React.Component {
 
   devices = lazy(async () => {
     const res = await grpc.devices.listAllDevices({});
-    return res.items;
+    let deviceList = res.items;
+    deviceList.sort((d1, d2) => (d2.lastHandshakeTime ? d2.lastHandshakeTime.seconds : 0) - (d1.lastHandshakeTime ? d1.lastHandshakeTime.seconds : 0));
+    return deviceList;
   });
 
   deleteUser = async (user: User.AsObject) => {
@@ -95,10 +101,14 @@ export const AllDevices = observer(class AllDevices extends React.Component {
           <Table stickyHeader>
             <TableHead>
               <TableRow>
+                <TableCell></TableCell>
                 <TableCell>Owner</TableCell>
                 {showProviderCol && <TableCell>Auth Provider</TableCell>}
                 <TableCell>Device</TableCell>
                 <TableCell>Connected</TableCell>
+                <TableCell>Local Address</TableCell>
+                <TableCell>Last Endpoint</TableCell>
+                <TableCell>Download / Upload</TableCell>
                 <TableCell>Last Seen</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
@@ -106,12 +116,21 @@ export const AllDevices = observer(class AllDevices extends React.Component {
             <TableBody>
               {devices.map((device, i) => (
                 <TableRow key={i}>
+                  <TableCell>
+                    <Avatar style={{ backgroundColor: device.connected ? '#76de8a' : '#bdbdbd' }}>
+                      {/* <DonutSmallIcon /> */}
+                      {device.connected ? <WifiIcon /> : <WifiOffIcon />}
+                    </Avatar>
+                  </TableCell>
                   <TableCell component="th" scope="row">
                     {device.ownerName || device.ownerEmail || device.owner}
                   </TableCell>
                   {showProviderCol && <TableCell>{device.ownerProvider}</TableCell>}
                   <TableCell>{device.name}</TableCell>
                   <TableCell>{device.connected ? 'yes' : 'no'}</TableCell>
+                  <TableCell>{device.address}</TableCell>
+                  <TableCell>{device.endpoint}</TableCell>
+                  <TableCell>{ numeral(device.transmitBytes).format('0b') } / { numeral(device.receiveBytes).format('0b') }</TableCell>
                   <TableCell>{lastSeen(device.lastHandshakeTime)}</TableCell>
                   <TableCell>
                     <Button variant="outlined" color="secondary" onClick={() => this.deleteDevice(device)}>
