@@ -82,7 +82,7 @@ export const AllDevices = observer(class AllDevices extends React.Component {
               {users.map((user, i) => (
                 <TableRow key={i}>
                   <TableCell component="th" scope="row">
-                    {user.name}
+                    {user.displayName || user.name}
                   </TableCell>
                   <TableCell>
                     <Button variant="outlined" color="secondary" onClick={() => this.deleteUser(user)}>

@@ -82,6 +82,7 @@ export class Users {
 export declare namespace User {
 	export type AsObject = {
 		name: string,
+		displayName: string,
 	}
 }
 
@@ -104,6 +105,13 @@ export class User extends jspb.Message {
 		(jspb.Message as any).setProto3StringField(this, 1, value);
 	}
 
+	getDisplayName(): string {return jspb.Message.getFieldWithDefault(this, 2, "");
+	}
+
+	setDisplayName(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 2, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		User.serializeBinaryToWriter(this, writer);
@@ -114,6 +122,7 @@ export class User extends jspb.Message {
 		let f: any;
 		return {
 			name: this.getName(),
+			displayName: this.getDisplayName(),
 		};
 	}
 
@@ -121,6 +130,10 @@ export class User extends jspb.Message {
 		const field1 = message.getName();
 		if (field1.length > 0) {
 			writer.writeString(1, field1);
+		}
+		const field2 = message.getDisplayName();
+		if (field2.length > 0) {
+			writer.writeString(2, field2);
 		}
 	}
 
@@ -140,6 +153,10 @@ export class User extends jspb.Message {
 			case 1:
 				const field1 = reader.readString()
 				message.setName(field1);
+				break;
+			case 2:
+				const field2 = reader.readString()
+				message.setDisplayName(field2);
 				break;
 			default:
 				reader.skipField();
@@ -360,6 +377,7 @@ function UserFromObject(obj: User.AsObject | undefined): User | undefined {
 	}
 	const message = new User();
 	message.setName(obj.name);
+	message.setDisplayName(obj.displayName);
 	return message;
 }
 

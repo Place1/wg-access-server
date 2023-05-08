@@ -24,7 +24,8 @@ type DeviceManager struct {
 }
 
 type User struct {
-	Name string
+	Name        string
+	DisplayName string
 }
 
 // https://lists.zx2c4.com/pipermail/wireguard/2020-December/006222.html
@@ -293,7 +294,7 @@ func (d *DeviceManager) ListUsers() ([]*User, error) {
 	users := []*User{}
 	for _, dev := range devices {
 		if _, ok := seen[dev.Owner]; !ok {
-			users = append(users, &User{Name: dev.Owner})
+			users = append(users, &User{Name: dev.Owner, DisplayName: dev.OwnerName})
 			seen[dev.Owner] = true
 		}
 	}
