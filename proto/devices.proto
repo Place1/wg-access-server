@@ -31,11 +31,13 @@ message Device {
   string owner_name = 11;
   string owner_email = 12;
   string owner_provider = 13;
+  string preshared_key = 14;
 }
 
 message AddDeviceReq {
   string name = 1;
   string public_key = 2;
+  string preshared_key = 3;
 }
 
 message ListDevicesReq {

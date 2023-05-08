@@ -2,11 +2,13 @@ import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
+import Checkbox from '@material-ui/core/Checkbox';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -16,11 +18,17 @@ import { codeBlock } from 'common-tags';
 import { makeObservable, observable } from 'mobx';
 import { observer } from 'mobx-react';
 import React from 'react';
-import { box_keyPair } from 'tweetnacl-ts';
+import { box_keyPair, randomBytes } from 'tweetnacl-ts';
 import { grpc } from '../Api';
 import { AppState } from '../AppState';
 import { GetConnected } from './GetConnected';
 import { Info } from './Info';
+
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Box from '@material-ui/core/Box';
 
 interface Props {
   onAdd: () => void;
@@ -34,6 +42,10 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
   deviceName = '';
 
   devicePublickey = '';
+
+  useDevicePresharekey = false;
+
+  showAdvancedOptions = false;
 
   configFile?: string;
 
@@ -55,10 +67,13 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
       this.showMobile = true;
     }
 
+    const presharedKey = this.useDevicePresharekey ? window.btoa(String.fromCharCode(...(randomBytes(32) as any))) : '';
+
     try {
       const device = await grpc.devices.addDevice({
         name: this.deviceName,
         publicKey,
+        presharedKey,
       });
       this.props.onAdd();
 
@@ -73,6 +88,7 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
         PublicKey = ${info.publicKey}
         AllowedIPs = ${info.allowedIps}
         Endpoint = ${`${info.host?.value || window.location.hostname}:${info.port || '51820'}`}
+        ${ this.useDevicePresharekey ? `PresharedKey = ${presharedKey}` : `` }
       `;
 
       this.configFile = configFile;
@@ -88,6 +104,8 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
   reset = () => {
     this.deviceName = '';
     this.devicePublickey = '';
+    this.useDevicePresharekey = false;
+    this.showAdvancedOptions = false;
     this.error = '';
   };
 
@@ -99,6 +117,7 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
       error: observable,
       deviceName: observable,
       devicePublickey: observable,
+      useDevicePresharekey: observable,
       configFile: observable,
       showMobile: observable
     });
@@ -120,16 +139,39 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
                   aria-describedby="device-name-text"
                 />
               </FormControl>
-              <FormControl fullWidth>
-                <InputLabel htmlFor="device-publickey">Device Public Key (Optional)</InputLabel>
-                <Input
-                  id="device-publickey"
-                  value={this.devicePublickey}
-                  onChange={(event) => (this.devicePublickey = event.currentTarget.value)}
-                  aria-describedby="device-publickey-text"
-                />
-                <FormHelperText id="device-publickey-text">Put your public key to a pre-generated private key here. Replace the private key in the config file after downloading it.</FormHelperText>
-              </FormControl>
+              <Box mt={2} mb={2}>
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="advanced-options-content"
+                    id="advanced-options-header"
+                  >
+                    <Typography>Advanced</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <FormControl fullWidth>
+                      <InputLabel htmlFor="device-publickey">Device Public Key (Optional)</InputLabel>
+                      <Input
+                        id="device-publickey"
+                        value={this.devicePublickey}
+                        onChange={(event) => (this.devicePublickey = event.currentTarget.value)}
+                        aria-describedby="device-publickey-text"
+                      />
+                      <FormHelperText id="device-publickey-text">Put your public key to a pre-generated private key here. Replace the private key in the config file after downloading it.</FormHelperText>
+                    </FormControl>
+                    <FormControlLabel 
+                      control={
+                        <Checkbox
+                          id="device-presharedkey"
+                          value={this.useDevicePresharekey}
+                          onChange={(event) => (this.useDevicePresharekey = event.currentTarget.checked)}
+                        />
+                      } 
+                      label="Use pre-shared key" 
+                    />
+                  </AccordionDetails>
+                </Accordion>
+              </Box>
               <FormHelperText id="device-error-text" error={true}>{this.error}</FormHelperText>
               <Typography component="div" align="right">
                 <Button color="secondary" type="button" onClick={this.reset}>
