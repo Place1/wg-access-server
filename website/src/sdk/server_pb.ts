@@ -120,6 +120,8 @@ export declare namespace InfoRes {
 		filename: string,
 		inactiveEnabled: boolean,
 		inactiveDuration?: googleProtobufDuration.Duration.AsObject,
+		clientConfigDnsServers: string,
+		clientConfigDnsSearchDomain: string,
 	}
 }
 
@@ -221,6 +223,20 @@ export class InfoRes extends jspb.Message {
 		(jspb.Message as any).setWrapperField(this, 12, value);
 	}
 
+	getClientConfigDnsServers(): string {return jspb.Message.getFieldWithDefault(this, 13, "");
+	}
+
+	setClientConfigDnsServers(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 13, value);
+	}
+
+	getClientConfigDnsSearchDomain(): string {return jspb.Message.getFieldWithDefault(this, 14, "");
+	}
+
+	setClientConfigDnsSearchDomain(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 14, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		InfoRes.serializeBinaryToWriter(this, writer);
@@ -242,6 +258,8 @@ export class InfoRes extends jspb.Message {
 			filename: this.getFilename(),
 			inactiveEnabled: this.getInactiveEnabled(),
 			inactiveDuration: (f = this.getInactiveDuration()) && f.toObject(),
+			clientConfigDnsServers: this.getClientConfigDnsServers(),
+			clientConfigDnsSearchDomain: this.getClientConfigDnsSearchDomain(),
 		};
 	}
 
@@ -293,6 +311,14 @@ export class InfoRes extends jspb.Message {
 		const field12 = message.getInactiveDuration();
 		if (field12 != null) {
 			writer.writeMessage(12, field12, googleProtobufDuration.Duration.serializeBinaryToWriter);
+		}
+		const field13 = message.getClientConfigDnsServers();
+		if (field13.length > 0) {
+			writer.writeString(13, field13);
+		}
+		const field14 = message.getClientConfigDnsSearchDomain();
+		if (field14.length > 0) {
+			writer.writeString(14, field14);
 		}
 	}
 
@@ -359,6 +385,14 @@ export class InfoRes extends jspb.Message {
 				reader.readMessage(field12, googleProtobufDuration.Duration.deserializeBinaryFromReader);
 				message.setInactiveDuration(field12);
 				break;
+			case 13:
+				const field13 = reader.readString()
+				message.setClientConfigDnsServers(field13);
+				break;
+			case 14:
+				const field14 = reader.readString()
+				message.setClientConfigDnsSearchDomain(field14);
+				break;
 			default:
 				reader.skipField();
 				break;
@@ -395,6 +429,8 @@ function InfoResFromObject(obj: InfoRes.AsObject | undefined): InfoRes | undefin
 	message.setFilename(obj.filename);
 	message.setInactiveEnabled(obj.inactiveEnabled);
 	message.setInactiveDuration(DurationFromObject(obj.inactiveDuration));
+	message.setClientConfigDnsServers(obj.clientConfigDnsServers);
+	message.setClientConfigDnsSearchDomain(obj.clientConfigDnsSearchDomain);
 	return message;
 }
 

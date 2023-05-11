@@ -28,4 +28,6 @@ message InfoRes {
   string filename = 10;
   bool inactive_enabled = 11;
   google.protobuf.Duration inactive_duration = 12;
+  string client_config_dns_servers = 13;
+  string client_config_dns_search_domain = 14;
 }

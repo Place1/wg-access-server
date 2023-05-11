@@ -121,6 +121,19 @@ type AppConfig struct {
 		// Disabled by default.
 		Domain string `yaml:"domain"`
 	} `yaml:"dns"`
+	// Configures settings in the configuration file distributed to clients, either by download, or QR-code.
+	ClientConfig struct {
+		// DNS servers to be provided with the client configuration file.
+		// These are written into the configuration file as is.
+		// If left empty the server decides about the address; usually the wg-access-server address.
+		// If not empty, these replace the wg-access-servers DNS addresses.
+		// Empty by default.
+		DNSServers []string `yaml:"dnsServers"`
+		// Search domain to be provided with the client configuration file.
+		// Empty by default.
+		DNSSearchDomain string `yaml:"dnsSearchDomain"`
+
+	} `yaml:"clientConfig"`
 	// Auth configures optional authentication backends
 	// to control access to the web ui.
 	// Devices will be managed on a per-user basis if any

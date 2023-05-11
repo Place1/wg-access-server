@@ -56,7 +56,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		hostVPNIP = ""
 	}
 
-	return &proto.InfoRes{
+	return &proto.InfoRes {
 		Host:      stringValue(&host),
 		PublicKey: publicKey,
 		Port:      int32(s.Config.WireGuard.Port),
@@ -70,9 +70,15 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		DnsEnabled:       s.Config.DNS.Enabled,
 		DnsAddress:       dnsAddress,
 		Filename:         s.Config.Filename,
+		ClientConfigDnsServers:        clientConfigDnsServers(s.Config),
+		ClientConfigDnsSearchDomain:   s.Config.ClientConfig.DNSSearchDomain,
 	}, nil
 }
 
 func allowedIPs(config *config.AppConfig) string {
 	return strings.Join(config.VPN.AllowedIPs, ", ")
+}
+
+func clientConfigDnsServers(config *config.AppConfig) string {
+	return strings.Join(config.ClientConfig.DNSServers, ", ")
 }
