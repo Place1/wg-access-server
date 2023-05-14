@@ -37,3 +37,16 @@ code {
 td.MuiTableCell-root, th.MuiTableCell-root {
   padding: 8px;
 }
+
+/* Improves readability of error message in 'add device' dialog. */
+.MuiFormHelperText-root.Mui-error {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-size: 100%;
+}
+
+.MuiFormHelperText-root.Mui-error svg {
+  position: relative;
+  top: 0.25em;
+  margin-right: 8px;
+}
