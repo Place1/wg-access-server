@@ -11,6 +11,7 @@ import (
 
 type Provider struct {
 	Type           string
+	Name           string
 	Invoke         func(http.ResponseWriter, *http.Request, *ProviderRuntime)
 	RegisterRoutes func(*mux.Router, *ProviderRuntime) error
 }

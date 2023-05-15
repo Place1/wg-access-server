@@ -65,6 +65,7 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 
 	return &authruntime.Provider{
 		Type: OIDCAuthProvider,
+		Name: c.Name,
 		Invoke: func(w http.ResponseWriter, r *http.Request, runtime *authruntime.ProviderRuntime) {
 			c.loginHandler(runtime, oauthConfig)(w, r)
 		},

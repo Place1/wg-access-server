@@ -56,7 +56,7 @@ auth:
     # You can create a user using "htpasswd -nB <username>"
     users: []
   oidc:
-    # A name for the backend (can be anything you want)
+    # A name for the backend (is shown on the login page and possibly in the devices list of the 'all devices' admin page)
     name: "My OIDC Backend"
     # Should point to the OIDC Issuer (excluding /.well-known/openid-configuration)
     issuer: "https://identity.example.com"

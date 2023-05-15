@@ -28,6 +28,7 @@ const postURL = "/signin/simpleauth"
 func (c *SimpleAuthConfig) Provider() *authruntime.Provider {
 	return &authruntime.Provider{
 		Type: SimpleAuthProvider,
+		Name: SimpleAuthProvider,
 		// The flow is as follows: /signin page -> navigation to /signin/{index}
 		// -> Invoke / simpleAuthLogin() renders login form -> POST to postURL / simpleAuthPostEndpoint()
 		// -> redirect to /
