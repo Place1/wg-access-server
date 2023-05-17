@@ -13,6 +13,8 @@
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+.idea/*
+*.iml
 
 ### Go ###
 # Binaries for programs and plugins
