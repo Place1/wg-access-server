@@ -67,33 +67,7 @@ export const AllDevices = observer(class AllDevices extends React.Component {
 
     return (
       <div style={{ display: 'grid', gridGap: 25, gridAutoFlow: 'row' }}>
-        <Typography variant="h5" component="h5">
-          Users
-        </Typography>
-        <TableContainer>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {users.map((user, i) => (
-                <TableRow key={i}>
-                  <TableCell component="th" scope="row">
-                    {user.displayName || user.name}
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outlined" color="secondary" onClick={() => this.deleteUser(user)}>
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+
         <Typography variant="h5" component="h5">
           Devices
         </Typography>
@@ -142,6 +116,35 @@ export const AllDevices = observer(class AllDevices extends React.Component {
             </TableBody>
           </Table>
         </TableContainer>
+
+        <Typography variant="h5" component="h5">
+            Users
+        </Typography>
+        <TableContainer>
+            <Table stickyHeader>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Actions</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {users.map((user, i) => (
+                        <TableRow key={i}>
+                            <TableCell component="th" scope="row">
+                                {user.displayName || user.name}
+                            </TableCell>
+                            <TableCell>
+                                <Button variant="outlined" color="secondary" onClick={() => this.deleteUser(user)}>
+                                    Delete
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
+
         <Typography variant="h5" component="h5">
           Server Info
         </Typography>
@@ -151,6 +154,7 @@ export const AllDevices = observer(class AllDevices extends React.Component {
 
           </pre>
         </code>
+
       </div>
     );
   }
