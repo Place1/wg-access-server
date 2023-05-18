@@ -5,7 +5,11 @@
 
 	{{range $i, $p := .Providers}}
 	<a href="/signin/{{$i}}">
-		<button>{{$p.Type}}</button>
+		{{ if ne $p.Name $p.Type }}
+			<button>{{$p.Name}} ({{$p.Type}})</button>
+		{{ else }}
+			<button>{{$p.Type}}</button>
+		{{ end }}
 	</a>
 	{{end}}
 

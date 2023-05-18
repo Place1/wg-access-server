@@ -20,8 +20,8 @@ func (c *AuthConfig) IsEnabled() bool {
 	return c.OIDC != nil || c.Gitlab != nil || c.Basic != nil || c.Simple != nil
 }
 
-func (c *AuthConfig) DesiresSigninPage() bool {
-	// Basic auth is the only that truly needs the signin button
+func (c *AuthConfig) DesiresSignInPage() bool {
+	// Basic auth is the only that truly needs the sign-in button
 	return c.Basic != nil
 }
 
