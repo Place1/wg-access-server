@@ -24,7 +24,7 @@ COPY ./internal/ ./internal/
 RUN go build -o wg-access-server
 
 ### Server
-FROM alpine:3.17.3
+FROM alpine:3.18.0
 RUN apk add --no-cache iptables ip6tables wireguard-tools curl
 ENV WG_CONFIG="/config.yaml"
 ENV WG_STORAGE="sqlite3:///data/db.sqlite3"
