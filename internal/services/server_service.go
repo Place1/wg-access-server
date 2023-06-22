@@ -56,22 +56,22 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		hostVPNIP = ""
 	}
 
-	return &proto.InfoRes {
+	return &proto.InfoRes{
 		Host:      stringValue(&host),
 		PublicKey: publicKey,
 		Port:      int32(s.Config.WireGuard.Port),
 		// TODO IPv6 what is HostVpnIp used for, do we need HostVpnIpv6 as well?
-		HostVpnIp:        hostVPNIP,
-		MetadataEnabled:  !s.Config.DisableMetadata,
-		InactiveEnabled:  !s.Config.DisableInactive,
-		InactiveDuration: DurationToDurationpb(&s.Config.InactiveDuration),
-		IsAdmin:          user.Claims.IsAdmin(),
-		AllowedIps:       allowedIPs(s.Config),
-		DnsEnabled:       s.Config.DNS.Enabled,
-		DnsAddress:       dnsAddress,
-		Filename:         s.Config.Filename,
-		ClientConfigDnsServers:        clientConfigDnsServers(s.Config),
-		ClientConfigDnsSearchDomain:   s.Config.ClientConfig.DNSSearchDomain,
+		HostVpnIp:                   hostVPNIP,
+		MetadataEnabled:             !s.Config.DisableMetadata,
+		InactiveEnabled:             s.Config.EnableInactiveDeviceDeletion,
+		InactiveDuration:            DurationToDurationpb(&s.Config.InactiveDuration),
+		IsAdmin:                     user.Claims.IsAdmin(),
+		AllowedIps:                  allowedIPs(s.Config),
+		DnsEnabled:                  s.Config.DNS.Enabled,
+		DnsAddress:                  dnsAddress,
+		Filename:                    s.Config.Filename,
+		ClientConfigDnsServers:      clientConfigDnsServers(s.Config),
+		ClientConfigDnsSearchDomain: s.Config.ClientConfig.DNSSearchDomain,
 	}, nil
 }
 

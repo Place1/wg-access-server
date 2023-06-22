@@ -31,12 +31,12 @@ type AppConfig struct {
 	// DisableMetadata allows you to turn off collection of device
 	// metadata including last handshake time & rx/tx bytes
 	DisableMetadata bool `yaml:"disableMetadata"`
-	// DisableInactive allows you to delete inactive devices
-	// after a time duration defined by InactiveDuration
-	DisableInactive bool `yaml:"disableInactive"`
+	// EnableInactiveDeviceDeletion allows you to delete inactive devices
+	// automatically after a time duration defined by InactiveDuration
+	EnableInactiveDeviceDeletion bool `yaml:"enableInactiveDeviceDeletion"`
 	// InactiveDuration sets the duration after which inactive
 	// devices are automatically deleted
-	// Defaults s to 6 months
+	// Defaults to 6 months
 	InactiveDuration time.Duration `yaml:"inactiveDuration"`
 	// The name of the WireGuard configuration file that can
 	// be downloaded through the web UI after adding a device.
@@ -132,7 +132,6 @@ type AppConfig struct {
 		// Search domain to be provided with the client configuration file.
 		// Empty by default.
 		DNSSearchDomain string `yaml:"dnsSearchDomain"`
-
 	} `yaml:"clientConfig"`
 	// Auth configures optional authentication backends
 	// to control access to the web ui.
