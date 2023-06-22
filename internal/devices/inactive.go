@@ -1,6 +1,7 @@
 package devices
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -35,10 +36,10 @@ func checkAndRemove(d *DeviceManager, inactiveDeviceGracePeriod time.Duration) {
 		}
 
 		if elapsed > inactiveDeviceGracePeriod {
-			logrus.Debug("deleting inactive device")
+			logrus.Warnf("deleting inactive device: %s/%s", dev.Owner, dev.Name)
 			err := d.DeleteDevice(dev.Owner, dev.Name)
 			if err != nil {
-				logrus.Error(errors.Wrap(err, "failed to delete device"))
+				logrus.Error(errors.Wrap(err, fmt.Sprintf("failed to delete device: %s/%s", dev.Owner, dev.Name)))
 				continue
 			}
 		}
