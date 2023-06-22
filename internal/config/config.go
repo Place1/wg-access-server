@@ -6,6 +6,11 @@ import (
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authconfig"
 )
 
+const (
+	Day  time.Duration = 24 * time.Hour
+	Year               = 365 * Day
+)
+
 type AppConfig struct {
 	// Set the log level.
 	// Defaults to "info" (fatal, error, warn, info, debug, trace)
@@ -36,7 +41,7 @@ type AppConfig struct {
 	EnableInactiveDeviceDeletion bool `yaml:"enableInactiveDeviceDeletion"`
 	// InactiveDeviceGracePeriod sets the duration after which inactive
 	// devices are automatically deleted
-	// Defaults to 6 months
+	// Defaults to 1 year
 	InactiveDeviceGracePeriod time.Duration `yaml:"inactiveDeviceGracePeriod"`
 	// The name of the WireGuard configuration file that can
 	// be downloaded through the web UI after adding a device.
