@@ -118,8 +118,8 @@ export declare namespace InfoRes {
 		dnsEnabled: boolean,
 		dnsAddress: string,
 		filename: string,
-		inactiveEnabled: boolean,
-		inactiveDuration?: googleProtobufDuration.Duration.AsObject,
+		inactiveDeviceDeletionEnabled: boolean,
+		inactiveDeviceGracePeriod?: googleProtobufDuration.Duration.AsObject,
 		clientConfigDnsServers: string,
 		clientConfigDnsSearchDomain: string,
 	}
@@ -208,18 +208,18 @@ export class InfoRes extends jspb.Message {
 		(jspb.Message as any).setProto3StringField(this, 10, value);
 	}
 
-	getInactiveEnabled(): boolean {return jspb.Message.getFieldWithDefault(this, 11, false);
+	getInactiveDeviceDeletionEnabled(): boolean {return jspb.Message.getFieldWithDefault(this, 11, false);
 	}
 
-	setInactiveEnabled(value: boolean): void {
+	setInactiveDeviceDeletionEnabled(value: boolean): void {
 		(jspb.Message as any).setProto3BooleanField(this, 11, value);
 	}
 
-	getInactiveDuration(): googleProtobufDuration.Duration {
+	getInactiveDeviceGracePeriod(): googleProtobufDuration.Duration {
 		return jspb.Message.getWrapperField(this, googleProtobufDuration.Duration, 12);
 	}
 
-	setInactiveDuration(value?: googleProtobufDuration.Duration): void {
+	setInactiveDeviceGracePeriod(value?: googleProtobufDuration.Duration): void {
 		(jspb.Message as any).setWrapperField(this, 12, value);
 	}
 
@@ -256,8 +256,8 @@ export class InfoRes extends jspb.Message {
 			dnsEnabled: this.getDnsEnabled(),
 			dnsAddress: this.getDnsAddress(),
 			filename: this.getFilename(),
-			inactiveEnabled: this.getInactiveEnabled(),
-			inactiveDuration: (f = this.getInactiveDuration()) && f.toObject(),
+			inactiveDeviceDeletionEnabled: this.getInactiveDeviceDeletionEnabled(),
+			inactiveDeviceGracePeriod: (f = this.getInactiveDeviceGracePeriod()) && f.toObject(),
 			clientConfigDnsServers: this.getClientConfigDnsServers(),
 			clientConfigDnsSearchDomain: this.getClientConfigDnsSearchDomain(),
 		};
@@ -304,11 +304,11 @@ export class InfoRes extends jspb.Message {
 		if (field10.length > 0) {
 			writer.writeString(10, field10);
 		}
-		const field11 = message.getInactiveEnabled();
+		const field11 = message.getInactiveDeviceDeletionEnabled();
 		if (field11 != false) {
 			writer.writeBool(11, field11);
 		}
-		const field12 = message.getInactiveDuration();
+		const field12 = message.getInactiveDeviceGracePeriod();
 		if (field12 != null) {
 			writer.writeMessage(12, field12, googleProtobufDuration.Duration.serializeBinaryToWriter);
 		}
@@ -378,12 +378,12 @@ export class InfoRes extends jspb.Message {
 				break;
 			case 11:
 				const field11 = reader.readBool()
-				message.setInactiveEnabled(field11);
+				message.setInactiveDeviceDeletionEnabled(field11);
 				break;
 			case 12:
 				const field12 = new googleProtobufDuration.Duration();
 				reader.readMessage(field12, googleProtobufDuration.Duration.deserializeBinaryFromReader);
-				message.setInactiveDuration(field12);
+				message.setInactiveDeviceGracePeriod(field12);
 				break;
 			case 13:
 				const field13 = reader.readString()
@@ -427,8 +427,8 @@ function InfoResFromObject(obj: InfoRes.AsObject | undefined): InfoRes | undefin
 	message.setDnsEnabled(obj.dnsEnabled);
 	message.setDnsAddress(obj.dnsAddress);
 	message.setFilename(obj.filename);
-	message.setInactiveEnabled(obj.inactiveEnabled);
-	message.setInactiveDuration(DurationFromObject(obj.inactiveDuration));
+	message.setInactiveDeviceDeletionEnabled(obj.inactiveDeviceDeletionEnabled);
+	message.setInactiveDeviceGracePeriod(DurationFromObject(obj.inactiveDeviceGracePeriod));
 	message.setClientConfigDnsServers(obj.clientConfigDnsServers);
 	message.setClientConfigDnsSearchDomain(obj.clientConfigDnsSearchDomain);
 	return message;
