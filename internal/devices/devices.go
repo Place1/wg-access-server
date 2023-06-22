@@ -70,8 +70,12 @@ func (d *DeviceManager) StartSync(disableMetadataCollection, enableInactiveDevic
 
 	// start inactive devices loop
 	if enableInactiveDeviceDeletion {
-		logrus.Infof("Start looking for inactive devices. Inactive duration is set to %s", inactiveDuration.String())
-		go inactiveLoop(d, inactiveDuration)
+		if disableMetadataCollection {
+			logrus.Infof("Ignoring the automatic device deletion because the metadata collection is disabled and it is based on device metadata.")
+		} else {
+			logrus.Infof("Start looking for inactive devices. Inactive duration is set to %s", inactiveDuration.String())
+			go inactiveLoop(d, inactiveDuration)
+		}
 	}
 
 	return nil
