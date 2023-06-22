@@ -32,12 +32,12 @@ type AppConfig struct {
 	// metadata including last handshake time & rx/tx bytes
 	DisableMetadata bool `yaml:"disableMetadata"`
 	// EnableInactiveDeviceDeletion allows you to delete inactive devices
-	// automatically after a time duration defined by InactiveDuration
+	// automatically after a time duration defined by InactiveDeviceGracePeriod
 	EnableInactiveDeviceDeletion bool `yaml:"enableInactiveDeviceDeletion"`
-	// InactiveDuration sets the duration after which inactive
+	// InactiveDeviceGracePeriod sets the duration after which inactive
 	// devices are automatically deleted
 	// Defaults to 6 months
-	InactiveDuration time.Duration `yaml:"inactiveDuration"`
+	InactiveDeviceGracePeriod time.Duration `yaml:"inactiveDeviceGracePeriod"`
 	// The name of the WireGuard configuration file that can
 	// be downloaded through the web UI after adding a device.
 	// Do not include the '.conf' extension

@@ -7,14 +7,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func inactiveLoop(d *DeviceManager, inactiveDuration time.Duration) {
+func inactiveLoop(d *DeviceManager, inactiveDeviceGracePeriod time.Duration) {
 	for {
-		checkAndRemove(d, inactiveDuration)
+		checkAndRemove(d, inactiveDeviceGracePeriod)
 		time.Sleep(30 * time.Second)
 	}
 }
 
-func checkAndRemove(d *DeviceManager, inactiveDuration time.Duration) {
+func checkAndRemove(d *DeviceManager, inactiveDeviceGracePeriod time.Duration) {
 	logrus.Debug("inactive check executing")
 
 	devices, err := d.ListAllDevices()
@@ -34,7 +34,7 @@ func checkAndRemove(d *DeviceManager, inactiveDuration time.Duration) {
 			elapsed = time.Since(*dev.LastHandshakeTime)
 		}
 
-		if elapsed > inactiveDuration {
+		if elapsed > inactiveDeviceGracePeriod {
 			logrus.Debug("deleting inactive device")
 			err := d.DeleteDevice(dev.Owner, dev.Name)
 			if err != nil {

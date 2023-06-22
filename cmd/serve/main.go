@@ -46,7 +46,7 @@ func Register(app *kingpin.Application) *servecmd {
 	cli.Flag("storage", "The storage backend connection string").Envar("WG_STORAGE").Default("memory://").StringVar(&cmd.AppConfig.Storage)
 	cli.Flag("disable-metadata", "Disable metadata collection (i.e. metrics)").Envar("WG_DISABLE_METADATA").Default("false").BoolVar(&cmd.AppConfig.DisableMetadata)
 	cli.Flag("enable-inactive-device-deletion", "Enable inactive device deletion").Envar("WG_ENABLE_INACTIVE_DEVICE_DELETION").Default("false").BoolVar(&cmd.AppConfig.EnableInactiveDeviceDeletion)
-	cli.Flag("inactive-duration", "Duration after inactive devices are deleted").Envar("WG_INACTIVE_DURATION").Default("4380h").DurationVar(&cmd.AppConfig.InactiveDuration)
+	cli.Flag("inactive-device-grace-period", "Duration after inactive device are deleted").Envar("WG_INACTIVE_DEVICE_GRACE_PERIOD").Default("4380h").DurationVar(&cmd.AppConfig.InactiveDeviceGracePeriod)
 	cli.Flag("filename", "The configuration filename (e.g. WireGuard-Home)").Envar("WG_FILENAME").StringVar(&cmd.AppConfig.Filename)
 	cli.Flag("wireguard-enabled", "Enable or disable the embedded wireguard server (useful for development)").Envar("WG_WIREGUARD_ENABLED").Default("true").BoolVar(&cmd.AppConfig.WireGuard.Enabled)
 	cli.Flag("wireguard-interface", "Set the wireguard interface name").Default("wg0").Envar("WG_WIREGUARD_INTERFACE").StringVar(&cmd.AppConfig.WireGuard.Interface)
@@ -213,7 +213,7 @@ func (cmd *servecmd) Run() {
 	}
 
 	// Services
-	if err := deviceManager.StartSync(conf.DisableMetadata, conf.EnableInactiveDeviceDeletion, conf.InactiveDuration); err != nil {
+	if err := deviceManager.StartSync(conf.DisableMetadata, conf.EnableInactiveDeviceDeletion, conf.InactiveDeviceGracePeriod); err != nil {
 		logrus.Error(errors.Wrap(err, "failed to sync"))
 		return
 	}
