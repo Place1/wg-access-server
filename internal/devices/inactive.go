@@ -1,20 +1,21 @@
 package devices
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
-func inactiveLoop(d *DeviceManager, inactiveDuration time.Duration) {
+func inactiveLoop(d *DeviceManager, inactiveDeviceGracePeriod time.Duration) {
 	for {
-		checkAndRemove(d, inactiveDuration)
+		checkAndRemove(d, inactiveDeviceGracePeriod)
 		time.Sleep(30 * time.Second)
 	}
 }
 
-func checkAndRemove(d *DeviceManager, inactiveDuration time.Duration) {
+func checkAndRemove(d *DeviceManager, inactiveDeviceGracePeriod time.Duration) {
 	logrus.Debug("inactive check executing")
 
 	devices, err := d.ListAllDevices()
@@ -34,11 +35,11 @@ func checkAndRemove(d *DeviceManager, inactiveDuration time.Duration) {
 			elapsed = time.Since(*dev.LastHandshakeTime)
 		}
 
-		if elapsed > inactiveDuration {
-			logrus.Debug("deleting inactive device")
+		if elapsed > inactiveDeviceGracePeriod {
+			logrus.Warnf("deleting inactive device: %s/%s", dev.Owner, dev.Name)
 			err := d.DeleteDevice(dev.Owner, dev.Name)
 			if err != nil {
-				logrus.Error(errors.Wrap(err, "failed to delete device"))
+				logrus.Error(errors.Wrap(err, fmt.Sprintf("failed to delete device: %s/%s", dev.Owner, dev.Name)))
 				continue
 			}
 		}

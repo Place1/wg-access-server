@@ -6,6 +6,11 @@ import (
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authconfig"
 )
 
+const (
+	Day  time.Duration = 24 * time.Hour
+	Year               = 365 * Day
+)
+
 type AppConfig struct {
 	// Set the log level.
 	// Defaults to "info" (fatal, error, warn, info, debug, trace)
@@ -31,13 +36,13 @@ type AppConfig struct {
 	// DisableMetadata allows you to turn off collection of device
 	// metadata including last handshake time & rx/tx bytes
 	DisableMetadata bool `yaml:"disableMetadata"`
-	// DisableInactive allows you to delete inactive devices
-	// after a time duration defined by InactiveDuration
-	DisableInactive bool `yaml:"disableInactive"`
-	// InactiveDuration sets the duration after which inactive
+	// EnableInactiveDeviceDeletion allows you to delete inactive devices
+	// automatically after a time duration defined by InactiveDeviceGracePeriod
+	EnableInactiveDeviceDeletion bool `yaml:"enableInactiveDeviceDeletion"`
+	// InactiveDeviceGracePeriod sets the duration after which inactive
 	// devices are automatically deleted
-	// Defaults s to 6 months
-	InactiveDuration time.Duration `yaml:"inactiveDuration"`
+	// Defaults to 1 year
+	InactiveDeviceGracePeriod time.Duration `yaml:"inactiveDeviceGracePeriod"`
 	// The name of the WireGuard configuration file that can
 	// be downloaded through the web UI after adding a device.
 	// Do not include the '.conf' extension
@@ -132,7 +137,6 @@ type AppConfig struct {
 		// Search domain to be provided with the client configuration file.
 		// Empty by default.
 		DNSSearchDomain string `yaml:"dnsSearchDomain"`
-
 	} `yaml:"clientConfig"`
 	// Auth configures optional authentication backends
 	// to control access to the web ui.

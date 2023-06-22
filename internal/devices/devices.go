@@ -35,7 +35,7 @@ func New(wg wgembed.WireGuardInterface, s storage.Storage, cidr, cidrv6 string) 
 	return &DeviceManager{wg, s, cidr, cidrv6}
 }
 
-func (d *DeviceManager) StartSync(disableMetadataCollection, disableInactiveDeviceDeletion bool, inactiveDuration time.Duration) error {
+func (d *DeviceManager) StartSync(disableMetadataCollection, enableInactiveDeviceDeletion bool, inactiveDeviceGracePeriod time.Duration) error {
 	// Start listening to the device add/remove events
 	d.storage.OnAdd(func(device *storage.Device) {
 		logrus.Debugf("storage event: device added: %s/%s", device.Owner, device.Name)
@@ -69,9 +69,13 @@ func (d *DeviceManager) StartSync(disableMetadataCollection, disableInactiveDevi
 	}
 
 	// start inactive devices loop
-	if !disableInactiveDeviceDeletion {
-		logrus.Infof("Start looking for inactive devices. Inactive duration is set to %s", inactiveDuration.String())
-		go inactiveLoop(d, inactiveDuration)
+	if enableInactiveDeviceDeletion {
+		if disableMetadataCollection {
+			logrus.Infof("Ignoring the automatic device deletion because the metadata collection is disabled and it is based on device metadata.")
+		} else {
+			logrus.Infof("Start looking for inactive devices. Inactive device grace period is set to %s", inactiveDeviceGracePeriod.String())
+			go inactiveLoop(d, inactiveDeviceGracePeriod)
+		}
 	}
 
 	return nil

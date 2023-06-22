@@ -26,8 +26,8 @@ message InfoRes {
   bool dns_enabled = 8;
   string dns_address = 9;
   string filename = 10;
-  bool inactive_enabled = 11;
-  google.protobuf.Duration inactive_duration = 12;
+  bool inactive_device_deletion_enabled = 11;
+  google.protobuf.Duration inactive_device_grace_period = 12;
   string client_config_dns_servers = 13;
   string client_config_dns_search_domain = 14;
 }
