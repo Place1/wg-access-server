@@ -17,7 +17,7 @@ require (
 	github.com/miekg/dns v1.1.55
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.9.2
+	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.4
 	github.com/tg123/go-htpasswd v1.2.1
 	github.com/vishvananda/netlink v1.1.0
