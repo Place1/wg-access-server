@@ -45,7 +45,8 @@ td.MuiTableCell-root, th.MuiTableCell-root {
     font-size: 100%;
 }
 
-.MuiFormHelperText-root.Mui-error svg {
+/* Properly places icons in front of text, e.g. in the title line, or the add device error message. */
+.MuiFormHelperText-root.Mui-error svg, h6.MuiTypography-root svg {
   position: relative;
   top: 0.25em;
   margin-right: 8px;

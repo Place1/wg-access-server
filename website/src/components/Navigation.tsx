@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Button from '@material-ui/core/Button';
 import Chip from '@material-ui/core/Chip';
+import VpnKey from "@material-ui/icons/VpnKey";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -24,7 +25,7 @@ export default function Navigation() {
       <Toolbar>
         <Typography variant="h6" className={classes.title}>
           <Link to="/" color="inherit" component={NavLink}>
-            Welcome
+            <VpnKey /> wg-access-server
           </Link>
           {AppState.info?.isAdmin && (
             <Chip
