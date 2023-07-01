@@ -28,7 +28,7 @@ type DNSServer struct {
 // The returned server needs to be started using DNSServer.ListenAndServe()
 func New(opts DNSServerOpts) (*DNSServer, error) {
 	if len(opts.Upstream) == 0 {
-		return nil, errors.New("at least 1 upstream dns server is required for the dns proxy server to function")
+		return nil, errors.New("At least 1 upstream dns server is required for the dns proxy server to function")
 	}
 
 	dnsServer := &DNSServer{
@@ -92,7 +92,7 @@ func (d *DNSServer) ListenAndServe() {
 		}
 	}
 
-	logrus.Infof("starting dns server on %s with upstreams: %s", sb.String(), strings.Join(d.proxy.upstream, ", "))
+	logrus.Infof("Starting DNS server on %s with upstreams: %s", sb.String(), strings.Join(d.proxy.upstream, ", "))
 
 	var wg sync.WaitGroup
 
@@ -103,7 +103,7 @@ func (d *DNSServer) ListenAndServe() {
 		}
 		go func(server *dns.Server) {
 			if err := server.ListenAndServe(); err != nil {
-				logrus.Error(errors.Errorf("failed to start DNS server on %s/%s: %s", server.Addr, server.Net, err))
+				logrus.Error(errors.Errorf("Dailed to start DNS server on %s/%s: %s", server.Addr, server.Net, err))
 				wg.Done()
 			}
 		}(server)
@@ -158,7 +158,7 @@ func makekey(m *dns.Msg) string {
 
 func prettyPrintMsg(m *dns.Msg) string {
 	if len(m.Question) > 0 {
-		return fmt.Sprintf("dns query for: %s", makekey(m))
+		return fmt.Sprintf("DNS query for: %s", makekey(m))
 	}
 	return m.String()
 }

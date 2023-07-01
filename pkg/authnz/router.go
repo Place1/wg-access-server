@@ -54,7 +54,7 @@ func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddle
 			return nil, err
 		}
 		if len(storeSecret) != 32 {
-			return nil, errors.New("session store secret must be 32 bytes long")
+			return nil, errors.New("Session store secret must be 32 bytes long")
 		}
 	}
 	store := sessions.NewCookieStore(storeSecret)
@@ -86,7 +86,7 @@ func New(config authconfig.AuthConfig, claimsMiddleware authsession.ClaimsMiddle
 		index, err := strconv.Atoi(mux.Vars(r)["index"])
 		if err != nil || index < 0 || len(providers) <= index {
 			w.WriteHeader(http.StatusBadRequest)
-			_, _ = fmt.Fprintf(w, "unknown provider")
+			_, _ = fmt.Fprintf(w, "Unknown provider")
 			return
 		}
 		provider := providers[index]

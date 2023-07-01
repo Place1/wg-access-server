@@ -16,16 +16,16 @@ func inactiveLoop(d *DeviceManager, inactiveDeviceGracePeriod time.Duration) {
 }
 
 func checkAndRemove(d *DeviceManager, inactiveDeviceGracePeriod time.Duration) {
-	logrus.Debug("inactive check executing")
+	logrus.Debug("Inactive check executing")
 
 	devices, err := d.ListAllDevices()
 	if err != nil {
-		logrus.Warn(errors.Wrap(err, "failed to list devices - inactive devices cannot be deleted"))
+		logrus.Warn(errors.Wrap(err, "Failed to list devices - inactive devices cannot be deleted"))
 		return
 	}
 
 	for _, dev := range devices {
-		logrus.Debugf("checking inactive device: %s/%s", dev.Owner, dev.Name)
+		logrus.Debugf("Checking inactive device: %s/%s", dev.Owner, dev.Name)
 
 		var elapsed time.Duration
 		if dev.LastHandshakeTime == nil {
@@ -36,10 +36,10 @@ func checkAndRemove(d *DeviceManager, inactiveDeviceGracePeriod time.Duration) {
 		}
 
 		if elapsed > inactiveDeviceGracePeriod {
-			logrus.Warnf("deleting inactive device: %s/%s", dev.Owner, dev.Name)
+			logrus.Warnf("Deleting inactive device: %s/%s", dev.Owner, dev.Name)
 			err := d.DeleteDevice(dev.Owner, dev.Name)
 			if err != nil {
-				logrus.Error(errors.Wrap(err, fmt.Sprintf("failed to delete device: %s/%s", dev.Owner, dev.Name)))
+				logrus.Error(errors.Wrap(err, fmt.Sprintf("Failed to delete device: %s/%s", dev.Owner, dev.Name)))
 				continue
 			}
 		}

@@ -87,7 +87,7 @@ func (cmd *servecmd) Run() {
 		logrus.Fatal(err)
 	}
 	if !vpnip.IsValid() && !vpnipv6.IsValid() {
-		logrus.Fatal("need at least one of VPN.CIDR or VPN.CIDRv6 set")
+		logrus.Fatal("Need at least one of VPN.CIDR or VPN.CIDRv6 set")
 	}
 
 	// Allow traffic to wg-access-server's peer endpoint.
@@ -119,12 +119,12 @@ func (cmd *servecmd) Run() {
 		}
 		wgimpl, err := wgembed.NewWithOpts(wgOpts)
 		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to create wireguard interface"))
+			logrus.Fatal(errors.Wrap(err, "Failed to create WireGuard interface"))
 		}
 		defer wgimpl.Close()
 		wg = wgimpl
 
-		logrus.Infof("starting wireguard server on :%d", conf.WireGuard.Port)
+		logrus.Infof("Starting WireGuard server on :%d", conf.WireGuard.Port)
 
 		wgconfig := &wgembed.ConfigFile{
 			Interface: wgembed.IfaceConfig{
@@ -135,11 +135,11 @@ func (cmd *servecmd) Run() {
 		}
 
 		if err := wg.LoadConfig(wgconfig); err != nil {
-			logrus.Error(errors.Wrap(err, "failed to load wireguard config"))
+			logrus.Error(errors.Wrap(err, "Failed to load WireGuard config"))
 			return
 		}
 
-		logrus.Infof("wireguard VPN network is %s", network.StringJoinIPNets(vpnip, vpnipv6))
+		logrus.Infof("WireGuard VPN network is %s", network.StringJoinIPNets(vpnip, vpnipv6))
 
 		options := network.ForwardingOptions{
 			GatewayIface:    conf.VPN.GatewayInterface,
@@ -160,11 +160,11 @@ func (cmd *servecmd) Run() {
 	// Storage
 	storageBackend, err := storage.NewStorage(conf.Storage)
 	if err != nil {
-		logrus.Error(errors.Wrap(err, "failed to create storage backend"))
+		logrus.Error(errors.Wrap(err, "Failed to create storage backend"))
 		return
 	}
 	if err := storageBackend.Open(); err != nil {
-		logrus.Error(errors.Wrap(err, "failed to connect/open storage backend"))
+		logrus.Error(errors.Wrap(err, "Failed to connect/open storage backend"))
 		return
 	}
 	defer storageBackend.Close()
@@ -187,7 +187,7 @@ func (cmd *servecmd) Run() {
 			ListenAddr: listenAddr,
 		})
 		if err != nil {
-			logrus.Error(errors.Wrap(err, "failed to create dns server"))
+			logrus.Error(errors.Wrap(err, "Failed to create dns server"))
 			return
 		}
 		dns.ListenAndServe()
@@ -214,7 +214,7 @@ func (cmd *servecmd) Run() {
 
 	// Services
 	if err := deviceManager.StartSync(conf.DisableMetadata, conf.EnableInactiveDeviceDeletion, conf.InactiveDeviceGracePeriod); err != nil {
-		logrus.Error(errors.Wrap(err, "failed to sync"))
+		logrus.Error(errors.Wrap(err, "Failed to sync"))
 		return
 	}
 
@@ -228,7 +228,7 @@ func (cmd *servecmd) Run() {
 	// Authentication middleware
 	middleware, err := authnz.NewMiddleware(conf.Auth, authnz.ClaimsMiddleware(conf))
 	if err != nil {
-		logrus.Error(errors.Wrap(err, "failed to set up authnz middleware"))
+		logrus.Error(errors.Wrap(err, "Failed to set up authnz middleware"))
 		return
 	}
 	router.Use(middleware)
@@ -262,10 +262,10 @@ func (cmd *servecmd) Run() {
 
 	go func() {
 		// Start Web server
-		logrus.Infof("web ui listening on %v", address)
+		logrus.Infof("Web UI listening on %v", address)
 		err := srv.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			errChan <- errors.Wrap(err, "unable to start http server")
+			errChan <- errors.Wrap(err, "Unable to start http server")
 		}
 	}()
 
@@ -289,7 +289,7 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 	if cmd.ConfigFilePath != "" {
 		if b, err := ioutil.ReadFile(cmd.ConfigFilePath); err == nil {
 			if err := yaml.Unmarshal(b, &cmd.AppConfig); err != nil {
-				logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
+				logrus.Fatal(errors.Wrap(err, "Failed to bind configuration file"))
 			}
 		}
 	}
@@ -306,7 +306,7 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 
 	if !cmd.AppConfig.Auth.IsEnabled() {
 		if cmd.AppConfig.AdminPassword == "" {
-			logrus.Fatal("missing admin password: please set via environment variable, flag or config file")
+			logrus.Fatal("Missing admin password: please set via environment variable, flag or config file")
 		}
 	}
 
@@ -314,7 +314,7 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 		// set a basic auth entry for the admin user
 		pw, err := bcrypt.GenerateFromPassword([]byte(cmd.AppConfig.AdminPassword), bcrypt.DefaultCost)
 		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to generate a bcrypt hash for the provided admin password"))
+			logrus.Fatal(errors.Wrap(err, "Failed to generate a bcrypt hash for the provided admin password"))
 		}
 		if cmd.AppConfig.Auth.Simple == nil && cmd.AppConfig.Auth.Basic == nil {
 			// basic and simple auth are unset, enable simple auth for the admin user
@@ -337,7 +337,7 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 		}
 		key, err := wgtypes.GeneratePrivateKey()
 		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to generate a server private key"))
+			logrus.Fatal(errors.Wrap(err, "Failed to generate a server private key"))
 		}
 		cmd.AppConfig.WireGuard.PrivateKey = key.String()
 	}
@@ -381,7 +381,7 @@ func detectDNSUpstream(ipv4Enabled, ipv6Enabled bool) []string {
 		upstream = resolvconf.GetNameservers(r.Content, types.IP)
 	}
 	if len(upstream) == 0 {
-		logrus.Warn("failed to get nameservers from /etc/resolv.conf defaulting to Cloudflare DNS instead")
+		logrus.Warn("Failed to get nameservers from /etc/resolv.conf defaulting to Cloudflare DNS instead")
 		// If there's no default route for IPv6, lookup fails immediately without delay and we retry using IPv4
 		if ipv6Enabled {
 			upstream = append(upstream, "2606:4700:4700::1111")
@@ -396,7 +396,7 @@ func detectDNSUpstream(ipv4Enabled, ipv6Enabled bool) []string {
 func detectDefaultInterface() string {
 	links, err := netlink.LinkList()
 	if err != nil {
-		logrus.Warn(errors.Wrap(err, "failed to list network interfaces"))
+		logrus.Warn(errors.Wrap(err, "Failed to list network interfaces"))
 		return ""
 	}
 	for _, link := range links {
@@ -404,7 +404,7 @@ func detectDefaultInterface() string {
 		for family := range []int{4, 6} {
 			routes, err := netlink.RouteList(link, family)
 			if err != nil {
-				logrus.Warn(errors.Wrapf(err, "failed to list routes for interface %s", link.Attrs().Name))
+				logrus.Warn(errors.Wrapf(err, "Failed to list routes for interface %s", link.Attrs().Name))
 				return ""
 			}
 			for _, route := range routes {
@@ -414,14 +414,14 @@ func detectDefaultInterface() string {
 			}
 		}
 	}
-	logrus.Warn(errors.New("could not determine the default network interface name"))
+	logrus.Warn(errors.New("Could not determine the default network interface name"))
 	return ""
 }
 
 func generateZone(deviceManager *devices.DeviceManager, vpnips []netip.Addr) dnsproxy.Zone {
 	devs, err := deviceManager.ListAllDevices()
 	if err != nil {
-		logrus.Error(errors.Wrap(err, "could not query devices to generate the DNS zone"))
+		logrus.Error(errors.Wrap(err, "Could not query devices to generate the DNS zone"))
 	}
 
 	zone := make(dnsproxy.Zone)
@@ -443,7 +443,7 @@ func generateZone(deviceManager *devices.DeviceManager, vpnips []netip.Addr) dns
 	return zone
 }
 
-var missingPrivateKey = `missing wireguard private key:
+var missingPrivateKey = `Missing WireGuard private key:
 
     create a key:
 

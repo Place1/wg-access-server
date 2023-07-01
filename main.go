@@ -21,19 +21,19 @@ var (
 )
 
 func main() {
-	// all the subcommands for wg-access-server
+	// All the subcommands for wg-access-server
 	commands := []cmd.Command{
 		serve.Register(app),
 		migrate.Register(app),
 	}
 
-	// parse CLI arguments
+	// Parse CLI arguments
 	clicmd := kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	// set global log level
+	// Set global log level
 	level, err := logrus.ParseLevel(*logLevel)
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "invalid log level - should be one of fatal, error, warn, info, debug, trace"))
+		logrus.Fatal(errors.Wrap(err, "Invalid log level - should be one of fatal, error, warn, info, debug, trace"))
 	}
 	logrus.SetLevel(level)
 	logrus.SetReportCaller(true)
@@ -43,10 +43,30 @@ func main() {
 		},
 	})
 
+	// Hooks
+	logrus.AddHook(&GrpcInfoLogDemotionHook{})
+
 	for _, c := range commands {
 		if clicmd == c.Name() {
 			c.Run()
 			return
 		}
 	}
+}
+
+// Logrus hook for downgrading these 'finished unary call...' GRPC info logs to debug.
+type GrpcInfoLogDemotionHook struct {
+}
+
+func (h *GrpcInfoLogDemotionHook) Levels() []logrus.Level {
+	// Only concerns info entries.
+	return []logrus.Level{logrus.InfoLevel}
+}
+
+func (h *GrpcInfoLogDemotionHook) Fire(e *logrus.Entry) error {
+	// Demotes info log lines like `INFO[0010]options.go:220 finished unary call with code OK grpc.code=OK grpc.method=ListDevices...` to debug level.
+	if e.Data != nil && e.Data["system"] == "grpc" && e.Data["grpc.code"] == "OK" {
+		e.Level = logrus.DebugLevel
+	}
+	return nil
 }

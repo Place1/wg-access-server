@@ -38,28 +38,28 @@ func New(wg wgembed.WireGuardInterface, s storage.Storage, cidr, cidrv6 string) 
 func (d *DeviceManager) StartSync(disableMetadataCollection, enableInactiveDeviceDeletion bool, inactiveDeviceGracePeriod time.Duration) error {
 	// Start listening to the device add/remove events
 	d.storage.OnAdd(func(device *storage.Device) {
-		logrus.Debugf("storage event: device added: %s/%s", device.Owner, device.Name)
+		logrus.Infof("Storage event: add device '%s' (public key: '%s') for user: %s %s", device.Name, device.PublicKey, device.OwnerName, device.Owner)
 		if err := d.wg.AddPeer(device.PublicKey, device.PresharedKey, network.SplitAddresses(device.Address)); err != nil {
-			logrus.Error(errors.Wrap(err, "failed to add wireguard peer"))
+			logrus.Error(errors.Wrap(err, "Failed to add WireGuard peer"))
 		}
 	})
 
 	d.storage.OnDelete(func(device *storage.Device) {
-		logrus.Debugf("storage event: device removed: %s/%s", device.Owner, device.Name)
+		logrus.Infof("Storage event: remove device '%s' (public key: '%s') for user: %s %s", device.Name, device.PublicKey, device.OwnerName, device.Owner)
 		if err := d.wg.RemovePeer(device.PublicKey); err != nil {
-			logrus.Error(errors.Wrap(err, "failed to remove wireguard peer"))
+			logrus.Error(errors.Wrap(err, "Failed to remove WireGuard peer"))
 		}
 	})
 
 	d.storage.OnReconnect(func() {
 		if err := d.sync(); err != nil {
-			logrus.Error(errors.Wrap(err, "device sync after storage backend reconnect event failed"))
+			logrus.Error(errors.Wrap(err, "Device sync after storage backend reconnect event failed"))
 		}
 	})
 
 	// Do an initial sync of existing devices
 	if err := d.sync(); err != nil {
-		return errors.Wrap(err, "initial device sync from storage failed")
+		return errors.Wrap(err, "Initial device sync from storage failed")
 	}
 
 	// start the metrics loop
@@ -89,7 +89,7 @@ func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, p
 	var nameTaken bool = false
 	devices, err := d.ListDevices(identity.Subject)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to list devices")
+		return nil, errors.Wrap(err, "Failed to list devices")
 	}
 
 	for _, x := range devices {
@@ -130,7 +130,7 @@ func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, p
 	}
 
 	if err := d.SaveDevice(device); err != nil {
-		return nil, errors.Wrap(err, "failed to save the new device")
+		return nil, errors.Wrap(err, "Failed to save the new device")
 	}
 
 	return device, nil
@@ -143,19 +143,19 @@ func (d *DeviceManager) SaveDevice(device *storage.Device) error {
 func (d *DeviceManager) sync() error {
 	devices, err := d.ListAllDevices()
 	if err != nil {
-		return errors.Wrap(err, "failed to list devices")
+		return errors.Wrap(err, "Failed to list devices")
 	}
 
 	peers, err := d.wg.ListPeers()
 	if err != nil {
-		return errors.Wrap(err, "failed to list peers")
+		return errors.Wrap(err, "Failed to list peers")
 	}
 
 	// Remove any peers for devices that are no longer in storage
 	for _, peer := range peers {
 		if !deviceListContains(devices, peer.PublicKey.String()) {
 			if err := d.wg.RemovePeer(peer.PublicKey.String()); err != nil {
-				logrus.Error(errors.Wrapf(err, "failed to remove peer during sync: %s", peer.PublicKey.String()))
+				logrus.Error(errors.Wrapf(err, "Failed to remove peer during sync: %s", peer.PublicKey.String()))
 			}
 		}
 	}
@@ -163,7 +163,7 @@ func (d *DeviceManager) sync() error {
 	// Add peers for all devices in storage
 	for _, device := range devices {
 		if err := d.wg.AddPeer(device.PublicKey, device.PresharedKey, network.SplitAddresses(device.Address)); err != nil {
-			logrus.Warn(errors.Wrapf(err, "failed to add device during sync: %s", device.Name))
+			logrus.Warn(errors.Wrapf(err, "Failed to add device during sync: %s", device.Name))
 		}
 	}
 
@@ -291,7 +291,7 @@ func deviceListContains(devices []*storage.Device, publicKey string) bool {
 func (d *DeviceManager) ListUsers() ([]*User, error) {
 	devices, err := d.storage.List("")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to retrieve devices")
+		return nil, errors.Wrap(err, "Failed to retrieve devices")
 	}
 
 	seen := map[string]bool{}
@@ -309,13 +309,13 @@ func (d *DeviceManager) ListUsers() ([]*User, error) {
 func (d *DeviceManager) DeleteDevicesForUser(user string) error {
 	devices, err := d.ListDevices(user)
 	if err != nil {
-		return errors.Wrap(err, "failed to retrieve devices")
+		return errors.Wrap(err, "Failed to retrieve devices")
 	}
 
 	for _, dev := range devices {
 		// TODO not transactional
 		if err := d.DeleteDevice(user, dev.Name); err != nil {
-			return errors.Wrap(err, "failed to delete device")
+			return errors.Wrap(err, "Failed to delete device")
 		}
 	}
 
@@ -324,11 +324,11 @@ func (d *DeviceManager) DeleteDevicesForUser(user string) error {
 
 func (d *DeviceManager) Ping() error {
 	if err := d.storage.Ping(); err != nil {
-		return errors.Wrap(err, "failed to ping storage")
+		return errors.Wrap(err, "Failed to ping storage")
 	}
 
 	if err := d.wg.Ping(); err != nil {
-		return errors.Wrap(err, "failed to ping wireguard")
+		return errors.Wrap(err, "Failed to ping WireGuard")
 	}
 
 	return nil

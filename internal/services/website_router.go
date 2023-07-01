@@ -19,14 +19,14 @@ func WebsiteRouter() *mux.Router {
 
 	staticFiles, err := filepath.Abs("website/build")
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to create absolute path to website static files"))
+		logrus.Fatal(errors.Wrap(err, "Failed to create absolute path to website static files"))
 	}
 
 	if _, err := os.Stat(staticFiles); os.IsNotExist(err) {
 		// if the static files directory doesn't exist
 		// then proxy to a local webpack development server
 		// i.e. we're developing wg-access-server locally
-		logrus.Info("missing ./website/build - will reverse proxy to website dev server")
+		logrus.Info("Missing ./website/build - will reverse proxy to website dev server")
 		u, _ := url.Parse("http://localhost:3000")
 		router.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
 	} else {
@@ -34,7 +34,7 @@ func WebsiteRouter() *mux.Router {
 		// handle static file requests.
 		// the react app handles routing so we also
 		// add a catch-all route to serve the react index page.
-		logrus.Info("serving website from ./website/build")
+		logrus.Info("Serving website from ./website/build")
 		router.PathPrefix("/").Handler(
 			FileServerWith404(
 				http.Dir(staticFiles),

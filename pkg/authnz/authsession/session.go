@@ -24,23 +24,28 @@ func GetSession(store sessions.Store, r *http.Request) (*AuthSession, error) {
 	if data, ok := session.Values[string(sessionKey)].([]byte); ok {
 		s := &AuthSession{}
 		if err := json.Unmarshal(data, s); err != nil {
-			return nil, errors.Wrap(err, "failed to parse session")
+			return nil, errors.Wrap(err, "Failed to parse session")
 		}
 		return s, nil
 	}
-	return nil, errors.New("session not authenticated")
+	return nil, errors.New("Session not authenticated")
 }
 
 func SetSession(store sessions.Store, r *http.Request, w http.ResponseWriter, s *AuthSession) error {
 	data, err := json.Marshal(s)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal session")
+		return errors.Wrap(err, "Failed to marshal session")
 	}
 	session, _ := store.Get(r, string(sessionKey))
 	session.Values[string(sessionKey)] = data
 	if err := session.Save(r, w); err != nil {
 		return err
 	}
+
+	if s.Identity != nil {
+		logrus.Infof("Creating web session with provider '%s' for user '%s' (remote address: %s)", s.Identity.Provider, s.Identity.Name, r.RemoteAddr)
+	}
+
 	return nil
 }
 
@@ -64,7 +69,7 @@ func CurrentUser(ctx context.Context) (*Identity, error) {
 			return session.Identity, nil
 		}
 	}
-	return nil, errors.New("unauthenticated")
+	return nil, errors.New("Unauthenticated")
 }
 
 func Authenticated(ctx context.Context) bool {

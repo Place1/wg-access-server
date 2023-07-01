@@ -79,7 +79,7 @@ type ForwardingOptions struct {
 
 func ConfigureForwarding(options ForwardingOptions) error {
 	// Networking configuration (iptables) configuration
-	// to ensure that traffic from clients of the wireguard interface
+	// to ensure that traffic from clients of the WireGuard interface
 	// is sent to the provided network interface
 	allowedIPv4s := make([]string, 0, len(options.AllowedIPs)/2)
 	allowedIPv6s := make([]string, 0, len(options.AllowedIPs)/2)

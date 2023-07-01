@@ -24,7 +24,7 @@ type AppConfig struct {
 	// Defaults to 8000
 	Port int `yaml:"port"`
 	// ExternalHost is the address that clients
-	// use to connect to the wireguard interface
+	// use to connect to the WireGuard interface
 	// By default, this will be empty and the web ui
 	// will use the current page's origin.
 	ExternalHost string `yaml:"externalHost"`
@@ -50,7 +50,7 @@ type AppConfig struct {
 	Filename string `yaml:"filename"`
 	// Configure WireGuard related settings
 	WireGuard struct {
-		// Set this to false to disable the embedded wireguard
+		// Set this to false to disable the embedded WireGuard
 		// server. This is useful for development environments
 		// on mac and windows where we don't currently support
 		// the OS's network stack.
