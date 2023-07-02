@@ -57,5 +57,5 @@ func TestUnknownStorage(t *testing.T) {
 	s, err := NewStorage("foo://")
 	require.Nil(s)
 	require.Error(err)
-	require.Equal(err.Error(), "unknown storage backend foo")
+	require.Equal(err.Error(), "Unknown storage backend foo:")
 }
