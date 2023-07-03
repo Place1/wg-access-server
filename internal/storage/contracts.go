@@ -62,7 +62,7 @@ type Device struct {
 func NewStorage(uri string) (Storage, error) {
 	u, err := url.Parse(uri)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error parsing storage uri")
+		return nil, errors.Wrap(err, "error parsing storage uri")
 	}
 
 	switch u.Scheme {

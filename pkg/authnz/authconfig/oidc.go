@@ -42,7 +42,7 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 	ctx := context.Background()
 	provider, err := oidc.NewProvider(ctx, c.Issuer)
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "Failed to create OIDC provider"))
+		logrus.Fatal(errors.Wrap(err, "failed to create OIDC provider"))
 	}
 	verifier := provider.Verifier(&oidc.Config{ClientID: c.ClientID})
 
@@ -60,7 +60,7 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 
 	redirectURL, err := url.Parse(c.RedirectURL)
 	if err != nil {
-		panic(errors.Wrapf(err, "Redirect URL is not valid: %s", c.RedirectURL))
+		panic(errors.Wrapf(err, "redirect URL is not valid: %s", c.RedirectURL))
 	}
 
 	return &authruntime.Provider{
@@ -123,7 +123,7 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 		// 7. Client receives a response that contains an ID Token and Access Token in the response body.
 		oauth2Token, err := oauthConfig.Exchange(r.Context(), authCode)
 		if err != nil {
-			panic(errors.Wrap(err, "Unable to exchange tokens"))
+			panic(errors.Wrap(err, "unable to exchange tokens"))
 		}
 
 		// 8. Client validates the ID token and retrieves the End-User's Subject Identifier.
@@ -133,13 +133,13 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 			logrus.Debug("Retrieving claims from UserInfo endpoint")
 			info, err := provider.UserInfo(r.Context(), oauthConfig.TokenSource(r.Context(), oauth2Token))
 			if err != nil {
-				panic(errors.Wrap(err, "Unable to get UserInfo"))
+				panic(errors.Wrap(err, "unable to get UserInfo"))
 			}
 
 			// Dump the claims
 			err = info.Claims(&oidcClaims)
 			if err != nil {
-				panic(errors.Wrap(err, "Unable to unmarshal claims from UserInfo JSON"))
+				panic(errors.Wrap(err, "unable to unmarshal claims from UserInfo JSON"))
 			}
 		} else {
 			// Extract and parse the ID token to retrieve the claims
@@ -151,13 +151,13 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 			// Parse and verify ID Token payload
 			idToken, err := verifier.Verify(r.Context(), rawIDToken)
 			if err != nil {
-				panic(errors.Wrap(err, "Failed to verify ID token"))
+				panic(errors.Wrap(err, "failed to verify ID token"))
 			}
 
 			// Dump the claims
 			err = idToken.Claims(&oidcClaims)
 			if err != nil {
-				panic(errors.Wrap(err, "Unable to unmarshal claims from ID token JSON"))
+				panic(errors.Wrap(err, "unable to unmarshal claims from ID token JSON"))
 			}
 		}
 
@@ -262,7 +262,7 @@ func (r *ruleExpression) UnmarshalYAML(unmarshal func(interface{}) error) error 
 	}
 	parsedRule, err := govaluate.NewEvaluableExpression(ruleStr)
 	if err != nil {
-		return errors.Wrap(err, "Unable to process OIDC rule")
+		return errors.Wrap(err, "unable to process OIDC rule")
 	}
 	ruleExpression := &ruleExpression{parsedRule}
 	*r = *ruleExpression

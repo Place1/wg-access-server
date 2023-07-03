@@ -19,7 +19,7 @@ func syncMetrics(d *DeviceManager) {
 
 	peers, err := d.wg.ListPeers()
 	if err != nil {
-		logrus.Warn(errors.Wrap(err, "Failed to list peers - metrics cannot be recorded"))
+		logrus.Warn(errors.Wrap(err, "failed to list peers - metrics cannot be recorded"))
 		return
 	}
 
@@ -40,7 +40,7 @@ func syncMetrics(d *DeviceManager) {
 				device.LastHandshakeTime = &peer.LastHandshakeTime
 
 				if err := d.SaveDevice(device); err != nil {
-					logrus.Error(errors.Wrap(err, "Failed to save device during metadata sync"))
+					logrus.Error(errors.Wrap(err, "failed to save device during metadata sync"))
 				}
 			}
 		}

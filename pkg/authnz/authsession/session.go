@@ -24,7 +24,7 @@ func GetSession(store sessions.Store, r *http.Request) (*AuthSession, error) {
 	if data, ok := session.Values[string(sessionKey)].([]byte); ok {
 		s := &AuthSession{}
 		if err := json.Unmarshal(data, s); err != nil {
-			return nil, errors.Wrap(err, "Failed to parse session")
+			return nil, errors.Wrap(err, "failed to parse session")
 		}
 		return s, nil
 	}
@@ -34,7 +34,7 @@ func GetSession(store sessions.Store, r *http.Request) (*AuthSession, error) {
 func SetSession(store sessions.Store, r *http.Request, w http.ResponseWriter, s *AuthSession) error {
 	data, err := json.Marshal(s)
 	if err != nil {
-		return errors.Wrap(err, "Failed to marshal session")
+		return errors.Wrap(err, "failed to marshal session")
 	}
 	session, _ := store.Get(r, string(sessionKey))
 	session.Values[string(sessionKey)] = data

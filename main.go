@@ -33,7 +33,7 @@ func main() {
 	// Set global log level
 	level, err := logrus.ParseLevel(*logLevel)
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "Invalid log level - should be one of fatal, error, warn, info, debug, trace"))
+		logrus.Fatal(errors.Wrap(err, "invalid log level - should be one of fatal, error, warn, info, debug, trace"))
 	}
 	logrus.SetLevel(level)
 	logrus.SetReportCaller(true)
