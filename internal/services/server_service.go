@@ -72,6 +72,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		Filename:                      s.Config.Filename,
 		ClientConfigDnsServers:        clientConfigDnsServers(s.Config),
 		ClientConfigDnsSearchDomain:   s.Config.ClientConfig.DNSSearchDomain,
+		ClientConfigMtu:               int32(s.Config.ClientConfig.MTU),
 	}, nil
 }
 

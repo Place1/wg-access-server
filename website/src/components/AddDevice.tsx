@@ -100,6 +100,7 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
         PrivateKey = ${privateKey}
         Address = ${device.address}
         ${ 0 < dnsInfo.length && `DNS = ${ dnsInfo.join(", ") }` }
+        ${ info.clientConfigMtu != 0 && `MTU = ${info.clientConfigMtu}` }
 
         [Peer]
         PublicKey = ${info.publicKey}
@@ -175,15 +176,15 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
                       />
                       <FormHelperText id="device-publickey-text">Put your public key to a pre-generated private key here. Replace the private key in the config file after downloading it.</FormHelperText>
                     </FormControl>
-                    <FormControlLabel 
+                    <FormControlLabel
                       control={
                         <Checkbox
                           id="device-presharedkey"
                           value={this.useDevicePresharekey}
                           onChange={(event) => (this.useDevicePresharekey = event.currentTarget.checked)}
                         />
-                      } 
-                      label="Use pre-shared key" 
+                      }
+                      label="Use pre-shared key"
                     />
                   </AccordionDetails>
                 </Accordion>

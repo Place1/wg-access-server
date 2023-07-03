@@ -30,4 +30,5 @@ message InfoRes {
   google.protobuf.Duration inactive_device_grace_period = 12;
   string client_config_dns_servers = 13;
   string client_config_dns_search_domain = 14;
+  int32 client_config_mtu = 15;
 }

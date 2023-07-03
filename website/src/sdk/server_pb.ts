@@ -122,6 +122,7 @@ export declare namespace InfoRes {
 		inactiveDeviceGracePeriod?: googleProtobufDuration.Duration.AsObject,
 		clientConfigDnsServers: string,
 		clientConfigDnsSearchDomain: string,
+		clientConfigMtu: number,
 	}
 }
 
@@ -237,6 +238,13 @@ export class InfoRes extends jspb.Message {
 		(jspb.Message as any).setProto3StringField(this, 14, value);
 	}
 
+	getClientConfigMtu(): number {return jspb.Message.getFieldWithDefault(this, 15, 0);
+	}
+
+	setClientConfigMtu(value: number): void {
+		(jspb.Message as any).setProto3IntField(this, 15, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		InfoRes.serializeBinaryToWriter(this, writer);
@@ -260,6 +268,7 @@ export class InfoRes extends jspb.Message {
 			inactiveDeviceGracePeriod: (f = this.getInactiveDeviceGracePeriod()) && f.toObject(),
 			clientConfigDnsServers: this.getClientConfigDnsServers(),
 			clientConfigDnsSearchDomain: this.getClientConfigDnsSearchDomain(),
+			clientConfigMtu: this.getClientConfigMtu(),
 		};
 	}
 
@@ -319,6 +328,10 @@ export class InfoRes extends jspb.Message {
 		const field14 = message.getClientConfigDnsSearchDomain();
 		if (field14.length > 0) {
 			writer.writeString(14, field14);
+		}
+		const field15 = message.getClientConfigMtu();
+		if (field15 != 0) {
+			writer.writeInt32(15, field15);
 		}
 	}
 
@@ -393,6 +406,10 @@ export class InfoRes extends jspb.Message {
 				const field14 = reader.readString()
 				message.setClientConfigDnsSearchDomain(field14);
 				break;
+			case 15:
+				const field15 = reader.readInt32()
+				message.setClientConfigMtu(field15);
+				break;
 			default:
 				reader.skipField();
 				break;
@@ -431,6 +448,7 @@ function InfoResFromObject(obj: InfoRes.AsObject | undefined): InfoRes | undefin
 	message.setInactiveDeviceGracePeriod(DurationFromObject(obj.inactiveDeviceGracePeriod));
 	message.setClientConfigDnsServers(obj.clientConfigDnsServers);
 	message.setClientConfigDnsSearchDomain(obj.clientConfigDnsSearchDomain);
+	message.setClientConfigMtu(obj.clientConfigMtu);
 	return message;
 }
 
