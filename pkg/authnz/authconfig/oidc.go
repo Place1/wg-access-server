@@ -42,7 +42,7 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 	ctx := context.Background()
 	provider, err := oidc.NewProvider(ctx, c.Issuer)
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to create oidc provider"))
+		logrus.Fatal(errors.Wrap(err, "failed to create OIDC provider"))
 	}
 	verifier := provider.Verifier(&oidc.Config{ClientID: c.ClientID})
 
@@ -60,7 +60,7 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 
 	redirectURL, err := url.Parse(c.RedirectURL)
 	if err != nil {
-		panic(errors.Wrapf(err, "redirect url is not valid: %s", c.RedirectURL))
+		panic(errors.Wrapf(err, "redirect URL is not valid: %s", c.RedirectURL))
 	}
 
 	return &authruntime.Provider{
@@ -84,7 +84,7 @@ func (c *OIDCConfig) loginHandler(runtime *authruntime.ProviderRuntime, oauthCon
 			Nonce: &oauthStateString,
 		})
 		if err != nil {
-			http.Error(w, "no session", http.StatusUnauthorized)
+			http.Error(w, "No session", http.StatusUnauthorized)
 			return
 		}
 		// 2. Client sends the request to the Authorization Server.
@@ -103,17 +103,17 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 
 		s, err := runtime.GetSession(r)
 		if err != nil {
-			http.Error(w, "no session", http.StatusBadRequest)
+			http.Error(w, "No session", http.StatusBadRequest)
 			return
 		}
 
 		// Make sure the returned state matches the one saved in the session cookie to prevent CSRF attacks
 		state := r.FormValue("state")
 		if s.Nonce == nil {
-			http.Error(w, "no state associated with session", http.StatusBadRequest)
+			http.Error(w, "No state associated with session", http.StatusBadRequest)
 			return
 		} else if *s.Nonce != state {
-			http.Error(w, "bad state value", http.StatusBadRequest)
+			http.Error(w, "Bad state value", http.StatusBadRequest)
 			return
 		}
 
@@ -123,41 +123,41 @@ func (c *OIDCConfig) callbackHandler(runtime *authruntime.ProviderRuntime, oauth
 		// 7. Client receives a response that contains an ID Token and Access Token in the response body.
 		oauth2Token, err := oauthConfig.Exchange(r.Context(), authCode)
 		if err != nil {
-			panic(errors.Wrap(err, "Unable to exchange tokens"))
+			panic(errors.Wrap(err, "unable to exchange tokens"))
 		}
 
 		// 8. Client validates the ID token and retrieves the End-User's Subject Identifier.
 		oidcClaims := make(map[string]interface{})
 		if !c.ClaimsFromIDToken {
 			// Use the UserInfo endpoint to retrieve the claims
-			logrus.Debug("retrieving claims from UserInfo endpoint")
+			logrus.Debug("Retrieving claims from UserInfo endpoint")
 			info, err := provider.UserInfo(r.Context(), oauthConfig.TokenSource(r.Context(), oauth2Token))
 			if err != nil {
-				panic(errors.Wrap(err, "Unable to get UserInfo"))
+				panic(errors.Wrap(err, "unable to get UserInfo"))
 			}
 
 			// Dump the claims
 			err = info.Claims(&oidcClaims)
 			if err != nil {
-				panic(errors.Wrap(err, "Unable to unmarshal claims from UserInfo JSON"))
+				panic(errors.Wrap(err, "unable to unmarshal claims from UserInfo JSON"))
 			}
 		} else {
 			// Extract and parse the ID token to retrieve the claims
-			logrus.Debug("retrieving claims from ID Token")
+			logrus.Debug("Retrieving claims from ID Token")
 			rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 			if !ok {
-				panic(errors.New("No id_token field in oauth2 token"))
+				panic(errors.New("No id_token field in OAuth2 token"))
 			}
 			// Parse and verify ID Token payload
 			idToken, err := verifier.Verify(r.Context(), rawIDToken)
 			if err != nil {
-				panic(errors.Wrap(err, "Failed to verify ID Token"))
+				panic(errors.Wrap(err, "failed to verify ID token"))
 			}
 
 			// Dump the claims
 			err = idToken.Claims(&oidcClaims)
 			if err != nil {
-				panic(errors.Wrap(err, "Unable to unmarshal claims from ID Token JSON"))
+				panic(errors.Wrap(err, "unable to unmarshal claims from ID token JSON"))
 			}
 		}
 
@@ -213,7 +213,7 @@ func verifyEmailDomain(allowedDomains []string, email string) (string, bool) {
 
 	// check we have 2 parts i.e. <user>@<domain>
 	if len(parsed) != 2 {
-		return "missing or invalid email address", false
+		return "Missing or invalid email address", false
 	}
 
 	// match the domain against the list of allowed domains
@@ -223,7 +223,7 @@ func verifyEmailDomain(allowedDomains []string, email string) (string, bool) {
 		}
 	}
 
-	return "email domain not authorized", false
+	return "Email domain not authorized", false
 }
 
 // evaluateClaimMapping translates OIDC claims to custom authnz claims.
@@ -262,7 +262,7 @@ func (r *ruleExpression) UnmarshalYAML(unmarshal func(interface{}) error) error 
 	}
 	parsedRule, err := govaluate.NewEvaluableExpression(ruleStr)
 	if err != nil {
-		return errors.Wrap(err, "Unable to process oidc rule")
+		return errors.Wrap(err, "unable to process OIDC rule")
 	}
 	ruleExpression := &ruleExpression{parsedRule}
 	*r = *ruleExpression

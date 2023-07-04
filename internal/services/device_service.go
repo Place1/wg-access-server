@@ -22,7 +22,7 @@ type DeviceService struct {
 func (d *DeviceService) AddDevice(ctx context.Context, req *proto.AddDeviceReq) (*proto.Device, error) {
 	user, err := authsession.CurrentUser(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
+		return nil, status.Errorf(codes.PermissionDenied, "Not authenticated")
 	}
 
 	device, err := d.DeviceManager.AddDevice(user, req.GetName(), req.GetPublicKey(), req.GetPresharedKey())
@@ -37,13 +37,13 @@ func (d *DeviceService) AddDevice(ctx context.Context, req *proto.AddDeviceReq) 
 func (d *DeviceService) ListDevices(ctx context.Context, req *proto.ListDevicesReq) (*proto.ListDevicesRes, error) {
 	user, err := authsession.CurrentUser(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
+		return nil, status.Errorf(codes.PermissionDenied, "Not authenticated")
 	}
 
 	devices, err := d.DeviceManager.ListDevices(user.Subject)
 	if err != nil {
 		ctxlogrus.Extract(ctx).Error(err)
-		return nil, status.Errorf(codes.Internal, "failed to retrieve devices")
+		return nil, status.Errorf(codes.Internal, "Failed to retrieve devices")
 	}
 	return &proto.ListDevicesRes{
 		Items: mapDevices(devices),
@@ -53,7 +53,7 @@ func (d *DeviceService) ListDevices(ctx context.Context, req *proto.ListDevicesR
 func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDeviceReq) (*emptypb.Empty, error) {
 	user, err := authsession.CurrentUser(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
+		return nil, status.Errorf(codes.PermissionDenied, "Not authenticated")
 	}
 
 	deviceOwner := user.Subject
@@ -77,17 +77,17 @@ func (d *DeviceService) DeleteDevice(ctx context.Context, req *proto.DeleteDevic
 func (d *DeviceService) ListAllDevices(ctx context.Context, req *proto.ListAllDevicesReq) (*proto.ListAllDevicesRes, error) {
 	user, err := authsession.CurrentUser(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.PermissionDenied, "not authenticated")
+		return nil, status.Errorf(codes.PermissionDenied, "Not authenticated")
 	}
 
 	if !user.Claims.IsAdmin() {
-		return nil, status.Errorf(codes.PermissionDenied, "must be an admin")
+		return nil, status.Errorf(codes.PermissionDenied, "Must be an admin")
 	}
 
 	devices, err := d.DeviceManager.ListAllDevices()
 	if err != nil {
 		ctxlogrus.Extract(ctx).Error(err)
-		return nil, status.Errorf(codes.Internal, "failed to retrieve devices")
+		return nil, status.Errorf(codes.Internal, "Failed to retrieve devices")
 	}
 
 	return &proto.ListAllDevicesRes{
@@ -111,9 +111,9 @@ func mapDevice(d *storage.Device) *proto.Device {
 		TransmitBytes:     d.TransmitBytes,
 		Endpoint:          d.Endpoint,
 		/**
-		 * Wireguard is a connectionless UDP protocol - data is only
+		 * WireGuard is a connectionless UDP protocol - data is only
 		 * sent over the wire when the client is sending real traffic.
-		 * Wireguard has no keep alive packets by default to remain as
+		 * WireGuard has no keep alive packets by default to remain as
 		 * silent as possible.
 		 *
 		 */

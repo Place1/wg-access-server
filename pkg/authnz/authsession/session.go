@@ -28,7 +28,7 @@ func GetSession(store sessions.Store, r *http.Request) (*AuthSession, error) {
 		}
 		return s, nil
 	}
-	return nil, errors.New("session not authenticated")
+	return nil, errors.New("Session not authenticated")
 }
 
 func SetSession(store sessions.Store, r *http.Request, w http.ResponseWriter, s *AuthSession) error {
@@ -41,6 +41,11 @@ func SetSession(store sessions.Store, r *http.Request, w http.ResponseWriter, s 
 	if err := session.Save(r, w); err != nil {
 		return err
 	}
+
+	if s.Identity != nil {
+		logrus.Infof("Creating web session with provider '%s' for user '%s' (remote address: %s)", s.Identity.Provider, s.Identity.Name, r.RemoteAddr)
+	}
+
 	return nil
 }
 
@@ -64,7 +69,7 @@ func CurrentUser(ctx context.Context) (*Identity, error) {
 			return session.Identity, nil
 		}
 	}
-	return nil, errors.New("unauthenticated")
+	return nil, errors.New("Unauthenticated")
 }
 
 func Authenticated(ctx context.Context) bool {

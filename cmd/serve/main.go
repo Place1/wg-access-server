@@ -88,7 +88,7 @@ func (cmd *servecmd) Run() {
 		logrus.Fatal(err)
 	}
 	if !vpnip.IsValid() && !vpnipv6.IsValid() {
-		logrus.Fatal("need at least one of VPN.CIDR or VPN.CIDRv6 set")
+		logrus.Fatal("Need at least one of VPN.CIDR or VPN.CIDRv6 set")
 	}
 
 	// Allow traffic to wg-access-server's peer endpoint.
@@ -120,12 +120,12 @@ func (cmd *servecmd) Run() {
 		}
 		wgimpl, err := wgembed.NewWithOpts(wgOpts)
 		if err != nil {
-			logrus.Fatal(errors.Wrap(err, "failed to create wireguard interface"))
+			logrus.Fatal(errors.Wrap(err, "failed to create WireGuard interface"))
 		}
 		defer wgimpl.Close()
 		wg = wgimpl
 
-		logrus.Infof("starting wireguard server on :%d", conf.WireGuard.Port)
+		logrus.Infof("Starting WireGuard server on :%d", conf.WireGuard.Port)
 
 		wgconfig := &wgembed.ConfigFile{
 			Interface: wgembed.IfaceConfig{
@@ -136,11 +136,11 @@ func (cmd *servecmd) Run() {
 		}
 
 		if err := wg.LoadConfig(wgconfig); err != nil {
-			logrus.Error(errors.Wrap(err, "failed to load wireguard config"))
+			logrus.Error(errors.Wrap(err, "failed to load WireGuard config"))
 			return
 		}
 
-		logrus.Infof("wireguard VPN network is %s", network.StringJoinIPNets(vpnip, vpnipv6))
+		logrus.Infof("WireGuard VPN network is %s", network.StringJoinIPNets(vpnip, vpnipv6))
 
 		options := network.ForwardingOptions{
 			GatewayIface:    conf.VPN.GatewayInterface,
@@ -263,7 +263,7 @@ func (cmd *servecmd) Run() {
 
 	go func() {
 		// Start Web server
-		logrus.Infof("web ui listening on %v", address)
+		logrus.Infof("Web UI listening on %v", address)
 		err := srv.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errChan <- errors.Wrap(err, "unable to start http server")
@@ -307,7 +307,7 @@ func (cmd *servecmd) ReadConfig() *config.AppConfig {
 
 	if !cmd.AppConfig.Auth.IsEnabled() {
 		if cmd.AppConfig.AdminPassword == "" {
-			logrus.Fatal("missing admin password: please set via environment variable, flag or config file")
+			logrus.Fatal("Missing admin password: please set via environment variable, flag or config file")
 		}
 	}
 
@@ -382,7 +382,7 @@ func detectDNSUpstream(ipv4Enabled, ipv6Enabled bool) []string {
 		upstream = resolvconf.GetNameservers(r.Content, types.IP)
 	}
 	if len(upstream) == 0 {
-		logrus.Warn("failed to get nameservers from /etc/resolv.conf defaulting to Cloudflare DNS instead")
+		logrus.Warn("Failed to get nameservers from /etc/resolv.conf defaulting to Cloudflare DNS instead")
 		// If there's no default route for IPv6, lookup fails immediately without delay and we retry using IPv4
 		if ipv6Enabled {
 			upstream = append(upstream, "2606:4700:4700::1111")
@@ -415,7 +415,7 @@ func detectDefaultInterface() string {
 			}
 		}
 	}
-	logrus.Warn(errors.New("could not determine the default network interface name"))
+	logrus.Warn(errors.New("Could not determine the default network interface name"))
 	return ""
 }
 
@@ -444,7 +444,7 @@ func generateZone(deviceManager *devices.DeviceManager, vpnips []netip.Addr) dns
 	return zone
 }
 
-var missingPrivateKey = `missing wireguard private key:
+var missingPrivateKey = `Missing WireGuard private key:
 
     create a key:
 

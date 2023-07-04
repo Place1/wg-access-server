@@ -38,16 +38,16 @@ func New(wg wgembed.WireGuardInterface, s storage.Storage, cidr, cidrv6 string) 
 func (d *DeviceManager) StartSync(disableMetadataCollection, enableInactiveDeviceDeletion bool, inactiveDeviceGracePeriod time.Duration) error {
 	// Start listening to the device add/remove events
 	d.storage.OnAdd(func(device *storage.Device) {
-		logrus.Debugf("storage event: device added: %s/%s", device.Owner, device.Name)
+		logrus.Infof("Storage event: add device '%s' (public key: '%s') for user: %s %s", device.Name, device.PublicKey, device.OwnerName, device.Owner)
 		if err := d.wg.AddPeer(device.PublicKey, device.PresharedKey, network.SplitAddresses(device.Address)); err != nil {
-			logrus.Error(errors.Wrap(err, "failed to add wireguard peer"))
+			logrus.Error(errors.Wrap(err, "failed to add WireGuard peer"))
 		}
 	})
 
 	d.storage.OnDelete(func(device *storage.Device) {
-		logrus.Debugf("storage event: device removed: %s/%s", device.Owner, device.Name)
+		logrus.Infof("Storage event: remove device '%s' (public key: '%s') for user: %s %s", device.Name, device.PublicKey, device.OwnerName, device.Owner)
 		if err := d.wg.RemovePeer(device.PublicKey); err != nil {
-			logrus.Error(errors.Wrap(err, "failed to remove wireguard peer"))
+			logrus.Error(errors.Wrap(err, "failed to remove WireGuard peer"))
 		}
 	})
 
@@ -114,7 +114,7 @@ func (d *DeviceManager) AddDevice(identity *authsession.Identity, name string, p
 
 	clientAddr, err := d.nextClientAddress()
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to generate an ip address for device")
+		return nil, errors.Wrap(err, "failed to generate an ip address for device")
 	}
 
 	device := &storage.Device{
@@ -181,7 +181,7 @@ func (d *DeviceManager) ListDevices(user string) ([]*storage.Device, error) {
 func (d *DeviceManager) DeleteDevice(user string, name string) error {
 	device, err := d.storage.Get(user, name)
 	if err != nil {
-		return errors.Wrap(err, "Failed to retrieve device")
+		return errors.Wrap(err, "failed to retrieve device")
 	}
 
 	if err := d.storage.Delete(device); err != nil {
@@ -203,7 +203,7 @@ func (d *DeviceManager) nextClientAddress() (string, error) {
 
 	devices, err := d.ListDevices("")
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to list devices")
+		return "", errors.Wrap(err, "failed to list devices")
 	}
 
 	// TODO: read up on better ways to allocate client's IP
@@ -328,7 +328,7 @@ func (d *DeviceManager) Ping() error {
 	}
 
 	if err := d.wg.Ping(); err != nil {
-		return errors.Wrap(err, "failed to ping wireguard")
+		return errors.Wrap(err, "failed to ping WireGuard")
 	}
 
 	return nil

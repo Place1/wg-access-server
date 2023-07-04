@@ -1,2 +1,2 @@
 [files]
-extend-exclude = ["go.sum", "package-lock.json"]
+extend-exclude = ["go.sum", "package-lock.json", "go.mod"]

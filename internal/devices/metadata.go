@@ -15,7 +15,7 @@ func metadataLoop(d *DeviceManager) {
 }
 
 func syncMetrics(d *DeviceManager) {
-	logrus.Debug("metadata sync executing")
+	logrus.Debug("Metadata sync executing")
 
 	peers, err := d.wg.ListPeers()
 	if err != nil {
