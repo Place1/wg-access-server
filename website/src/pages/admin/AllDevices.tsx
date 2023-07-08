@@ -70,6 +70,7 @@ export const AllDevices = observer(class AllDevices extends React.Component {
 
         <Typography variant="h5" component="h5">
           Devices
+            <Typography component="span"> ({devices.filter(p => p.connected).length}  of {devices.length} online)</Typography>
         </Typography>
         <TableContainer>
           <Table stickyHeader>
@@ -119,6 +120,7 @@ export const AllDevices = observer(class AllDevices extends React.Component {
 
         <Typography variant="h5" component="h5">
             Users
+            <Typography component="span"> ({users.length})</Typography>
         </Typography>
         <TableContainer>
             <Table stickyHeader>
