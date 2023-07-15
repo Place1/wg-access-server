@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/freifunkMUC/wg-access-server/proto/proto";
+
+message BuildInfo {
+  string version = 1;
+  string commit = 2;
+}

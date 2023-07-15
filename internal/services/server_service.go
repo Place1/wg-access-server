@@ -13,6 +13,7 @@ import (
 	"github.com/freifunkMUC/wg-access-server/internal/network"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
 	"github.com/freifunkMUC/wg-access-server/proto/proto"
+	"github.com/freifunkMUC/wg-access-server/buildinfo"
 )
 
 type ServerService struct {
@@ -73,6 +74,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		ClientConfigDnsServers:        clientConfigDnsServers(s.Config),
 		ClientConfigDnsSearchDomain:   s.Config.ClientConfig.DNSSearchDomain,
 		ClientConfigMtu:               int32(s.Config.ClientConfig.MTU),
+		BuildInfo:                     &proto.BuildInfo{Version: buildinfo.Version(), Commit: buildinfo.ShortCommitHash()},
 	}, nil
 }
 

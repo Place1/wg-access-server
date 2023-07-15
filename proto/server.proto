@@ -6,6 +6,7 @@ option go_package = "github.com/freifunkMUC/wg-access-server/proto/proto";
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/duration.proto";
+import "buildinfo.proto";
 
 service Server {
   rpc Info(InfoReq) returns (InfoRes) {}
@@ -31,4 +32,5 @@ message InfoRes {
   string client_config_dns_servers = 13;
   string client_config_dns_search_domain = 14;
   int32 client_config_mtu = 15;
+  proto.BuildInfo build_info = 16;
 }

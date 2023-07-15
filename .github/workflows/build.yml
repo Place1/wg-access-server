@@ -43,6 +43,9 @@ jobs:
           cache-to: type=gha,mode=max
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ github.head_ref }}
+            COMMIT=${{ github.sha }}
 
       - name: Inspect Docker image
         run: docker image inspect ${{ steps.meta.outputs.tags }}
