@@ -78,6 +78,14 @@ func (cmd *servecmd) Name() string {
 }
 
 func (cmd *servecmd) Run() {
+
+	// Swallow any panic stacktrace
+	defer func() {
+		if err := recover(); err != nil {
+			logrus.Fatal(err)
+		}
+	}()
+
 	conf := cmd.ReadConfig()
 
 	// Get the server's IP addresses within the VPN

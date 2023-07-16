@@ -42,7 +42,7 @@ func (c *OIDCConfig) Provider() *authruntime.Provider {
 	ctx := context.Background()
 	provider, err := oidc.NewProvider(ctx, c.Issuer)
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "failed to create OIDC provider"))
+		panic(errors.Wrap(err, "failed to create OIDC provider"))
 	}
 	verifier := provider.Verifier(&oidc.Config{ClientID: c.ClientID})
 
