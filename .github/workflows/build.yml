@@ -44,7 +44,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VERSION=${{ github.head_ref }}
+            VERSION=${{ github.head_ref || github.ref_name }}
             COMMIT=${{ github.sha }}
 
       - name: Inspect Docker image
