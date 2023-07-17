@@ -33,6 +33,7 @@ import (
 	"github.com/freifunkMUC/wg-access-server/internal/storage"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authconfig"
+	"github.com/freifunkMUC/wg-access-server/buildinfo"
 )
 
 func Register(app *kingpin.Application) *servecmd {
@@ -88,6 +89,9 @@ func (cmd *servecmd) Run() {
 
 	conf := cmd.ReadConfig()
 
+	// Software banner
+	logrus.Infof("+++ wg-access-server %s (%s)", buildinfo.Version(), buildinfo.ShortCommitHash())
+
 	// Get the server's IP addresses within the VPN
 	var vpnip, vpnipv6 netip.Prefix
 	var err error
@@ -133,7 +137,7 @@ func (cmd *servecmd) Run() {
 		defer wgimpl.Close()
 		wg = wgimpl
 
-		logrus.Infof("Starting WireGuard server on :%d", conf.WireGuard.Port)
+		logrus.Infof("Starting WireGuard on :%d", conf.WireGuard.Port)
 
 		wgconfig := &wgembed.ConfigFile{
 			Interface: wgembed.IfaceConfig{

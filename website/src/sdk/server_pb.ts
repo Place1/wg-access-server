@@ -7,6 +7,7 @@ import * as grpcWeb from 'grpc-web';
 
 import * as googleProtobufWrappers from 'google-protobuf/google/protobuf/wrappers_pb';
 import * as googleProtobufDuration from 'google-protobuf/google/protobuf/duration_pb';
+import * as buildinfo from './buildinfo_pb';
 
 export class Server {
 
@@ -123,6 +124,7 @@ export declare namespace InfoRes {
 		clientConfigDnsServers: string,
 		clientConfigDnsSearchDomain: string,
 		clientConfigMtu: number,
+		buildInfo?: buildinfo.BuildInfo.AsObject,
 	}
 }
 
@@ -245,6 +247,14 @@ export class InfoRes extends jspb.Message {
 		(jspb.Message as any).setProto3IntField(this, 15, value);
 	}
 
+	getBuildInfo(): buildinfo.BuildInfo {
+		return jspb.Message.getWrapperField(this, buildinfo.BuildInfo, 16);
+	}
+
+	setBuildInfo(value?: buildinfo.BuildInfo): void {
+		(jspb.Message as any).setWrapperField(this, 16, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		InfoRes.serializeBinaryToWriter(this, writer);
@@ -269,6 +279,7 @@ export class InfoRes extends jspb.Message {
 			clientConfigDnsServers: this.getClientConfigDnsServers(),
 			clientConfigDnsSearchDomain: this.getClientConfigDnsSearchDomain(),
 			clientConfigMtu: this.getClientConfigMtu(),
+			buildInfo: (f = this.getBuildInfo()) && f.toObject(),
 		};
 	}
 
@@ -332,6 +343,10 @@ export class InfoRes extends jspb.Message {
 		const field15 = message.getClientConfigMtu();
 		if (field15 != 0) {
 			writer.writeInt32(15, field15);
+		}
+		const field16 = message.getBuildInfo();
+		if (field16 != null) {
+			writer.writeMessage(16, field16, buildinfo.BuildInfo.serializeBinaryToWriter);
 		}
 	}
 
@@ -410,6 +425,11 @@ export class InfoRes extends jspb.Message {
 				const field15 = reader.readInt32()
 				message.setClientConfigMtu(field15);
 				break;
+			case 16:
+				const field16 = new buildinfo.BuildInfo();
+				reader.readMessage(field16, buildinfo.BuildInfo.deserializeBinaryFromReader);
+				message.setBuildInfo(field16);
+				break;
 			default:
 				reader.skipField();
 				break;
@@ -449,6 +469,7 @@ function InfoResFromObject(obj: InfoRes.AsObject | undefined): InfoRes | undefin
 	message.setClientConfigDnsServers(obj.clientConfigDnsServers);
 	message.setClientConfigDnsSearchDomain(obj.clientConfigDnsSearchDomain);
 	message.setClientConfigMtu(obj.clientConfigMtu);
+	message.setBuildInfo(BuildInfoFromObject(obj.buildInfo));
 	return message;
 }
 
@@ -468,6 +489,16 @@ function DurationFromObject(obj: googleProtobufDuration.Duration.AsObject | unde
 	const message = new googleProtobufDuration.Duration();
 	message.setSeconds(obj.seconds);
 	message.setNanos(obj.nanos);
+	return message;
+}
+
+function BuildInfoFromObject(obj: buildinfo.BuildInfo.AsObject | undefined): buildinfo.BuildInfo | undefined {
+	if (obj === undefined) {
+		return undefined;
+	}
+	const message = new buildinfo.BuildInfo();
+	message.setVersion(obj.version);
+	message.setCommit(obj.commit);
 	return message;
 }
 

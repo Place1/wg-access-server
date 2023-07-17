@@ -12,6 +12,8 @@ FROM golang:1.20.5-alpine as server
 RUN apk add --no-cache gcc musl-dev
 WORKDIR /code
 ENV CGO_ENABLED=1
+ARG VERSION=development
+ARG COMMIT="-"
 COPY ./go.mod ./
 COPY ./go.sum ./
 RUN go mod download
@@ -21,6 +23,9 @@ COPY ./main.go ./main.go
 COPY ./cmd/ ./cmd/
 COPY ./pkg/ ./pkg/
 COPY ./internal/ ./internal/
+COPY ./buildinfo/ ./buildinfo/
+RUN echo "Using: Version: ${VERSION}, Commit: ${COMMIT}"
+RUN go generate buildinfo/buildinfo.go
 RUN go build -o wg-access-server
 
 ### Server
