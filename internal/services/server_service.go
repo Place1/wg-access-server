@@ -9,11 +9,11 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/freifunkMUC/wg-access-server/buildinfo"
 	"github.com/freifunkMUC/wg-access-server/internal/config"
 	"github.com/freifunkMUC/wg-access-server/internal/network"
 	"github.com/freifunkMUC/wg-access-server/pkg/authnz/authsession"
 	"github.com/freifunkMUC/wg-access-server/proto/proto"
-	"github.com/freifunkMUC/wg-access-server/buildinfo"
 )
 
 type ServerService struct {
@@ -75,6 +75,7 @@ func (s *ServerService) Info(ctx context.Context, req *proto.InfoReq) (*proto.In
 		ClientConfigDnsSearchDomain:   s.Config.ClientConfig.DNSSearchDomain,
 		ClientConfigMtu:               int32(s.Config.ClientConfig.MTU),
 		BuildInfo:                     &proto.BuildInfo{Version: buildinfo.Version(), Commit: buildinfo.ShortCommitHash()},
+		Mtu:                           int32(s.Config.WireGuard.MTU),
 	}, nil
 }
 

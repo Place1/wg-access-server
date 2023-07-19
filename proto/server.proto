@@ -33,4 +33,5 @@ message InfoRes {
   string client_config_dns_search_domain = 14;
   int32 client_config_mtu = 15;
   proto.BuildInfo build_info = 16;
+  int32 mtu = 17;
 }

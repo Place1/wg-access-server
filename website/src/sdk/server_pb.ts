@@ -125,6 +125,7 @@ export declare namespace InfoRes {
 		clientConfigDnsSearchDomain: string,
 		clientConfigMtu: number,
 		buildInfo?: buildinfo.BuildInfo.AsObject,
+		mtu: number,
 	}
 }
 
@@ -255,6 +256,13 @@ export class InfoRes extends jspb.Message {
 		(jspb.Message as any).setWrapperField(this, 16, value);
 	}
 
+	getMtu(): number {return jspb.Message.getFieldWithDefault(this, 17, 0);
+	}
+
+	setMtu(value: number): void {
+		(jspb.Message as any).setProto3IntField(this, 17, value);
+	}
+
 	serializeBinary(): Uint8Array {
 		const writer = new jspb.BinaryWriter();
 		InfoRes.serializeBinaryToWriter(this, writer);
@@ -280,6 +288,7 @@ export class InfoRes extends jspb.Message {
 			clientConfigDnsSearchDomain: this.getClientConfigDnsSearchDomain(),
 			clientConfigMtu: this.getClientConfigMtu(),
 			buildInfo: (f = this.getBuildInfo()) && f.toObject(),
+			mtu: this.getMtu(),
 		};
 	}
 
@@ -347,6 +356,10 @@ export class InfoRes extends jspb.Message {
 		const field16 = message.getBuildInfo();
 		if (field16 != null) {
 			writer.writeMessage(16, field16, buildinfo.BuildInfo.serializeBinaryToWriter);
+		}
+		const field17 = message.getMtu();
+		if (field17 != 0) {
+			writer.writeInt32(17, field17);
 		}
 	}
 
@@ -430,6 +443,10 @@ export class InfoRes extends jspb.Message {
 				reader.readMessage(field16, buildinfo.BuildInfo.deserializeBinaryFromReader);
 				message.setBuildInfo(field16);
 				break;
+			case 17:
+				const field17 = reader.readInt32()
+				message.setMtu(field17);
+				break;
 			default:
 				reader.skipField();
 				break;
@@ -470,6 +487,7 @@ function InfoResFromObject(obj: InfoRes.AsObject | undefined): InfoRes | undefin
 	message.setClientConfigDnsSearchDomain(obj.clientConfigDnsSearchDomain);
 	message.setClientConfigMtu(obj.clientConfigMtu);
 	message.setBuildInfo(BuildInfoFromObject(obj.buildInfo));
+	message.setMtu(obj.mtu);
 	return message;
 }
 
