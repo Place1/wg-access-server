@@ -103,7 +103,7 @@ func (d *DNSServer) ListenAndServe() {
 		}
 		go func(server *dns.Server) {
 			if err := server.ListenAndServe(); err != nil {
-				logrus.Error(errors.Errorf("Dailed to start DNS server on %s/%s: %s", server.Addr, server.Net, err))
+				logrus.Error(errors.Errorf("Failed to start DNS server on %s/%s: %s", server.Addr, server.Net, err))
 				wg.Done()
 			}
 		}(server)

@@ -70,6 +70,9 @@ type AppConfig struct {
 		// The WireGuard ListenPort
 		// Defaults to 51820
 		Port int `yaml:"port"`
+		// The maximum transmission unit (MTU) used on the server-side.
+		// Empty by default.
+		MTU int `yaml:"mtu"`
 	} `yaml:"wireguard"`
 	// Configure VPN related settings (networking)
 	VPN struct {
