@@ -43,30 +43,10 @@ func main() {
 		},
 	})
 
-	// Hooks
-	logrus.AddHook(&GrpcInfoLogDemotionHook{})
-
 	for _, c := range commands {
 		if clicmd == c.Name() {
 			c.Run()
 			return
 		}
 	}
-}
-
-// Logrus hook for downgrading these 'finished unary call...' GRPC info logs to debug.
-type GrpcInfoLogDemotionHook struct {
-}
-
-func (h *GrpcInfoLogDemotionHook) Levels() []logrus.Level {
-	// Only concerns info entries.
-	return []logrus.Level{logrus.InfoLevel}
-}
-
-func (h *GrpcInfoLogDemotionHook) Fire(e *logrus.Entry) error {
-	// Demotes info log lines like `INFO[0010]options.go:220 finished unary call with code OK grpc.code=OK grpc.method=ListDevices...` to debug level.
-	if e.Data != nil && e.Data["system"] == "grpc" && e.Data["grpc.code"] == "OK" {
-		e.Level = logrus.DebugLevel
-	}
-	return nil
 }

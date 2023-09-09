@@ -19,6 +19,7 @@ import (
 	"github.com/freifunkMUC/wg-access-server/internal/devices"
 	"github.com/freifunkMUC/wg-access-server/internal/traces"
 	"github.com/freifunkMUC/wg-access-server/proto/proto"
+	"github.com/sirupsen/logrus"
 )
 
 type ApiServices struct {
@@ -34,7 +35,7 @@ func ApiRouter(deps *ApiServices) http.Handler {
 		grpc.UnaryInterceptor(grpcMiddleware.ChainUnaryServer(
 			func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 				// wrapped in anonymous func to get ctx
-				return grpcLogrus.UnaryServerInterceptor(traces.Logger(ctx))(ctx, req, info, handler)
+				return grpcLogrus.UnaryServerInterceptor(grpcLoggerWith(ctx))(ctx, req, info, handler)
 			},
 			grpcRecovery.UnaryServerInterceptor(
 				grpcRecovery.WithRecoveryHandlerContext(func(ctx context.Context, p interface{}) (err error) {
@@ -71,4 +72,13 @@ func ApiRouter(deps *ApiServices) http.Handler {
 		w.WriteHeader(400)
 		fmt.Fprintln(w, "expected grpc request")
 	})
+}
+
+// GRPC events have the nature of DEBUG logs but are logged with INFO level. To clean up the log stream starting from INFO log level we only log WARN events.
+func grpcLoggerWith(ctx context.Context) *logrus.Entry {
+	if (logrus.GetLevel() == logrus.TraceLevel || logrus.GetLevel() == logrus.DebugLevel) {
+		return traces.Logger(ctx)
+	} else {
+		return traces.WarnLogger(ctx)
+	}
 }
