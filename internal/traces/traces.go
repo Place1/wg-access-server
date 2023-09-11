@@ -30,9 +30,8 @@ func Logger(ctx context.Context) *logrus.Entry {
 // Creates a new instance of the logger which only logs WARNING events.
 // We use it as logger for the GRPC events which are hardcoded as INFO level and pollute the logs.
 func WarnLogger(ctx context.Context) *logrus.Entry {
-	warnLevel, _ := logrus.ParseLevel("warn")
-	warnLogger := logrus.New();
-	warnLogger.SetLevel(warnLevel)
+	warnLogger := logrus.New()
+	warnLogger.SetLevel(logrus.WarnLevel)
 	return warnLogger.WithField("trace.id", TraceID(ctx))
 }
 
