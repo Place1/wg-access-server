@@ -14,7 +14,7 @@
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.61",
     "@mui/icons-material": "^5.14.3",
-    "@mui/material": "^5.13.7",
+    "@mui/material": "^5.14.5",
     "common-tags": "^1.8.2",
     "date-fns": "^2.30.0",
     "google-protobuf": "^4.0.0-rc.1",
