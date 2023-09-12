@@ -38,6 +38,10 @@
     "@types/react-router-dom": "^5.3.3",
     "grpc-ts-web": "^0.2.0",
     "prettier": "^3.0.3",
+    "typescript": "^5.2.2",
+    "fork-ts-checker-webpack-plugin": "^6.5.3"
+  },
+  "overrides": {
     "typescript": "^5.2.2"
   },
   "proxy": "http://localhost:8000/api",
