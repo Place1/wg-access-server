@@ -10,7 +10,7 @@ import Tabs from '@material-ui/core/Tabs';
 import { GetApp } from '@material-ui/icons';
 import Laptop from '@material-ui/icons/Laptop';
 import PhoneIphone from '@material-ui/icons/PhoneIphone';
-import React from 'react';
+import React, { Component, PropsWithChildren } from 'react';
 import { AppState } from '../AppState';
 import { isMobile } from '../Platform';
 import { download } from '../Util';
@@ -23,7 +23,7 @@ interface Props {
   showMobile: boolean;
 }
 
-export class GetConnected extends React.Component<Props> {
+export class GetConnected extends Component<PropsWithChildren<Props>, any> {
   state = {
     currentTab: isMobile() && this.props.showMobile ? 'mobile' : 'desktop',
   };
