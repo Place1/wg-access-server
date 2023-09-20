@@ -141,6 +141,19 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
   }
 
   render() {
+
+    const handleClose = (event: any, reason: string) => {
+      if (reason === "backdropClick") {
+        return false;
+      }
+
+      if (reason === "escapeKeyDown") {
+        return false;
+      }
+
+      return true
+    };
+
     return (
       <>
         <Card>
@@ -206,7 +219,7 @@ export const AddDevice = observer(class AddDevice extends React.Component<Props>
             </form>
           </CardContent>
         </Card>
-        <Dialog disableBackdropClick disableEscapeKeyDown maxWidth="xl" open={this.dialogOpen}>
+        <Dialog disableEscapeKeyDown maxWidth="xl" open={this.dialogOpen} onClose={handleClose}>
           <DialogTitle>
             Get Connected
             <Info>
