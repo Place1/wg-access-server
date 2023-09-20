@@ -63,7 +63,7 @@ export class GetConnected extends React.Component<Props> {
         </Paper>
 
         <TabPanel for="desktop" value={this.state.currentTab}>
-          <Grid container direction="row" justify="space-around" alignItems="center">
+          <Grid container direction="row" justifyContent="space-around" alignItems="center">
             <List>
               <ListItem>
                 <ListItemText style={{ width: 300 }} primary="1. Install the WireGuard App" />
@@ -96,7 +96,7 @@ export class GetConnected extends React.Component<Props> {
 
         {this.props.showMobile && 
         <TabPanel for="mobile" value={this.state.currentTab}>
-          <Grid container direction="row" justify="space-around" alignItems="center">
+          <Grid container direction="row" justifyContent="space-around" alignItems="center">
             <Grid item>
               <List>
                 <ListItem>
