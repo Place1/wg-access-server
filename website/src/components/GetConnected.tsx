@@ -10,7 +10,7 @@ import Tabs from '@material-ui/core/Tabs';
 import { GetApp } from '@material-ui/icons';
 import Laptop from '@material-ui/icons/Laptop';
 import PhoneIphone from '@material-ui/icons/PhoneIphone';
-import React from 'react';
+import React, { Component, PropsWithChildren } from 'react';
 import { AppState } from '../AppState';
 import { isMobile } from '../Platform';
 import { download } from '../Util';
@@ -23,7 +23,7 @@ interface Props {
   showMobile: boolean;
 }
 
-export class GetConnected extends React.Component<Props> {
+export class GetConnected extends Component<PropsWithChildren<Props>, any> {
   state = {
     currentTab: isMobile() && this.props.showMobile ? 'mobile' : 'desktop',
   };
@@ -63,7 +63,7 @@ export class GetConnected extends React.Component<Props> {
         </Paper>
 
         <TabPanel for="desktop" value={this.state.currentTab}>
-          <Grid container direction="row" justify="space-around" alignItems="center">
+          <Grid container direction="row" justifyContent="space-around" alignItems="center">
             <List>
               <ListItem>
                 <ListItemText style={{ width: 300 }} primary="1. Install the WireGuard App" />
@@ -96,7 +96,7 @@ export class GetConnected extends React.Component<Props> {
 
         {this.props.showMobile && 
         <TabPanel for="mobile" value={this.state.currentTab}>
-          <Grid container direction="row" justify="space-around" alignItems="center">
+          <Grid container direction="row" justifyContent="space-around" alignItems="center">
             <Grid item>
               <List>
                 <ListItem>

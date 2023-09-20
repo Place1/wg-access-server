@@ -29,7 +29,7 @@ export const Devices = observer(class Devices extends React.Component {
       return <p>loading...</p>;
     }
     return (
-      <Grid container spacing={3} justify="center">
+      <Grid container spacing={3} justifyContent="center">
         <Grid item xs={12}>
           <Grid container spacing={3}>
             {this.devices.current.map((device, i) => (
