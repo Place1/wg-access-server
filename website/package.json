@@ -1,4 +1,5 @@
 {
+  "name": "wg-access-server-website",
   "scripts": {
     "codegen": "node_modules/.bin/grpc-ts-web -o src/sdk ../proto/*.proto",
     "start": "react-scripts start",
