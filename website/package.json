@@ -19,7 +19,7 @@
     "common-tags": "^1.8.2",
     "date-fns": "^2.30.0",
     "google-protobuf": "^4.0.0-rc.1",
-    "mobx": "^6.10.1",
+    "mobx": "^6.10.2",
     "mobx-react": "^7.6.0",
     "mobx-utils": "^6.0.7",
     "numeral": "^2.0.6",
