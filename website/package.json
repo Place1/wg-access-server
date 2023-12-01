@@ -35,7 +35,7 @@
     "@types/numeral": "^2.0.2",
     "@types/qrcode": "^1.5.2",
     "@types/react": "^18.2.21",
-    "@types/react-dom": "^18.2.7",
+    "@types/react-dom": "^18.2.17",
     "@types/react-router-dom": "^5.3.3",
     "grpc-ts-web": "^0.2.0",
     "prettier": "^3.0.3",
