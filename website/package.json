@@ -31,7 +31,7 @@
     "tweetnacl-ts": "^1.0.3"
   },
   "devDependencies": {
-    "@types/common-tags": "^1.8.1",
+    "@types/common-tags": "^1.8.4",
     "@types/numeral": "^2.0.2",
     "@types/qrcode": "^1.5.2",
     "@types/react": "^18.2.21",
