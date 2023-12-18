@@ -1,6 +1,6 @@
 module github.com/freifunkMUC/wg-access-server
 
-go 1.18
+go 1.19
 
 require (
 	github.com/coreos/go-iptables v0.7.0
