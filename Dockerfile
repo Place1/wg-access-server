@@ -8,7 +8,7 @@ COPY ./website/ ./
 RUN npm run build
 
 ### Build stage for the website backend server
-FROM golang:1.21.0-alpine as server
+FROM golang:1.21.4-alpine as server
 RUN apk add --no-cache gcc musl-dev
 WORKDIR /code
 ENV CGO_ENABLED=1
