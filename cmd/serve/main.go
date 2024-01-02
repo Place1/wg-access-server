@@ -3,7 +3,7 @@ package serve
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/netip"
@@ -302,7 +302,7 @@ func (cmd *servecmd) Run() {
 // ReadConfig reads the config file from disk if specified and overrides any env vars or cmdline options
 func (cmd *servecmd) ReadConfig() *config.AppConfig {
 	if cmd.ConfigFilePath != "" {
-		if b, err := ioutil.ReadFile(cmd.ConfigFilePath); err == nil {
+		if b, err := io.ReadFile(cmd.ConfigFilePath); err == nil {
 			if err := yaml.Unmarshal(b, &cmd.AppConfig); err != nil {
 				logrus.Fatal(errors.Wrap(err, "failed to bind configuration file"))
 			}
