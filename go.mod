@@ -9,7 +9,7 @@ require (
 	github.com/freifunkMUC/pg-events v0.4.2
 	github.com/freifunkMUC/wg-embed v0.10.0
 	github.com/google/uuid v1.5.0
-	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/sessions v1.2.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/improbable-eng/grpc-web v0.15.0
