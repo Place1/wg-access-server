@@ -26,7 +26,7 @@
     "qrcode": "^1.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.21.1",
+    "react-router-dom": "^6.21.2",
     "react-scripts": "^5.0.1",
     "tweetnacl-ts": "^1.0.3"
   },
