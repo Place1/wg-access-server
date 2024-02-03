@@ -1,4 +1,4 @@
-import formatDistance from 'date-fns/formatDistance';
+import { formatDistance } from 'date-fns';
 import timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
 import { toDate } from './Api';
 import { fromResource, lazyObservable } from 'mobx-utils';
