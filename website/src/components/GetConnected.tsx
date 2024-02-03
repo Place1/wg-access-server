@@ -56,9 +56,7 @@ export class GetConnected extends Component<PropsWithChildren<Props>, any> {
             variant="fullWidth"
           >
             <Tab icon={<Laptop />} value="desktop" />
-            {this.props.showMobile && 
-            <Tab icon={<PhoneIphone />} value="mobile" />
-            }
+            {this.props.showMobile && <Tab icon={<PhoneIphone />} value="mobile" />}
           </Tabs>
         </Paper>
 
@@ -71,9 +69,7 @@ export class GetConnected extends Component<PropsWithChildren<Props>, any> {
                   <Button onClick={() => this.go('https://www.WireGuard.com/install/')}>
                     <LinuxIcon />
                   </Button>
-                  <Button
-                    onClick={() => this.go('https://www.wireguard.com/install/')}
-                  >
+                  <Button onClick={() => this.go('https://www.wireguard.com/install/')}>
                     <WindowsIcon />
                   </Button>
                   <Button onClick={() => this.go('https://www.wireguard.com/install/#macos-app-store')}>
@@ -94,28 +90,28 @@ export class GetConnected extends Component<PropsWithChildren<Props>, any> {
           </Grid>
         </TabPanel>
 
-        {this.props.showMobile && 
-        <TabPanel for="mobile" value={this.state.currentTab}>
-          <Grid container direction="row" justifyContent="space-around" alignItems="center">
-            <Grid item>
-              <List>
-                <ListItem>
-                  <ListItemText primary="1. Install the WireGuard app" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="2. Add a tunnel" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="3. Create from QR code" />
-                </ListItem>
-              </List>
+        {this.props.showMobile && (
+          <TabPanel for="mobile" value={this.state.currentTab}>
+            <Grid container direction="row" justifyContent="space-around" alignItems="center">
+              <Grid item>
+                <List>
+                  <ListItem>
+                    <ListItemText primary="1. Install the WireGuard app" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText primary="2. Add a tunnel" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText primary="3. Create from QR code" />
+                  </ListItem>
+                </List>
+              </Grid>
+              <Grid item>
+                <QRCode content={this.props.configFile} />
+              </Grid>
             </Grid>
-            <Grid item>
-              <QRCode content={this.props.configFile} />
-            </Grid>
-          </Grid>
-        </TabPanel>
-        }
+          </TabPanel>
+        )}
       </React.Fragment>
     );
   }
