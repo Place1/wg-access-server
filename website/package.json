@@ -38,7 +38,7 @@
     "@types/react-dom": "^18.2.18",
     "@types/react-router-dom": "^5.3.3",
     "grpc-ts-web": "^0.2.0",
-    "prettier": "^3.0.3",
+    "prettier": "^3.2.4",
     "typescript": "^5.2.2",
     "fork-ts-checker-webpack-plugin": "^9.0.2"
   },
