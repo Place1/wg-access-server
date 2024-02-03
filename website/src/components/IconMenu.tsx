@@ -20,11 +20,7 @@ export function IconMenu(props: Props) {
 
   return (
     <div>
-      <IconButton
-        aria-controls="icon-menu"
-        aria-haspopup="true"
-        onClick={handleClick}
-        size="large">
+      <IconButton aria-controls="icon-menu" aria-haspopup="true" onClick={handleClick} size="large">
         <MoreVertIcon />
       </IconButton>
       <Menu id="icon-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>

@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
-import VpnKey from "@mui/icons-material/VpnKey";
+import VpnKey from '@mui/icons-material/VpnKey';
 
 const useStyles = makeStyles((theme) => ({
   title: {
