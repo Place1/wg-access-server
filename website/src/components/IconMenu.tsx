@@ -1,7 +1,7 @@
 import React from 'react';
-import IconButton from '@material-ui/core/IconButton';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Menu from '@material-ui/core/Menu';
+import IconButton from '@mui/material/IconButton';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Menu from '@mui/material/Menu';
 
 interface Props {
   children: React.ReactNode;
@@ -20,7 +20,11 @@ export function IconMenu(props: Props) {
 
   return (
     <div>
-      <IconButton aria-controls="icon-menu" aria-haspopup="true" onClick={handleClick}>
+      <IconButton
+        aria-controls="icon-menu"
+        aria-haspopup="true"
+        onClick={handleClick}
+        size="large">
         <MoreVertIcon />
       </IconButton>
       <Menu id="icon-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>

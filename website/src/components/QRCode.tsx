@@ -1,7 +1,7 @@
 import React from 'react';
 import qrcode from 'qrcode';
 import { lazy } from '../Util';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress } from '@mui/material';
 
 interface Props {
   content: string;

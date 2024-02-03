@@ -1,15 +1,15 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { getCookie } from '../Cookies';
 import { AppState } from '../AppState';
 import { NavLink } from 'react-router-dom';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
-import Button from '@material-ui/core/Button';
-import Chip from '@material-ui/core/Chip';
-import VpnKey from "@material-ui/icons/VpnKey";
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import VpnKey from "@mui/icons-material/VpnKey";
 
 const useStyles = makeStyles((theme) => ({
   title: {
