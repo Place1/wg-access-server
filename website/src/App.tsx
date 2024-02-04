@@ -8,7 +8,13 @@ import { grpc } from './Api';
 import { AppState } from './AppState';
 import { YourDevices } from './pages/YourDevices';
 import { AllDevices } from './pages/admin/AllDevices';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 export const App = observer(class App extends React.Component {
   async componentDidMount() {
     AppState.info = await grpc.server.info({});
@@ -20,18 +26,20 @@ export const App = observer(class App extends React.Component {
     }
     return (
       <Router>
-        <CssBaseline />
-        <Navigation />
-        <Box component="div" m={2}>
-          <Routes>
-            <Route path="/" element={<YourDevices />} />
-            {AppState.info.isAdmin && (
-              <>
-                <Route path="/admin/all-devices" element={<AllDevices />} />
-              </>
-            )}
-          </Routes>
-        </Box>
+        <ThemeProvider theme={darkTheme}>
+          <CssBaseline />
+          <Navigation />
+          <Box component="div" m={2}>
+            <Routes>
+              <Route path="/" element={<YourDevices />} />
+              {AppState.info.isAdmin && (
+                <>
+                  <Route path="/admin/all-devices" element={<AllDevices />} />
+                </>
+              )}
+            </Routes>
+          </Box>
+        </ThemeProvider>
       </Router>
     );
   }
