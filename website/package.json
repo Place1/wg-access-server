@@ -2,10 +2,9 @@
   "name": "wg-access-server-website",
   "scripts": {
     "codegen": "node_modules/.bin/grpc-ts-web -o src/sdk ../proto/*.proto",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "prettier": "prettier ./src/**/*.{ts,tsx} --write"
   },
   "dependencies": {
@@ -26,8 +25,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
-    "react-scripts": "^5.0.1",
-    "tweetnacl-ts": "^1.0.3"
+    "tweetnacl-ts": "^1.0.3",
+    "vite-tsconfig-paths": "^4.3.1"
   },
   "devDependencies": {
     "@types/common-tags": "^1.8.4",
@@ -36,10 +35,14 @@
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.18",
     "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react-swc": "^3.6.0",
     "fork-ts-checker-webpack-plugin": "^9.0.2",
     "grpc-ts-web": "^0.2.0",
     "prettier": "^3.2.4",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vite": "^5.0.12",
+    "vite-plugin-svgr": "^4.2.0"
   },
   "overrides": {
     "typescript": "^5.2.2",

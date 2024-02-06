@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ESNext",
     "lib": [
       "dom",
       "dom.iterable",
@@ -17,8 +17,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react",
-    "experimentalDecorators": true
+    "jsx": "react-jsx",
+    "experimentalDecorators": true,
+    "types": ["vite/client", "vite-plugin-svgr/client"]
   },
   "include": [
     "src"
