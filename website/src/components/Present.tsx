@@ -4,6 +4,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { AppState } from '../AppState';
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 
@@ -20,7 +22,14 @@ export function present<T>(content: (close: (result: T) => void) => React.ReactN
 }
 
 export function confirm(msg: string): Promise<boolean> {
+  const darkLightTheme = createTheme({
+    palette: {
+      mode: AppState.darkMode ? 'dark' : 'light',
+    },
+  });
+
   return present<boolean>((close) => (
+    <ThemeProvider theme={darkLightTheme}>
     <Dialog open={true} onClose={() => close(false)}>
       <DialogTitle>Confirm</DialogTitle>
       <DialogContent>
@@ -35,5 +44,6 @@ export function confirm(msg: string): Promise<boolean> {
         </Button>
       </DialogActions>
     </Dialog>
+    </ThemeProvider>
   ));
 }
