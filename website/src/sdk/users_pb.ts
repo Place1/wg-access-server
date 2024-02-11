@@ -8,383 +8,412 @@ import * as grpcWeb from 'grpc-web';
 import * as googleProtobufEmpty from 'google-protobuf/google/protobuf/empty_pb';
 
 export class Users {
-  private client_ = new grpcWeb.GrpcWebClientBase({
-    format: 'text',
-  });
 
-  private methodInfoListUsers = new grpcWeb.MethodDescriptor<ListUsersReq, ListUsersRes>(
-    'ListUsers',
-    null,
-    ListUsersReq,
-    ListUsersRes,
-    (req: ListUsersReq) => req.serializeBinary(),
-    ListUsersRes.deserializeBinary,
-  );
+	private client_ = new grpcWeb.GrpcWebClientBase({
+		format: 'text',
+	});
 
-  private methodInfoDeleteUser = new grpcWeb.MethodDescriptor<DeleteUserReq, googleProtobufEmpty.Empty>(
-    'DeleteUser',
-    null,
-    DeleteUserReq,
-    googleProtobufEmpty.Empty,
-    (req: DeleteUserReq) => req.serializeBinary(),
-    googleProtobufEmpty.Empty.deserializeBinary,
-  );
+	private methodInfoListUsers = new grpcWeb.MethodDescriptor<ListUsersReq, ListUsersRes>(
+		"ListUsers",
+		null,
+		ListUsersReq,
+		ListUsersRes,
+		(req: ListUsersReq) => req.serializeBinary(),
+		ListUsersRes.deserializeBinary
+	);
 
-  constructor(
-    private hostname: string,
-    private defaultMetadata?: () => grpcWeb.Metadata,
-  ) {}
+	private methodInfoDeleteUser = new grpcWeb.MethodDescriptor<DeleteUserReq, googleProtobufEmpty.Empty>(
+		"DeleteUser",
+		null,
+		DeleteUserReq,
+		googleProtobufEmpty.Empty,
+		(req: DeleteUserReq) => req.serializeBinary(),
+		googleProtobufEmpty.Empty.deserializeBinary
+	);
 
-  listUsers(req: ListUsersReq.AsObject, metadata?: grpcWeb.Metadata): Promise<ListUsersRes.AsObject> {
-    return new Promise((resolve, reject) => {
-      const message = ListUsersReqFromObject(req);
-      this.client_.rpcCall(
-        this.hostname + '/proto.Users/ListUsers',
-        message,
-        Object.assign({}, this.defaultMetadata ? this.defaultMetadata() : {}, metadata),
-        this.methodInfoListUsers,
-        (err: grpcWeb.Error, res: ListUsersRes) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(res.toObject());
-          }
-        },
-      );
-    });
-  }
+	constructor(
+		private hostname: string,
+		private defaultMetadata?: () => grpcWeb.Metadata,
+	) { }
 
-  deleteUser(req: DeleteUserReq.AsObject, metadata?: grpcWeb.Metadata): Promise<googleProtobufEmpty.Empty.AsObject> {
-    return new Promise((resolve, reject) => {
-      const message = DeleteUserReqFromObject(req);
-      this.client_.rpcCall(
-        this.hostname + '/proto.Users/DeleteUser',
-        message,
-        Object.assign({}, this.defaultMetadata ? this.defaultMetadata() : {}, metadata),
-        this.methodInfoDeleteUser,
-        (err: grpcWeb.Error, res: googleProtobufEmpty.Empty) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(res.toObject());
-          }
-        },
-      );
-    });
-  }
+	listUsers(req: ListUsersReq.AsObject, metadata?: grpcWeb.Metadata): Promise<ListUsersRes.AsObject> {
+		return new Promise((resolve, reject) => {
+			const message = ListUsersReqFromObject(req);
+			this.client_.rpcCall(
+				this.hostname + '/proto.Users/ListUsers',
+				message,
+				Object.assign({}, this.defaultMetadata ? this.defaultMetadata() : {}, metadata),
+				this.methodInfoListUsers,
+				(err: grpcWeb.Error, res: ListUsersRes) => {
+					if (err) {
+						reject(err);
+					} else {
+						resolve(res.toObject());
+					}
+				},
+			);
+		});
+	}
+
+	deleteUser(req: DeleteUserReq.AsObject, metadata?: grpcWeb.Metadata): Promise<googleProtobufEmpty.Empty.AsObject> {
+		return new Promise((resolve, reject) => {
+			const message = DeleteUserReqFromObject(req);
+			this.client_.rpcCall(
+				this.hostname + '/proto.Users/DeleteUser',
+				message,
+				Object.assign({}, this.defaultMetadata ? this.defaultMetadata() : {}, metadata),
+				this.methodInfoDeleteUser,
+				(err: grpcWeb.Error, res: googleProtobufEmpty.Empty) => {
+					if (err) {
+						reject(err);
+					} else {
+						resolve(res.toObject());
+					}
+				},
+			);
+		});
+	}
+
 }
 
+
+
+
 export declare namespace User {
-  export type AsObject = {
-    name: string;
-    displayName: string;
-  };
+	export type AsObject = {
+		name: string,
+		displayName: string,
+	}
 }
 
 export class User extends jspb.Message {
-  private static repeatedFields_ = [];
 
-  constructor(data?: jspb.Message.MessageArray) {
-    super();
-    jspb.Message.initialize(this, data || [], 0, -1, User.repeatedFields_, null);
-  }
+	private static repeatedFields_ = [
+		
+	];
 
-  getName(): string {
-    return jspb.Message.getFieldWithDefault(this, 1, '');
-  }
+	constructor(data?: jspb.Message.MessageArray) {
+		super();
+		jspb.Message.initialize(this, data || [], 0, -1, User.repeatedFields_, null);
+	}
 
-  setName(value: string): void {
-    (jspb.Message as any).setProto3StringField(this, 1, value);
-  }
 
-  getDisplayName(): string {
-    return jspb.Message.getFieldWithDefault(this, 2, '');
-  }
+	getName(): string {return jspb.Message.getFieldWithDefault(this, 1, "");
+	}
 
-  setDisplayName(value: string): void {
-    (jspb.Message as any).setProto3StringField(this, 2, value);
-  }
+	setName(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 1, value);
+	}
 
-  serializeBinary(): Uint8Array {
-    const writer = new jspb.BinaryWriter();
-    User.serializeBinaryToWriter(this, writer);
-    return writer.getResultBuffer();
-  }
+	getDisplayName(): string {return jspb.Message.getFieldWithDefault(this, 2, "");
+	}
 
-  toObject(): User.AsObject {
-    let f: any;
-    return {
-      name: this.getName(),
-      displayName: this.getDisplayName(),
-    };
-  }
+	setDisplayName(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 2, value);
+	}
 
-  static serializeBinaryToWriter(message: User, writer: jspb.BinaryWriter): void {
-    const field1 = message.getName();
-    if (field1.length > 0) {
-      writer.writeString(1, field1);
-    }
-    const field2 = message.getDisplayName();
-    if (field2.length > 0) {
-      writer.writeString(2, field2);
-    }
-  }
+	serializeBinary(): Uint8Array {
+		const writer = new jspb.BinaryWriter();
+		User.serializeBinaryToWriter(this, writer);
+		return writer.getResultBuffer();
+	}
 
-  static deserializeBinary(bytes: Uint8Array): User {
-    var reader = new jspb.BinaryReader(bytes);
-    var message = new User();
-    return User.deserializeBinaryFromReader(message, reader);
-  }
+	toObject(): User.AsObject {
+		let f: any;
+		return {
+			name: this.getName(),
+			displayName: this.getDisplayName(),
+		};
+	}
 
-  static deserializeBinaryFromReader(message: User, reader: jspb.BinaryReader): User {
-    while (reader.nextField()) {
-      if (reader.isEndGroup()) {
-        break;
-      }
-      const field = reader.getFieldNumber();
-      switch (field) {
-        case 1:
-          const field1 = reader.readString();
-          message.setName(field1);
-          break;
-        case 2:
-          const field2 = reader.readString();
-          message.setDisplayName(field2);
-          break;
-        default:
-          reader.skipField();
-          break;
-      }
-    }
-    return message;
-  }
+	static serializeBinaryToWriter(message: User, writer: jspb.BinaryWriter): void {
+		const field1 = message.getName();
+		if (field1.length > 0) {
+			writer.writeString(1, field1);
+		}
+		const field2 = message.getDisplayName();
+		if (field2.length > 0) {
+			writer.writeString(2, field2);
+		}
+	}
+
+	static deserializeBinary(bytes: Uint8Array): User {
+		var reader = new jspb.BinaryReader(bytes);
+		var message = new User();
+		return User.deserializeBinaryFromReader(message, reader);
+	}
+
+	static deserializeBinaryFromReader(message: User, reader: jspb.BinaryReader): User {
+		while (reader.nextField()) {
+			if (reader.isEndGroup()) {
+				break;
+			}
+			const field = reader.getFieldNumber();
+			switch (field) {
+			case 1:
+				const field1 = reader.readString()
+				message.setName(field1);
+				break;
+			case 2:
+				const field2 = reader.readString()
+				message.setDisplayName(field2);
+				break;
+			default:
+				reader.skipField();
+				break;
+			}
+		}
+		return message;
+	}
+
 }
 export declare namespace ListUsersReq {
-  export type AsObject = {};
+	export type AsObject = {
+	}
 }
 
 export class ListUsersReq extends jspb.Message {
-  private static repeatedFields_ = [];
 
-  constructor(data?: jspb.Message.MessageArray) {
-    super();
-    jspb.Message.initialize(this, data || [], 0, -1, ListUsersReq.repeatedFields_, null);
-  }
+	private static repeatedFields_ = [
+		
+	];
 
-  serializeBinary(): Uint8Array {
-    const writer = new jspb.BinaryWriter();
-    ListUsersReq.serializeBinaryToWriter(this, writer);
-    return writer.getResultBuffer();
-  }
+	constructor(data?: jspb.Message.MessageArray) {
+		super();
+		jspb.Message.initialize(this, data || [], 0, -1, ListUsersReq.repeatedFields_, null);
+	}
 
-  toObject(): ListUsersReq.AsObject {
-    let f: any;
-    return {};
-  }
 
-  static serializeBinaryToWriter(message: ListUsersReq, writer: jspb.BinaryWriter): void {}
+	serializeBinary(): Uint8Array {
+		const writer = new jspb.BinaryWriter();
+		ListUsersReq.serializeBinaryToWriter(this, writer);
+		return writer.getResultBuffer();
+	}
 
-  static deserializeBinary(bytes: Uint8Array): ListUsersReq {
-    var reader = new jspb.BinaryReader(bytes);
-    var message = new ListUsersReq();
-    return ListUsersReq.deserializeBinaryFromReader(message, reader);
-  }
+	toObject(): ListUsersReq.AsObject {
+		let f: any;
+		return {
+		};
+	}
 
-  static deserializeBinaryFromReader(message: ListUsersReq, reader: jspb.BinaryReader): ListUsersReq {
-    while (reader.nextField()) {
-      if (reader.isEndGroup()) {
-        break;
-      }
-      const field = reader.getFieldNumber();
-      switch (field) {
-        default:
-          reader.skipField();
-          break;
-      }
-    }
-    return message;
-  }
+	static serializeBinaryToWriter(message: ListUsersReq, writer: jspb.BinaryWriter): void {
+	}
+
+	static deserializeBinary(bytes: Uint8Array): ListUsersReq {
+		var reader = new jspb.BinaryReader(bytes);
+		var message = new ListUsersReq();
+		return ListUsersReq.deserializeBinaryFromReader(message, reader);
+	}
+
+	static deserializeBinaryFromReader(message: ListUsersReq, reader: jspb.BinaryReader): ListUsersReq {
+		while (reader.nextField()) {
+			if (reader.isEndGroup()) {
+				break;
+			}
+			const field = reader.getFieldNumber();
+			switch (field) {
+			default:
+				reader.skipField();
+				break;
+			}
+		}
+		return message;
+	}
+
 }
 export declare namespace ListUsersRes {
-  export type AsObject = {
-    items: Array<User.AsObject>;
-  };
+	export type AsObject = {
+		items: Array<User.AsObject>,
+	}
 }
 
 export class ListUsersRes extends jspb.Message {
-  private static repeatedFields_ = [1];
 
-  constructor(data?: jspb.Message.MessageArray) {
-    super();
-    jspb.Message.initialize(this, data || [], 0, -1, ListUsersRes.repeatedFields_, null);
-  }
+	private static repeatedFields_ = [
+		1,
+	];
 
-  getItems(): Array<User> {
-    return jspb.Message.getRepeatedWrapperField(this, User, 1);
-  }
+	constructor(data?: jspb.Message.MessageArray) {
+		super();
+		jspb.Message.initialize(this, data || [], 0, -1, ListUsersRes.repeatedFields_, null);
+	}
 
-  setItems(value: Array<User>): void {
-    (jspb.Message as any).setRepeatedWrapperField(this, 1, value);
-  }
 
-  addItems(value?: User, index?: number): User {
-    return jspb.Message.addToRepeatedWrapperField(this, 1, value, User, index);
-  }
+	getItems(): Array<User> {
+		return jspb.Message.getRepeatedWrapperField(this, User, 1);
+	}
 
-  serializeBinary(): Uint8Array {
-    const writer = new jspb.BinaryWriter();
-    ListUsersRes.serializeBinaryToWriter(this, writer);
-    return writer.getResultBuffer();
-  }
+	setItems(value: Array<User>): void {
+		(jspb.Message as any).setRepeatedWrapperField(this, 1, value);
+	}
 
-  toObject(): ListUsersRes.AsObject {
-    let f: any;
-    return {
-      items: this.getItems().map((item) => item.toObject()),
-    };
-  }
+	addItems(value?: User, index?: number): User {
+		return jspb.Message.addToRepeatedWrapperField(this, 1, value, User, index);
+	}
 
-  static serializeBinaryToWriter(message: ListUsersRes, writer: jspb.BinaryWriter): void {
-    const field1 = message.getItems();
-    if (field1.length > 0) {
-      writer.writeRepeatedMessage(1, field1, User.serializeBinaryToWriter);
-    }
-  }
+	serializeBinary(): Uint8Array {
+		const writer = new jspb.BinaryWriter();
+		ListUsersRes.serializeBinaryToWriter(this, writer);
+		return writer.getResultBuffer();
+	}
 
-  static deserializeBinary(bytes: Uint8Array): ListUsersRes {
-    var reader = new jspb.BinaryReader(bytes);
-    var message = new ListUsersRes();
-    return ListUsersRes.deserializeBinaryFromReader(message, reader);
-  }
+	toObject(): ListUsersRes.AsObject {
+		let f: any;
+		return {
+			items: this.getItems().map((item) => item.toObject()),
+		};
+	}
 
-  static deserializeBinaryFromReader(message: ListUsersRes, reader: jspb.BinaryReader): ListUsersRes {
-    while (reader.nextField()) {
-      if (reader.isEndGroup()) {
-        break;
-      }
-      const field = reader.getFieldNumber();
-      switch (field) {
-        case 1:
-          const field1 = new User();
-          reader.readMessage(field1, User.deserializeBinaryFromReader);
-          message.addItems(field1);
-          break;
-        default:
-          reader.skipField();
-          break;
-      }
-    }
-    return message;
-  }
+	static serializeBinaryToWriter(message: ListUsersRes, writer: jspb.BinaryWriter): void {
+		const field1 = message.getItems();
+		if (field1.length > 0) {
+			writer.writeRepeatedMessage(1, field1, User.serializeBinaryToWriter);
+		}
+	}
+
+	static deserializeBinary(bytes: Uint8Array): ListUsersRes {
+		var reader = new jspb.BinaryReader(bytes);
+		var message = new ListUsersRes();
+		return ListUsersRes.deserializeBinaryFromReader(message, reader);
+	}
+
+	static deserializeBinaryFromReader(message: ListUsersRes, reader: jspb.BinaryReader): ListUsersRes {
+		while (reader.nextField()) {
+			if (reader.isEndGroup()) {
+				break;
+			}
+			const field = reader.getFieldNumber();
+			switch (field) {
+			case 1:
+				const field1 = new User();
+				reader.readMessage(field1, User.deserializeBinaryFromReader);
+				message.addItems(field1);
+				break;
+			default:
+				reader.skipField();
+				break;
+			}
+		}
+		return message;
+	}
+
 }
 export declare namespace DeleteUserReq {
-  export type AsObject = {
-    name: string;
-  };
+	export type AsObject = {
+		name: string,
+	}
 }
 
 export class DeleteUserReq extends jspb.Message {
-  private static repeatedFields_ = [];
 
-  constructor(data?: jspb.Message.MessageArray) {
-    super();
-    jspb.Message.initialize(this, data || [], 0, -1, DeleteUserReq.repeatedFields_, null);
-  }
+	private static repeatedFields_ = [
+		
+	];
 
-  getName(): string {
-    return jspb.Message.getFieldWithDefault(this, 1, '');
-  }
+	constructor(data?: jspb.Message.MessageArray) {
+		super();
+		jspb.Message.initialize(this, data || [], 0, -1, DeleteUserReq.repeatedFields_, null);
+	}
 
-  setName(value: string): void {
-    (jspb.Message as any).setProto3StringField(this, 1, value);
-  }
 
-  serializeBinary(): Uint8Array {
-    const writer = new jspb.BinaryWriter();
-    DeleteUserReq.serializeBinaryToWriter(this, writer);
-    return writer.getResultBuffer();
-  }
+	getName(): string {return jspb.Message.getFieldWithDefault(this, 1, "");
+	}
 
-  toObject(): DeleteUserReq.AsObject {
-    let f: any;
-    return {
-      name: this.getName(),
-    };
-  }
+	setName(value: string): void {
+		(jspb.Message as any).setProto3StringField(this, 1, value);
+	}
 
-  static serializeBinaryToWriter(message: DeleteUserReq, writer: jspb.BinaryWriter): void {
-    const field1 = message.getName();
-    if (field1.length > 0) {
-      writer.writeString(1, field1);
-    }
-  }
+	serializeBinary(): Uint8Array {
+		const writer = new jspb.BinaryWriter();
+		DeleteUserReq.serializeBinaryToWriter(this, writer);
+		return writer.getResultBuffer();
+	}
 
-  static deserializeBinary(bytes: Uint8Array): DeleteUserReq {
-    var reader = new jspb.BinaryReader(bytes);
-    var message = new DeleteUserReq();
-    return DeleteUserReq.deserializeBinaryFromReader(message, reader);
-  }
+	toObject(): DeleteUserReq.AsObject {
+		let f: any;
+		return {
+			name: this.getName(),
+		};
+	}
 
-  static deserializeBinaryFromReader(message: DeleteUserReq, reader: jspb.BinaryReader): DeleteUserReq {
-    while (reader.nextField()) {
-      if (reader.isEndGroup()) {
-        break;
-      }
-      const field = reader.getFieldNumber();
-      switch (field) {
-        case 1:
-          const field1 = reader.readString();
-          message.setName(field1);
-          break;
-        default:
-          reader.skipField();
-          break;
-      }
-    }
-    return message;
-  }
+	static serializeBinaryToWriter(message: DeleteUserReq, writer: jspb.BinaryWriter): void {
+		const field1 = message.getName();
+		if (field1.length > 0) {
+			writer.writeString(1, field1);
+		}
+	}
+
+	static deserializeBinary(bytes: Uint8Array): DeleteUserReq {
+		var reader = new jspb.BinaryReader(bytes);
+		var message = new DeleteUserReq();
+		return DeleteUserReq.deserializeBinaryFromReader(message, reader);
+	}
+
+	static deserializeBinaryFromReader(message: DeleteUserReq, reader: jspb.BinaryReader): DeleteUserReq {
+		while (reader.nextField()) {
+			if (reader.isEndGroup()) {
+				break;
+			}
+			const field = reader.getFieldNumber();
+			switch (field) {
+			case 1:
+				const field1 = reader.readString()
+				message.setName(field1);
+				break;
+			default:
+				reader.skipField();
+				break;
+			}
+		}
+		return message;
+	}
+
 }
 
+
 function UserFromObject(obj: User.AsObject | undefined): User | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
-  const message = new User();
-  message.setName(obj.name);
-  message.setDisplayName(obj.displayName);
-  return message;
+	if (obj === undefined) {
+		return undefined;
+	}
+	const message = new User();
+	message.setName(obj.name);
+	message.setDisplayName(obj.displayName);
+	return message;
 }
 
 function ListUsersReqFromObject(obj: ListUsersReq.AsObject | undefined): ListUsersReq | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
-  const message = new ListUsersReq();
-  return message;
+	if (obj === undefined) {
+		return undefined;
+	}
+	const message = new ListUsersReq();
+	return message;
 }
 
 function ListUsersResFromObject(obj: ListUsersRes.AsObject | undefined): ListUsersRes | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
-  const message = new ListUsersRes();
-  (obj.items || []).map((item) => UserFromObject(item)).forEach((item) => message.addItems(item));
-  return message;
+	if (obj === undefined) {
+		return undefined;
+	}
+	const message = new ListUsersRes();
+	(obj.items || [])
+		.map((item) => UserFromObject(item))
+		.forEach((item) => message.addItems(item));
+	return message;
 }
 
 function DeleteUserReqFromObject(obj: DeleteUserReq.AsObject | undefined): DeleteUserReq | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
-  const message = new DeleteUserReq();
-  message.setName(obj.name);
-  return message;
+	if (obj === undefined) {
+		return undefined;
+	}
+	const message = new DeleteUserReq();
+	message.setName(obj.name);
+	return message;
 }
 
 function EmptyFromObject(obj: googleProtobufEmpty.Empty.AsObject | undefined): googleProtobufEmpty.Empty | undefined {
-  if (obj === undefined) {
-    return undefined;
-  }
-  const message = new googleProtobufEmpty.Empty();
-  return message;
+	if (obj === undefined) {
+		return undefined;
+	}
+	const message = new googleProtobufEmpty.Empty();
+	return message;
 }
+
